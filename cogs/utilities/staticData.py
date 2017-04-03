@@ -109,3 +109,19 @@ def sigmaValues(battleship):
     except KeyError:
         if battleship in high_cruisers:
             return data['high_tier_cruisers']
+
+def lbasRangeData(shortest_range : int):
+    """Contains range data for LBAS; returns range dictionary"""
+    data ={
+        "Type 2 Large Flying Boat": ["", "", 3, 3, 3, 3, 3, 3, 3, 3],
+        "PBY-5A Catalina": ["","", 3, 3, 2, 2, 2, 2, 1, 1],
+        "Prototype Keiun (Recon)": ["", "", 2, 2, 2, 2, 1, 1, 0, 0],
+        "Saiun": ["", "", 2, 2, 2, 2, 1, 1, 0, 0],
+        "Type 0 Recon Seaplane": ["", "", 2, 2, 2, 1, 1, 0, 0, 0],
+        "Type 2 Recon Aircraft": ["", "", 2, 1, 1, 0, 0, 0, 0, 0]
+    }
+
+    result = {}
+    for x in data:
+        result[x] = data[x][int(shortest_range)]
+    return result
