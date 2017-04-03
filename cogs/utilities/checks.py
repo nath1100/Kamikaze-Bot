@@ -1,5 +1,9 @@
 import discord
 from discord.ext import commands
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 # Permissions checks (pass message)
 # Houraigekisen specific. Not a real administrator check.
@@ -20,3 +24,8 @@ def check_moderator(message):
 # Channel ID checks (pass message)
 def check_soku(message):
     return message.channel.id == '271935186151669774'
+
+def check_nsfwEnabled(message):
+    with open('nsfwChannels.pickle', 'rb') as f:
+        ch_list = pickle.load(f)
+    return message.channel.id in ch_list

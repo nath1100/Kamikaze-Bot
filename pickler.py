@@ -4,19 +4,25 @@ except ImportError:
     import pickle
 import datetime
 
+''' NSFW ENABLED CHANNELS
+nsfwChannels = []
+with open('nsfwChannels.pickle','wb') as f:
+    pickle.dump(nsfwChannels, f)
 '''
+
+''' SOKU IP LIST
 soku_ip = {}
 with open('soku_ip.pickle','wb') as f:
     pickle.dump(soku_ip, f)
 '''
     
-'''
+''' STATUS
 kamikaze_status = ["Waiting for the event"]
 with open('kamikaze_status.pickle', 'wb') as f:
     pickle.dump(kamikaze_status, f)
 '''
 
-'''
+''' DOOMSDAY CLOCK
 doomsday_target = [datetime.datetime(year=2050, month=12, day=31, hour=23, minute=59, second=59), 'remain']
 
 with open('doomsday_target.pickle', 'wb') as f:
