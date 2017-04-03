@@ -44,5 +44,21 @@ class Generic:
         """Ping Kamikaze"""
         await self.bot.say('Pong~')
 
+    @commands.command(pass_context=True)
+    async def info(self, ctx):
+        """Retrieve server information"""
+        try:
+            data = ""
+            data += "Server owner: {}#{}\n".format(ctx.message.server.owner.name, ctx.message.server.owner.discriminator)
+            data += "Server region: {}\n".format(ctx.message.server.region)
+            adminList = []
+            for member in ctx.message.server.members:
+                if ctx.message.channel.permissions_for(member).administrator:
+                    adminList.append(member.name)
+            data += "Administrators: {}\n".format(str(adminList).strip('[]').replace("'",""))
+            await self.bot.say("```{}```".format(data))
+        except Exception as e:
+            await self.bot.say("{}: {}".format(type(e).__name__, e))
+
 def setup(bot):
     bot.add_cog(Generic(bot))
