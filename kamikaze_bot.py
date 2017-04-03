@@ -63,6 +63,9 @@ async def get_version():
 async def on_command_error(error, ctx):
     if isinstance(error, commands.MissingRequiredArgument):
         await bot.send_message(ctx.message.channel, "Did you forget a parameter?")
+    else:
+        await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nA Teitoku has been notified about it. Please be patient~!")
+        await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
 
 #admin and other
 @bot.event

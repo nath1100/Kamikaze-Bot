@@ -51,55 +51,17 @@ class Kancolle:
         except Exception:
             await self.bot.say('Uh oh, something went wrong... PM an admin.')
 
-    @commands.group(pass_context=True)
-    async def lbas(self, ctx):
-        """Contains various LBAS tools"""
-        if ctx.invoked_subcommand is None:
-            await self.bot.say('No such topic found. Use !k.help lbas for a list.')
-
-    @lbas.command()
-    async def range_bonus(self, plane=''): # PLEASE REWORK THIS, IT'S CANCEROUS TO LOOK AT
-        """Displays LBAS scout bonus chart"""
-        data = 'Shortest Range | Range Bonus\n'
-        if plane == '':
-            await self.bot.upload(upload_folder + '\\' + 'lbas_scout_bonus.png')
-        elif plane.lower() == 'type2 large flying boat' or 'taitei' in plane.lower() or 'boat' in plane.lower():
-            for x in range(2, 10):
-                data += '\t\t%s\t\t\t+3\n' % x
-                self.bot.say('```%s```' % data)
-        elif 'catalina' in plane.lower():
-            for x in range(2, 4):
-                data += '\t\t%s\t\t\t+3\n' % x
-            for x in range(4, 8):
-                data += '\t\t%s\t\t\t+2\n' % x
-            for x in range(8, 10):
-                data += '\t\t%s\t\t\t+1\n' % x
-        elif 'keiun' in plane.lower() or 'saiun' in plane.lower():
-            for x in range(2, 6):
-                data += '\t\t%s\t\t\t+2\n' % x
-            for x in range(6, 8):
-                data += '\t\t%s\t\t\t+1\n' % x
-            for x in range(8, 10):
-                data += '\t\t%s\t\t\t+0\n' % x
-        elif 'type0' in plane.lower():
-            for x in range(2, 5):
-                data += '\t\t%s\t\t\t+2\n' % x
-            for x in range(5, 7):
-                data += '\t\t%s\t\t\t+1\n' % x
-            for x in range(7, 10):
-                data += '\t\t%s\t\t\t+0\n' % x
-        elif 'type2' in plane.lower():
-            data += '\t\t2\t\t\t+2\n'
-            for x in range(3, 5):
-                data += '\t\t%s\t\t\t+1\n' % x
-            for x in range(5, 10):
-                data += '\t\t%s\t\t\t+0\n' % x
-        else:
-            await self.bot.say('Invalid scout aircraft')
-            return
-        if plane != '':
-            await self.bot.say('```{}```'.format(data))
-
+    @commands.command(pass_context=True)
+    async def lbasRange(self, ctx, shortest_range : int):
+        """Display LBAS range bonuses given the lowest aircraft range"""
+        try:
+            data = staticData.lbasRangeData(shortest_range)
+            output = 'LBAS range bonuses:\n'
+            for x in data:
+                output += "{}:\n{:>4}\n\n".format(x, data[x])
+            await self.bot.say("```{}```".format(output))
+        except IndexError:
+            await self.bot.say("Please enter a range between 2 and 9.")
 
     @commands.command()
     async def aaci(self):

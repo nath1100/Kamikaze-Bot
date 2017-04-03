@@ -1,3 +1,5 @@
+import discord
+from discord.ext import commands
 try:
     import cPickle as pickle
 except ImportError:

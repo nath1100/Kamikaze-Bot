@@ -39,7 +39,7 @@ class Admin:
             predicate = lambda m: m.author == self.bot.user or m.content.startswith('!k.')
             deleted = await self.bot.purge_from(ctx.message.channel, limit=search+1, check=predicate)
             await asyncio.sleep(1)
-            await self.bot.say("Deleted {} messages.".format(len(deleted)-1))
+            await self.bot.say("Deleted {} message(s).".format(len(deleted)-1))
 
     @commands.command(pass_context=True)
     async def list(self, ctx):
