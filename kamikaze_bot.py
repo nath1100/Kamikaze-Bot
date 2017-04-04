@@ -86,4 +86,9 @@ if __name__ == '__main__':
             print(type(e))
             print(e)
 
+@bot.event
+async def on_server_join(server):
+    # Do something
+    pass
+
 bot.run(token)
