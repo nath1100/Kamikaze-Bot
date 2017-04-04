@@ -1,6 +1,6 @@
 import asyncio, discord, datetime, random
 from discord.ext import commands
-from cogs.utilities import paths, staticData
+from cogs.utilities import paths, staticData, tools
 try:
     import cPickle as pickle
 except ImportError:
@@ -15,16 +15,15 @@ class Kancolle:
     def __init__(self, bot):
         self.bot = bot
 
+    ''' Something broke HARD. Needs looking over.
     @commands.group(pass_context=True)
     async def doomsday(self, ctx):
         """Doomsday counter counting down to something"""
-        try:
-            target, flavour_text = doomsday_target[0], doomsday_target[1]
-            await self.bot.say('Retrieved time data from local scope. (aka, you have trascended time and space and torn through the fabric of space time know as "scope"...)')
-        except NameError:
-            with open('doomsday_target.pickle', 'rb') as f:
-                doomsday_target = pickle.load(f)
-            target, flavour_text = doomsday_target[0], doomsday_target[1]
+        serverID = ctx.message.server.id
+        doomsday_target = tools.loadPickle('doomsday_target.pickle')
+        target = doomsday_target[serverID][0]
+        flavour_text = doomsday_target[serverID][1]
+
         time_left = target - datetime.datetime.now()
         if ((time_left.days*24*60*60) + time_left.seconds) < 0:
             time_left = datetime.datetime(2222, 9, 25, 0, 0, 0) - datetime.datetime.now()
@@ -40,16 +39,19 @@ class Kancolle:
         if ctx.message.content == '!k.doomsday':
             await self.bot.say('**{} days, {} hours, {} minutes and {} seconds {}**'.format(days, hours, minutes, seconds, flavour_text))
 
-    @doomsday.command()
-    async def edit(self, year : int, month : int, day : int, hour : int, minute : int, second : int, flavour_text : str):
+    @doomsday.command(pass_context=True)
+    async def edit(self, ctx, year : int, month : int, day : int, hour : int, minute : int, second : int, *, flavour_text : str):
         """Edits the target date of the doomsday command"""
-        doomsday_target = [datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second), flavour_text]
+        serverID = ctx.message.server.id
+        doomsday_target = tools.loadPickle('doomsday_target.pickle')
+        doomsday_target[serverID] = [datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second), flavour_text]
         try:
-            with open('doomsday_target.pickle', 'wb') as f:
-                pickle.dump(doomsday_target, f)
+            tools.dumpPickle(doomsday_target, 'doomsday_target.pickle')
             await self.bot.say('Successfully updated the doomsday target!')
-        except Exception:
+        except Exception as e:
             await self.bot.say('Uh oh, something went wrong... PM an admin.')
+            await self.bot.say("{}: {}.format(type(e).__name__, e)")
+    '''
 
     @commands.command(pass_context=True)
     async def lbasRange(self, ctx, shortest_range : int):

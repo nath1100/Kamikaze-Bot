@@ -1,6 +1,6 @@
 import discord, random
 from discord.ext import commands
-from cogs.utilities import checks
+from cogs.utilities import checks, tools
 
 class Keywords:
     """Various keywords that trigger responses"""
@@ -35,31 +35,35 @@ class Keywords:
                 await self.bot.send_message(message.channel, response)
 
             elif 'shutup kamikaze' in message.content.lower():
-                with open('kamikaze_chime', 'w') as f:
-                    f.write('False')
+                switch = tools.loadPickle('kamikaze_chime.pickle')
+                switch[message.server.id] = False
+                tools.dumpPickle(switch, 'kamikaze_chime.pickle')
                 await self.bot.send_message(message.channel, 'Sorry... ; A ;')
 
             elif 'sorry kamikaze' in message.content.lower():
-                with open('kamikaze_chime', 'w') as f:
-                    f.write('True')
+                switch = tools.loadPickle('kamikaze_chime.pickle')
+                switch[message.server.id] = True
+                tools.dumpPickle(switch, 'kamikaze_chime.pickle')
                 await self.bot.send_message(message.channel, 'u w u')
 
             elif 'kamikaze' in message.content.lower():
-                with open('kamikaze_chime', 'r') as f:
-                    switch = f.read()
-                if str(switch) == "True":
-                    interruption = ['Did someone call me? :D', 'Someone say my name?']
-                    await self.bot.send_message(message.channel, random.choice(interruption))
-                    msg = await self.bot.wait_for_message(timeout=4, author=message.author)
-                    try:
-                        if 'yes' in msg.content.lower():
-                            await self.bot.send_message(message.channel, 'o w o')
-                        elif 'no' in msg.content.lower():
-                            await self.bot.send_message(message.channel, '> _ <')
-                        elif 'help' in msg.content.lower():
-                            await self.bot.send_message(message.channel, "Say !k.help for a list of commands = w =")
-                    except AttributeError:
-                        pass
+                switch = tools.loadPickle('kamikaze_chime.pickle')
+                try:
+                    if switch[message.server.id]:
+                        interruption = ['Did someone call me? :D', 'Someone say my name?']
+                        await self.bot.send_message(message.channel, random.choice(interruption))
+                        msg = await self.bot.wait_for_message(timeout=4, author=message.author)
+                        try:
+                            if 'yes' in msg.content.lower():
+                                await self.bot.send_message(message.channel, 'o w o')
+                            elif 'no' in msg.content.lower():
+                                await self.bot.send_message(message.channel, '> _ <')
+                            elif 'help' in msg.content.lower():
+                                await self.bot.send_message(message.channel, "Say !k.help for a list of commands = w =")
+                        except AttributeError:
+                            pass
+                except KeyError:
+                    await self.bot.send_message(message.channel, "No server info detected. Please run _serverSetup command.")
 
 def setup(bot):
     bot.add_cog(Keywords(bot))
