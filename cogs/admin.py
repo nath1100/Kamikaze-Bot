@@ -15,19 +15,7 @@ class Admin:
     @commands.command(pass_context=True, hidden=True)
     async def get_discord_version(self, ctx):
         """Output discord.py version"""
-        await self.bot.say(discord.__version__)
-
-    ## TEST BED
-
-    @commands.command(pass_context=True, hidden=True)
-    async def test(self, ctx):
-        """a command being tested"""
-        title = 'An Embed Test'
-        content = "Look! It's a fancy embed!"
-        emb = tools.createEmbed(title, content)
-        await self.bot.send_message(ctx.message.channel, embed=emb)
-
-    ## E/TEST BED'
+        await self.bot.say("discord.py version: **{}**".format(discord.__version__))
 
     @commands.command(pass_context=True, hidden=True)
     async def close(self, ctx):

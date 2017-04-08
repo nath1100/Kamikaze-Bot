@@ -18,7 +18,7 @@ logger.addHandler(handler)
 with open(paths.retrieveToken(), 'r') as f:
     token = f.read()
 
-version = '1.0.2.3'
+version = '1.0.2.4'
 
 extension_list = [
     'cogs.loader',

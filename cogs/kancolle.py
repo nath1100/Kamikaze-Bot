@@ -104,7 +104,7 @@ class Kancolle:
             tags = ['T4/T4/T4/T4', 'T4/T4/T4/T3', 'T4/T4/T4/DC', 'T4/T4/T3/DC', 'T4/T3/T3/DC', 'T3/T3/T3/DC', 'T4/T4/T4', 'T4/T4/T3', 'T4/T4/DC', 'T4/T3/DC', 'T3/T3/DC', 'T4/T4', 'T4/T3', 'T4/DC', 'T3/DC', 'T4', 'T3']
         for x in tags:
             setID = str(oasw_database[kanmusu.lower()][counter])
-            padding = " "*(18 - len(x))
+            padding = "-"*(18 - len(x))
             result += "{0}:{1}**{2}**\n".format(x, padding, setID)
             counter += 1
         title = 'OASW information for ' + kanmusu[0].upper() + kanmusu[1:]
@@ -143,10 +143,13 @@ class Kancolle:
                     await self.bot.say('{}: {}'.format(type(e).__name__, e))
             try:
                 nodes = staticData.airPower(int(field[0]), int(field[1]))
-                data = ''
+                data = 'Node/AS/AS+\n\n'
                 for x in nodes:
-                    data += "{0} - AS {1}, {2}\n".format(x, nodes[x][0], nodes[x][1])
-                await self.bot.say('```Air superiority requirements\n{}```'.format(data))
+                    data += "{0} - **{1}**, {2}\n".format(x, nodes[x][0], nodes[x][1])
+                title = "{}-{} Air Superiority Requirements".format(field[0], field[1])
+                em = tools.createEmbed(title=title, description=data)
+                await self.bot.say(embed=em)
+                #await self.bot.say('```Air superiority requirements\n{}```'.format(data))
             except Exception as e:
                 await self.bot.say("Unable to display AS data.")
                 await self.bot.say('{}: {}'.format(type(e).__name__, e))
