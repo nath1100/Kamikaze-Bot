@@ -96,7 +96,6 @@ class Kancolle:
             else:
                 await self.bot.say("Sorry, couldn't find her in the database.")
                 return
-        await self.bot.say('OASW lvl requirements for ' + kanmusu)
         counter = 0
         result = ''
         if length == 11:
@@ -104,9 +103,13 @@ class Kancolle:
         elif length == 17:
             tags = ['T4/T4/T4/T4', 'T4/T4/T4/T3', 'T4/T4/T4/DC', 'T4/T4/T3/DC', 'T4/T3/T3/DC', 'T3/T3/T3/DC', 'T4/T4/T4', 'T4/T4/T3', 'T4/T4/DC', 'T4/T3/DC', 'T3/T3/DC', 'T4/T4', 'T4/T3', 'T4/DC', 'T3/DC', 'T4', 'T3']
         for x in tags:
-            result += (x + ': ' + str(oasw_database[kanmusu.lower()][counter]) + '\n')
+            setID = str(oasw_database[kanmusu.lower()][counter])
+            padding = " "*(18 - len(x))
+            result += "{0}:{1}{2}\n".format(x, padding, setID)
             counter += 1
-        await self.bot.say('```{}```'.format(result))
+        title = 'OASW information for ' + kanmusu[0].upper() + kanmusu[1:]
+        em = tools.createEmbed(title=title, description=result)
+        await self.bot.say(embed=em)
 
     @commands.command()
     async def akashi(self):
