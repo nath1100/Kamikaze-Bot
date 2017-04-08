@@ -11,6 +11,22 @@ class Generic:
     def __init__(self, bot):
         self.bot = bot
 
+    '''
+    @commands.group(pass_context=True)
+    async def help(self, ctx):
+        """Get some help"""
+        if ctx.invoked_subcommand is None:
+            # print out help
+            cog_list = [x for x in self.bot.cogs]
+            await self.bot.say(cog_list)
+            page = ''
+            for command in self.bot.commands:
+                page += "{}: {}\n".format(command.name, command.description)
+            await self.bot.say(page)
+    '''
+
+    
+
     @commands.command()
     async def fact(self):
         """Receive a random fact from Kamikaze"""

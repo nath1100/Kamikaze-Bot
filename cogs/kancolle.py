@@ -15,7 +15,7 @@ class Kancolle:
     def __init__(self, bot):
         self.bot = bot
 
-    ''' Something broke HARD. Needs looking over.
+    '''
     @commands.group(pass_context=True)
     async def doomsday(self, ctx):
         """Doomsday counter counting down to something"""

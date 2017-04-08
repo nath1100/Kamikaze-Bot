@@ -34,6 +34,7 @@ extension_list = [
 
 description = """Super cute Kamikaze will attend to your KC needs."""
 bot = commands.Bot(command_prefix='!k.', description=description)
+#bot.remove_command('help')
 
 with open('oasw_database.pickle', 'rb') as f:
     oasw_database = pickle.load(f)
