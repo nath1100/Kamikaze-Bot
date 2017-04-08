@@ -3,6 +3,13 @@ try:
 except ImportError:
     import pickle
 import datetime
+
+''' NOTEPAD
+notepad = {}
+with open('notepad.pickle', 'wb') as f:
+    pickle.dump(notepad, f)
+'''
+
 ''' KAMIKAZE KEYWORD
 kamikaze_chime = {"260977178131431425":True}
 with open('kamikaze_chime.pickle', 'wb') as f:
