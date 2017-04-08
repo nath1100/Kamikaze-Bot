@@ -105,7 +105,7 @@ class Kancolle:
         for x in tags:
             setID = str(oasw_database[kanmusu.lower()][counter])
             padding = " "*(18 - len(x))
-            result += "{0}:{1}{2}\n".format(x, padding, setID)
+            result += "{0}:{1}**{2}**\n".format(x, padding, setID)
             counter += 1
         title = 'OASW information for ' + kanmusu[0].upper() + kanmusu[1:]
         em = tools.createEmbed(title=title, description=result)
