@@ -13,3 +13,6 @@ def loadPickle(file : str):
 def dumpPickle(data, file : str):
     with open(file, 'wb') as f:
         pickle.dump(data, f)
+
+def createEmbed(title, description):
+    return discord.Embed(title=title, description=description, color=14031172)

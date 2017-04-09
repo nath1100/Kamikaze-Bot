@@ -1,6 +1,6 @@
 import datetime, discord, asyncio, random, os
 from discord.ext import commands
-from cogs.utilities import paths
+from cogs.utilities import paths, tools
 
 #constants
 upload_folder = paths.uploadFolder()
@@ -10,6 +10,51 @@ class Generic:
 
     def __init__(self, bot):
         self.bot = bot
+
+    '''
+    @commands.group(pass_context=True)
+    async def help(self, ctx):
+        """Get some help"""
+        if ctx.invoked_subcommand is None:
+            # print out help
+            cog_list = [x for x in self.bot.cogs]
+            await self.bot.say(cog_list)
+            page = ''
+            for command in self.bot.commands:
+                page += "{}: {}\n".format(command.name, command.description)
+            await self.bot.say(page)
+    '''
+
+    @commands.command(pass_context=True)
+    async def notepad(self, ctx, *, content : str=None):
+        """Store some text for later viewing. Clear with '!k.notepad clear'"""
+        data = tools.loadPickle('notepad.pickle')
+        author = ctx.message.author
+        if content is None:
+            try:
+                title = "{}'s Notepad".format(author.name)
+                description = ''
+                for x in data[author.id]:
+                    description += "{}\n".format(x)
+                em = discord.Embed(title=title, description=description, colour=author.colour)
+                await self.bot.say(embed=em)
+            except KeyError:
+                await self.bot.say("You haven't written anything in your notepad... (￣～￣;)")
+        elif content == 'clear':
+            data[author.id] = []
+            tools.dumpPickle(data, 'notepad.pickle')
+            await self.bot.say('Your notepad has been cleared~ ( ^ _ ^ )')
+        else:
+            try:
+                data[author.id].append(content)
+                tools.dumpPickle(data, 'notepad.pickle')
+                await self.bot.say("Successfully saved to your notepad! ＼(￣▽￣)／")
+            except KeyError: # when it is first time data appending:
+                await self.bot.say('Setting up your notepad for the first time~ ( ´ ▽ ` )')
+                data[author.id] = []
+                data[author.id].append(content)
+                tools.dumpPickle(data, 'notepad.pickle')
+                await self.bot.say("Successfully saved to your notepad! ＼(￣▽￣)／")
 
     @commands.command()
     async def fact(self):

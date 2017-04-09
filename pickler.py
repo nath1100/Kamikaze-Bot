@@ -3,6 +3,13 @@ try:
 except ImportError:
     import pickle
 import datetime
+
+''' NOTEPAD
+notepad = {}
+with open('notepad.pickle', 'wb') as f:
+    pickle.dump(notepad, f)
+'''
+
 ''' KAMIKAZE KEYWORD
 kamikaze_chime = {"260977178131431425":True}
 with open('kamikaze_chime.pickle', 'wb') as f:
@@ -27,7 +34,7 @@ with open('kamikaze_status.pickle', 'wb') as f:
     pickle.dump(kamikaze_status, f)
 '''
 
-''' DOOMSDAY CLOCK
+'''
 doomsday_target = {"260977178131431425":[datetime.datetime(year=2050, month=12, day=31, hour=23, minute=59, second=59), 'remain']}
 
 with open('doomsday_target.pickle', 'wb') as f:

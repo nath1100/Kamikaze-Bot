@@ -16,14 +16,14 @@ class Soku:
         """Soku IP related commands"""
         soku_ip = tools.loadPickle('soku_ip.pickle')
         try:
-            all_ip = 'Soku IP list:\n'
+            all_ip = ''
             for x in soku_ip:
                 ip = soku_ip[x]
                 for y in range(10):
                     ip = ip.replace(str(y), 'x')
                 ip = soku_ip[x].split('.')[0] + '.' + '.'.join(ip.split('.')[1:])
                 all_ip += '{}: {}\n'.format(x, ip)
-            await self.bot.say('```{}```'.format(all_ip))
+            await self.bot.say(embed=tools.createEmbed(title="Houraigekisen Soku IP list", description=all_ip))
         except Exception as e:
             await self.bot.say('{}: {}'.format(type(e).__name__, e))
 

@@ -13,6 +13,11 @@ class Admin:
         self.bot = bot
 
     @commands.command(pass_context=True, hidden=True)
+    async def get_discord_version(self, ctx):
+        """Output discord.py version"""
+        await self.bot.say("discord.py version: **{}**".format(discord.__version__))
+
+    @commands.command(pass_context=True, hidden=True)
     async def close(self, ctx):
         if checks.check_owner(ctx.message):
             await self.bot.say('Bye Teitoku~')
@@ -43,14 +48,15 @@ class Admin:
 
     @commands.command(pass_context=True)
     async def list(self, ctx):
-        """View list of available cogs"""
+        """View a list of Kamikaze's available cogs"""
         if checks.check_admin(ctx.message):
-            items = os.listdir(".\cogs")
-            cogsList = ''
-            for cogs in items:
-                if cogs.endswith(".py"):
-                    cogsList += (cogs[:-3] + '\n')
-            await self.bot.say("Here's my currently installed modules ( ;・w・)7\n```{}```".format(cogsList)) #dont forget to replace them later
+            unInstalledCogs = str([x for x in os.listdir(".\cogs") if x.endswith(".py") and x[:-3] not in (cog.lower() for cog in self.bot.cogs)]).strip('[]').replace("'","").replace(".py", "")
+            installedCogs = str([x for x in self.bot.cogs]).strip('[]').replace("'","")
+            title = "Kamikaze's Cog Information"
+            description ="**Installed cogs:\n**" + installedCogs + "\n\n**Uninstalled cogs:**\n" + unInstalledCogs
+            em = tools.createEmbed(title, description)
+            await self.bot.say(embed=em)
+            #await self.bot.say("Here's my currently installed modules ( ;・w・)7\n```{}```".format(cogsList)) #dont forget to replace them later
 
     @commands.command(pass_context=True, hidden=True)
     async def _serverSetup(self, ctx):
