@@ -5,7 +5,7 @@ try:
 except ImportError:
     import pickle
 
-# Permissions checks (pass message)
+## Permissions checks (pass message)
 # Houraigekisen specific. Not a real administrator check.
 def check_teitoku(message):
     return message.author.top_role.name == 'Teitoku'
@@ -29,3 +29,12 @@ def check_nsfwEnabled(message):
     with open('nsfwChannels.pickle', 'rb') as f:
         ch_list = pickle.load(f)
     return message.channel.id in ch_list
+
+
+## Type checks
+def convertsToInt(obj):
+    try:
+        int(obj)
+        return True
+    except ValueError:
+        return False
