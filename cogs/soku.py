@@ -11,24 +11,25 @@ class Soku:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def ip(self):
+    @commands.group(pass_context=True)
+    async def ip(self, ctx):
         """Soku IP related commands"""
-        soku_ip = tools.loadPickle('soku_ip.pickle')
-        try:
-            all_ip = ''
-            for x in soku_ip:
-                ip = soku_ip[x]
-                for y in range(10):
-                    ip = ip.replace(str(y), 'x')
-                ip = soku_ip[x].split('.')[0] + '.' + '.'.join(ip.split('.')[1:])
-                all_ip += '{}: {}\n'.format(x, ip)
-            await self.bot.say(embed=tools.createEmbed(title="Houraigekisen Soku IP list", description=all_ip))
-        except Exception as e:
-            await self.bot.say('{}: {}'.format(type(e).__name__, e))
+        if ctx.invoked_subcommand is None:    
+            soku_ip = tools.loadPickle('soku_ip.pickle')
+            try:
+                all_ip = ''
+                for x in soku_ip:
+                    ip = soku_ip[x]
+                    for y in range(10):
+                        ip = ip.replace(str(y), 'x')
+                    ip = soku_ip[x].split('.')[0] + '.' + '.'.join(ip.split('.')[1:])
+                    all_ip += '{}: **{}**\n'.format(x, ip)
+                await self.bot.say(embed=tools.createEmbed(title="Houraigekisen Soku IP list", description=all_ip))
+            except Exception as e:
+                await self.bot.say('{}: {}'.format(type(e).__name__, e))
 
-    @commands.command(pass_context=True)
-    async def addIP(self, ctx, ip : str):
+    @ip.command(pass_context=True)
+    async def add(self, ctx, ip : str):
         """Add yourself to the soku IP list"""
         await self.bot.delete_message(ctx.message)
         soku_ip = tools.loadPickle('soku_ip.pickle')
@@ -42,8 +43,8 @@ class Soku:
             await self.bot.say('Unable to add to IP list')
             #await self.bot.say('{}: {}'.format(type(e).__name__, e))
 
-    @commands.command(pass_context=True, hidden=True)
-    async def addTargetIP(self, ctx, target : str, ip : str):
+    @ip.command(pass_context=True, hidden=True)
+    async def add_other(self, ctx, target : str, ip : str):
         """Add someone else's IP to the list"""
         if checks.check_admin(ctx.message):
             try:
@@ -56,8 +57,8 @@ class Soku:
                 await self.bot.say("Unable to add {} to the IP list.".format(target))
                 #await self.bot.say("{}: {}".format(type(e).__name__, e))
 
-    @commands.command(pass_context=True)
-    async def getIP(self, ctx, target):
+    @ip.command(pass_context=True)
+    async def get(self, ctx, target : str):
         """Retrieve the target user's IP"""
         soku_ip = tools.loadPickle('soku_ip.pickle')
         # you can only retrieve ips in the soku channel
@@ -67,16 +68,17 @@ class Soku:
                 try:
                     ip = soku_ip[target[0].upper() + target[1:].lower()]
                     await self.bot.say("{}'s IP sent to PM.".format(target))
-                    await self.bot.send_message(ctx.message.author, "{}'s IP: {}".format(target, ip))
+                    em = tools.createEmbed(title="{}'s Soku IP".format(target[0].upper() + target[1:]), description=ip)
+                    await self.bot.send_message(ctx.message.author, embed=em)
                 except KeyError:
                     await self.bot.say("Unable to find {} in the list.".format(target))
             except Exception as e:
                 await self.bot.say("{}: {}".format(type(e).__name__, e))
         else:
-            await self.bot.say("You do not have permission to do so.")
+            await self.bot.say("Command must be used in <#{}> in server <{}>".format(self.bot.get_channel('271935186151669774'), self.bot.get_server('260977178131431425')))
 
-    @commands.command(pass_context=True)
-    async def removeIP(self, ctx):
+    @ip.command(pass_context=True)
+    async def remove(self, ctx):
         """Remove your IP from the soku IP list."""
         try:
             soku_ip = tools.loadPickle('soku_ip.pickle')
@@ -90,7 +92,7 @@ class Soku:
 
 
     @commands.command(pass_context=True, hidden=True)
-    async def removeTargetIP(self, ctx, target):
+    async def remove_other(self, ctx, target):
         """Remove an entry from the soku IP list"""
         if checks.check_admin(ctx.message):
             try:
@@ -112,7 +114,6 @@ class Soku:
             except Exception as e:
                 pass
                 #await self.bot.say("{}: {}".format(type(e).__name__, e))
-
 
 def setup(bot):
     bot.add_cog(Soku(bot))

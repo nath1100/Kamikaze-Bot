@@ -26,7 +26,7 @@ extension_list = [
     'cogs.generic',
     'cogs.kancolle',
     'cogs.keywords',
-    'cogs.danbooru',
+    'cogs.internet',
     'cogs.nsfw',
     'cogs.wows',
     'cogs.soku'
