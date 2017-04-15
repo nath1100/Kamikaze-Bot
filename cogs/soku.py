@@ -12,6 +12,13 @@ class Soku:
         self.bot = bot
 
     @commands.group(pass_context=True)
+    async def ranking(self, ctx):
+        """Kamikaze's Soku ranking system"""
+        if ctx.invoked_subcommand is None:
+            # list options
+            pass
+
+    @commands.group(pass_context=True)
     async def ip(self, ctx):
         """Soku IP related commands"""
         if ctx.invoked_subcommand is None:    
