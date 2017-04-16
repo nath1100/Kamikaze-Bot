@@ -57,6 +57,8 @@ class Soku:
             try:
                 await self.bot.delete_message(ctx.message)
                 soku_ip = tools.loadPickle('soku_ip.pickle')
+                if ':' not in ip:
+                    ip += ':10800'
                 soku_ip[target[0].upper() + target[1:].lower()] = ip
                 tools.dumpPickle(soku_ip, 'soku_ip.pickle')
                 await self.bot.say("Successfully added {}'s IP to the list.".format(target))
@@ -65,7 +67,7 @@ class Soku:
                 #await self.bot.say("{}: {}".format(type(e).__name__, e))
 
     @ip.command(pass_context=True)
-    async def get(self, ctx, target : str):
+    async def get(self, ctx, *, target : str):
         """Retrieve the target user's IP"""
         soku_ip = tools.loadPickle('soku_ip.pickle')
         # you can only retrieve ips in the soku channel
@@ -97,8 +99,8 @@ class Soku:
             await self.bot.say("{}: {}".format(type(e).__name__, e))
 
 
-    @commands.command(pass_context=True, hidden=True)
-    async def remove_other(self, ctx, target):
+    @ip.command(pass_context=True, hidden=True)
+    async def remove_other(self, ctx, *, target : str):
         """Remove an entry from the soku IP list"""
         if checks.check_admin(ctx.message):
             try:
