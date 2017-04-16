@@ -1,4 +1,4 @@
-import discord
+import discord, asyncio, random
 from discord.ext import commands
 from cogs.utilities import checks, tools
 try:
@@ -14,8 +14,6 @@ async def sendChallenge(bot, message, opponent : str):
     await bot.send_message(message.channel, "{} has challenged {} to a soku match. Accept? (y/n)".format(message.author.name, opp.mention))
     msg = await bot.wait_for_message(author=opp, check=lambda x: x.content.lower() == 'y' or x.content.lower() == 'n')
     return msg.content.lower() == 'y'
-
-async def getMatchResult(bot, message)
 
 async def wrongServerError(bot, message):
     await bot.send_message(message.channel, "Command must be used in <#{}> in server <{}>".format(bot.get_channel('271935186151669774'), bot.get_server('260977178131431425')))
@@ -35,11 +33,36 @@ class Soku:
     @ranked.command(pass_context=True)
     async def challenge(self, ctx, *, opponent : str):
         """Challenge another opponent!"""
+        MATCH_TIMEOUT = 1
         if checks.check_soku(ctx.message):
             if await sendChallenge(self.bot, ctx.message, opponent):
-                while await getMatchResult(self.bot, ctx.message) != 'c':
-                    # DO SOMETHING HERE
-                    pass
+                message = ctx.message
+                challenger = ctx.message.author
+                opp = message.server.get_member_named(opponent)
+                #create embed
+                title = "Soku: {} vs {}".format(challenger.name, opp.name)
+                description = random.choice(["A fight to the death...", ""])
+                challenger_wins, opp_wins = 0, 0
+                em = tools.createEmbed(title=title, description=description)
+                em.add_field(name=challenger.name, value="Matches won: **{}**".format(challenger_wins))
+                em.add_field(name=opp.name, value="Matches won: **{}**".format(opp_wins))
+                embed_output = await self.bot.say(embed=em)
+                prompt = await self.bot.say("Match result for challenger (**w**in/**l**oss/**c**ancel):")
+                await asyncio.sleep(MATCH_TIMEOUT)
+                msg = await self.bot.wait_for_message(author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
+                while msg.content.lower() != 'c':
+                    if msg.content.lower() == 'w':
+                        challenger_wins += 1
+                        em.set_field_at(index=0, name=challenger.name, value="Matches won: **{}**".format(challenger_wins))
+                    elif msg.content.lower() == 'l':
+                        opp_wins += 1
+                        em.set_field_at(index=1, name=opp.name, value="Matches won: **{}**".format(opp_wins))
+                    await self.bot.delete_messages([prompt, msg, embed_output])
+                    embed_output = await self.bot.say(embed=em)
+                    prompt = await self.bot.say("Match result for challenger: (**w**in/**l**oss/**c**ancel):")
+                    await asyncio.sleep(MATCH_TIMEOUT)
+                    msg = await self.bot.wait_for_message(author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
+                await self.bot.say("Session over")
             else:
                 await self.bot.say("Declined")
         else:
