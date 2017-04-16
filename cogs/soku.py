@@ -13,7 +13,7 @@ class Soku:
 
     @commands.group(pass_context=True)
     async def ranking(self, ctx):
-        """Kamikaze's Soku ranking system"""
+        """Kamikaze's Soku ranking system [WIP]"""
         if ctx.invoked_subcommand is None:
             # list options
             pass
@@ -74,9 +74,8 @@ class Soku:
                 soku_ip = tools.loadPickle('soku_ip.pickle')
                 try:
                     ip = soku_ip[target[0].upper() + target[1:].lower()]
-                    await self.bot.say("{}'s IP sent to PM.".format(target))
                     em = tools.createEmbed(title="{}'s Soku IP".format(target[0].upper() + target[1:]), description=ip)
-                    await self.bot.send_message(ctx.message.author, embed=em)
+                    await self.bot.say(embed=em, delete_after=30)
                 except KeyError:
                     await self.bot.say("Unable to find {} in the list.".format(target))
             except Exception as e:
