@@ -6,17 +6,54 @@ try:
 except ImportError:
     import pickle
 
+async def sendChallenge(bot, message, opponent : str):
+    opp = message.server.get_member_named(opponent)
+    while opp is None:
+        await bot.send_message(message.channel, "User not found (case sensitive).")
+        return
+    await bot.send_message(message.channel, "{} has challenged {} to a soku match. Accept? (y/n)".format(message.author.name, opp.mention))
+    msg = await bot.wait_for_message(author=opp, check=lambda x: x.content.lower() == 'y' or x.content.lower() == 'n')
+    return msg.content.lower() == 'y'
+
+async def getMatchResult(bot, message)
+
+async def wrongServerError(bot, message):
+    await bot.send_message(message.channel, "Command must be used in <#{}> in server <{}>".format(bot.get_channel('271935186151669774'), bot.get_server('260977178131431425')))
+
 class Soku:
     """TH12.3 Hisoutensoku related commands"""
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(pass_context=True)
-    async def ranking(self, ctx):
+    async def ranked(self, ctx):
         """Kamikaze's Soku ranking system [WIP]"""
         if ctx.invoked_subcommand is None:
             # list options
             pass
+
+    @ranked.command(pass_context=True)
+    async def challenge(self, ctx, *, opponent : str):
+        """Challenge another opponent!"""
+        if checks.check_soku(ctx.message):
+            if await sendChallenge(self.bot, ctx.message, opponent):
+                while await getMatchResult(self.bot, ctx.message) != 'c':
+                    # DO SOMETHING HERE
+                    pass
+            else:
+                await self.bot.say("Declined")
+        else:
+            await wrongServerError(self.bot, ctx.message)
+
+    @ranked.command(pass_context=True)
+    async def fieldTest(self, ctx):
+        """test"""
+        title='Field test'
+        description = 'description goes **here**'
+        em = tools.createEmbed(title=title, description=description)
+        em.add_field(name='Field1', value="Some value here")
+        em.add_field(name="Field2", value="Another value\n**with a second line**")
+        await self.bot.say(embed=em)
 
     @commands.group(pass_context=True)
     async def ip(self, ctx):
@@ -83,7 +120,7 @@ class Soku:
             except Exception as e:
                 await self.bot.say("{}: {}".format(type(e).__name__, e))
         else:
-            await self.bot.say("Command must be used in <#{}> in server <{}>".format(self.bot.get_channel('271935186151669774'), self.bot.get_server('260977178131431425')))
+            await wrongServerError(self.bot, ctx.message)
 
     @ip.command(pass_context=True)
     async def remove(self, ctx):
