@@ -4,6 +4,12 @@ except ImportError:
     import pickle
 import datetime
 
+''' COIN STASH
+coin_stash = {'178112312845139969':0}
+with open('coin_stash.pickle', 'wb') as f:
+    pickle.dump(coin_stash, f)
+'''
+
 ''' NOTEPAD
 notepad = {}
 with open('notepad.pickle', 'wb') as f:

@@ -34,8 +34,17 @@ class Admin:
 
     @commands.command(name='say', pass_context=True, hidden=True)
     async def _say(self, ctx, channel_id : str, *, msg : str):
-        if checks.check_owner(ctx.message):
+        if checks.check_owner(ctx.message) or checks.check_admin(ctx.message):
             await self.bot.send_message(discord.Object(id=str(channel_id)), msg)
+            await self.bot.delete_message(ctx.message)
+
+    @commands.command(name='type', pass_context=True, hidden=True)
+    async def _type(self, ctx, channel_id : str, *, msg : str):
+        if checks.check_owner(ctx.message):
+            await self.bot.delete_message(ctx.message)
+            await self.bot.send_typing(self.bot.get_channel(channel_id))
+            await asyncio.sleep(len(msg) / 7)
+            await self.bot.send_message(self.bot.get_channel(channel_id), msg)
 
     @commands.command(pass_context=True)
     async def clean(self, ctx, search=20):
