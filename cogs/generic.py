@@ -107,5 +107,10 @@ class Generic:
         except Exception as e:
             await self.bot.say("{}: {}".format(type(e).__name__, e))
 
+    @commands.command()
+    async def github(self):
+        """Retrieve the Kamikaze repository URL"""
+        await self.bot.say("You can find my sourcecode here: https://github.com/nath1100/Kamikaze-Bot")
+
 def setup(bot):
     bot.add_cog(Generic(bot))

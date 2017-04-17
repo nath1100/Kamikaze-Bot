@@ -14,7 +14,7 @@ class Keywords:
         else:
             if 'marry me kamikaze' == message.content.lower():
                 if checks.check_owner(message): #if you're mintea:
-                    response = random.choice(['Fuck off.', 'Shut up you bastard.', 'Kill yourself.'])
+                    response = random.choice(['Fuck off.', 'Shut up you bastard.', 'Kill yourself.', "Why don't you go jerk off to Asanagi, you Kuso."])
                 else: #otherwise, if you're not mintea:
                     if random.randint(1, 10000) == 1: #roll 0.01% chance for happy end
                         await self.bot.send_message(message.channel, random.choice('Sure~ <3', 'Ok ///w///'))
@@ -52,7 +52,7 @@ class Keywords:
                     if switch[message.server.id]:
                         interruption = ['Did someone call me? :D', 'Someone say my name?']
                         await self.bot.send_message(message.channel, random.choice(interruption))
-                        msg = await self.bot.wait_for_message(timeout=4, author=message.author)
+                        msg = await self.bot.wait_for_message(timeout=4, author=message.author, check=lambda x: x.content.lower() in ['yes', 'no', 'help'])
                         try:
                             if 'yes' in msg.content.lower():
                                 await self.bot.send_message(message.channel, 'o w o')

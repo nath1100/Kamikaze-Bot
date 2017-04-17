@@ -22,6 +22,7 @@ class Soku:
     """TH12.3 Hisoutensoku related commands"""
     def __init__(self, bot):
         self.bot = bot
+        self.coin_emoji = "<:coin:303374759687749632>"
 
     @commands.group(pass_context=True)
     async def ranked(self, ctx):
@@ -41,7 +42,7 @@ class Soku:
                 opp = message.server.get_member_named(opponent)
                 #create embed
                 title = "Soku: {} vs {}".format(challenger.name, opp.name)
-                description = random.choice(["A fight to the death...", ""])
+                description = random.choice(["A fight to the death...", "No holds barred..."])
                 challenger_wins, opp_wins = 0, 0
                 em = tools.createEmbed(title=title, description=description)
                 em.add_field(name=challenger.name, value="Matches won: **{}**".format(challenger_wins))
@@ -67,16 +68,6 @@ class Soku:
                 await self.bot.say("Declined")
         else:
             await wrongServerError(self.bot, ctx.message)
-
-    @ranked.command(pass_context=True)
-    async def fieldTest(self, ctx):
-        """test"""
-        title='Field test'
-        description = 'description goes **here**'
-        em = tools.createEmbed(title=title, description=description)
-        em.add_field(name='Field1', value="Some value here")
-        em.add_field(name="Field2", value="Another value\n**with a second line**")
-        await self.bot.say(embed=em)
 
     @commands.group(pass_context=True)
     async def ip(self, ctx):
@@ -182,6 +173,48 @@ class Soku:
             except Exception as e:
                 pass
                 #await self.bot.say("{}: {}".format(type(e).__name__, e))
+
+    @commands.group(pass_context=True)
+    async def coins(self, ctx):
+        """How many coins do you have?"""
+        if ctx.invoked_subcommand is None:
+            author = ctx.message.author
+            try:
+                coin_stash = tools.loadPickle("coin_stash.pickle")
+                title = "{}'s coin purse".format(author.name)
+                description ="**{}** {}".format(coin_stash[author.id], self.coin_emoji)
+                em = tools.createEmbed(title=title, description=description)
+                await self.bot.say(embed=em)
+                #await self.bot.say("{} has **{}** {}".format(author.mention, coin_stash[author.id], self.coin_emoji))
+            except KeyError:
+                await self.bot.say("You do not have any {}...".format(self.coin_emoji))
+                coin_stash[author.id] = 0
+                tools.dumpPickle(coin_stash, 'coin_stash.pickle')
+
+    @coins.command(pass_context=True)
+    async def all(self, ctx):
+        """Check other people's coins"""
+        coin_stash = tools.loadPickle('coin_stash.pickle')
+        description = '\n'.join([("{}: {} {}".format(ctx.message.server.get_member(x).name, coin_stash[x], self.coin_emoji)) for x in coin_stash])
+        title = "Everyone's coin purses"
+        em = tools.createEmbed(title=title, description=description)
+        await self.bot.say(embed=em)
+
+    async def on_message(self, message):
+        if message.author == self.bot.user:
+            return
+        else:
+            # Probablity of gaining a coin from a sent message
+            if random.choice([False for x in range(69)] + [True]) and message.channel != self.bot.user and message.server.id == "260977178131431425":
+                coin_stash = tools.loadPickle('coin_stash.pickle')
+                try:
+                    coin_stash[message.author.id] += 1
+                except KeyError:
+                    coin_stash[message.author.id] = 1
+                tools.dumpPickle(coin_stash, 'coin_stash.pickle')
+                alert = await self.bot.send_message(message.channel, "{} found a {}:".format(message.author.mention, self.coin_emoji))
+                await asyncio.sleep(3)
+                await self.bot.delete_message(alert)
 
 def setup(bot):
     bot.add_cog(Soku(bot))
