@@ -11,7 +11,7 @@ async def sendChallenge(bot, message, opponent : str):
     if opp is None:
         await bot.send_message(message.channel, "User not found (case sensitive).")
         return
-    elif opp.name.lower() == opponent.lower():
+    elif message.author.name.lower() == opponent.lower():
         await bot.send_message(message.channel, "You cannot challenge yourself...")
         return
     challenge_statement = await bot.send_message(message.channel, "{} has challenged {} to a soku match. Accept? (y/n)".format(message.author.name, opp.mention))

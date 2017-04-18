@@ -52,7 +52,7 @@ class Keywords:
                     if switch[message.server.id]:
                         interruption = ['Did someone call me? :D', 'Someone say my name?']
                         await self.bot.send_message(message.channel, random.choice(interruption))
-                        msg = await self.bot.wait_for_message(timeout=4, author=message.author, check=lambda x: x.content.lower() in ['yes', 'no', 'help'])
+                        msg = await self.bot.wait_for_message(timeout=5, author=message.author, check=lambda x: x.content.lower() in ['yes', 'no', 'help'])
                         try:
                             if 'yes' in msg.content.lower():
                                 await self.bot.send_message(message.channel, 'o w o')
