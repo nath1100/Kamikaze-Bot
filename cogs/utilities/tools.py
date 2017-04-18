@@ -18,7 +18,8 @@ def createEmbed(title, description):
     return discord.Embed(title=title, description=description, color=14031172)
 
 def gainCoins(target, amount : int):
-    coin_stash = tools.loadPickle('coin_stash.pickle')
+    with open('coin_stash.pickle', 'rb') as f:
+        coin_stash = pickle.load(f)
     try:
         coin_stash[target.id] += amount
     except KeyError:
