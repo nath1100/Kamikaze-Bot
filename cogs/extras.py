@@ -43,7 +43,7 @@ class Extras:
             return
         else:
             # Probablity of gaining a coin from a sent message
-            if random.choice([False for x in range(59)] + [True]) and message.channel != self.bot.user and message.server.id == "260977178131431425" and not message.startswith('!k.'):
+            if random.choice([False for x in range(59)] + [True]) and message.channel != self.bot.user and message.server.id == "260977178131431425" and not message.content.startswith('!k.'):
                 coin_stash = tools.loadPickle('coin_stash.pickle')
                 try:
                     coin_stash[message.author.id] += 1
