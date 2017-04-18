@@ -8,12 +8,19 @@ except ImportError:
 
 async def sendChallenge(bot, message, opponent : str):
     opp = message.server.get_member_named(opponent)
-    while opp is None:
+    if opp is None:
         await bot.send_message(message.channel, "User not found (case sensitive).")
         return
-    await bot.send_message(message.channel, "{} has challenged {} to a soku match. Accept? (y/n)".format(message.author.name, opp.mention))
-    msg = await bot.wait_for_message(author=opp, check=lambda x: x.content.lower() == 'y' or x.content.lower() == 'n')
-    return msg.content.lower() == 'y'
+    elif opp.name.lower() == opponent.lower():
+        await bot.send_message(message.channel, "You cannot challenge yourself...")
+        return
+    challenge_statement = await bot.send_message(message.channel, "{} has challenged {} to a soku match. Accept? (y/n)".format(message.author.name, opp.mention))
+    msg = await bot.wait_for_message(timeout=60, author=opp, check=lambda x: x.content.lower() == 'y' or x.content.lower() == 'n')
+    if msg is None:
+        await bot.delete_message(challenge_statement)
+        return
+    else:
+        return msg.content.lower() == 'y'
 
 async def wrongServerError(bot, message):
     await bot.send_message(message.channel, "Command must be used in <#{}> in server <{}>".format(bot.get_channel('271935186151669774'), bot.get_server('260977178131431425')))
@@ -22,7 +29,6 @@ class Soku:
     """TH12.3 Hisoutensoku related commands"""
     def __init__(self, bot):
         self.bot = bot
-        self.coin_emoji = "<:coin:303374759687749632>"
 
     @commands.group(pass_context=True)
     async def ranked(self, ctx):
@@ -34,7 +40,7 @@ class Soku:
     @ranked.command(pass_context=True)
     async def challenge(self, ctx, *, opponent : str):
         """Challenge another opponent!"""
-        MATCH_TIMEOUT = 1
+        MATCH_TIMEOUT = 30
         if checks.check_soku(ctx.message):
             if await sendChallenge(self.bot, ctx.message, opponent):
                 message = ctx.message
@@ -64,6 +70,9 @@ class Soku:
                     await asyncio.sleep(MATCH_TIMEOUT)
                     msg = await self.bot.wait_for_message(author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
                 await self.bot.say("Session over")
+                # Add coins
+                tools.gainCoins(challenger, challenger_wins)
+                tools.gainCoins(opp, opp_wins)
             else:
                 await self.bot.say("Declined")
         else:
@@ -173,48 +182,6 @@ class Soku:
             except Exception as e:
                 pass
                 #await self.bot.say("{}: {}".format(type(e).__name__, e))
-
-    @commands.group(pass_context=True)
-    async def coins(self, ctx):
-        """How many coins do you have?"""
-        if ctx.invoked_subcommand is None:
-            author = ctx.message.author
-            try:
-                coin_stash = tools.loadPickle("coin_stash.pickle")
-                title = "{}'s coin purse".format(author.name)
-                description ="**{}** {}".format(coin_stash[author.id], self.coin_emoji)
-                em = tools.createEmbed(title=title, description=description)
-                await self.bot.say(embed=em)
-                #await self.bot.say("{} has **{}** {}".format(author.mention, coin_stash[author.id], self.coin_emoji))
-            except KeyError:
-                await self.bot.say("You do not have any {}...".format(self.coin_emoji))
-                coin_stash[author.id] = 0
-                tools.dumpPickle(coin_stash, 'coin_stash.pickle')
-
-    @coins.command(pass_context=True)
-    async def all(self, ctx):
-        """Check other people's coins"""
-        coin_stash = tools.loadPickle('coin_stash.pickle')
-        description = '\n'.join([("{}: {} {}".format(ctx.message.server.get_member(x).name, coin_stash[x], self.coin_emoji)) for x in coin_stash])
-        title = "Everyone's coin purses"
-        em = tools.createEmbed(title=title, description=description)
-        await self.bot.say(embed=em)
-
-    async def on_message(self, message):
-        if message.author == self.bot.user:
-            return
-        else:
-            # Probablity of gaining a coin from a sent message
-            if random.choice([False for x in range(69)] + [True]) and message.channel != self.bot.user and message.server.id == "260977178131431425":
-                coin_stash = tools.loadPickle('coin_stash.pickle')
-                try:
-                    coin_stash[message.author.id] += 1
-                except KeyError:
-                    coin_stash[message.author.id] = 1
-                tools.dumpPickle(coin_stash, 'coin_stash.pickle')
-                alert = await self.bot.send_message(message.channel, "{} found a {}:".format(message.author.mention, self.coin_emoji))
-                await asyncio.sleep(3)
-                await self.bot.delete_message(alert)
 
 def setup(bot):
     bot.add_cog(Soku(bot))

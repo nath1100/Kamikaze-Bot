@@ -16,3 +16,12 @@ def dumpPickle(data, file : str):
 
 def createEmbed(title, description):
     return discord.Embed(title=title, description=description, color=14031172)
+
+def gainCoins(target, amount : int):
+    coin_stash = tools.loadPickle('coin_stash.pickle')
+    try:
+        coin_stash[target.id] += amount
+    except KeyError:
+        coin_stash[target.id] = amount
+    with open('coin_stash.pickle', 'wb') as f:
+        pickle.dump(coin_stash, f)

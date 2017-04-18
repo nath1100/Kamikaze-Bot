@@ -18,7 +18,7 @@ logger.addHandler(handler)
 with open(paths.retrieveToken(), 'r') as f:
     token = f.read()
 
-version = '1.0.2.4'
+version = '1.0.2.5'
 
 extension_list = [
     'cogs.loader',
@@ -29,7 +29,8 @@ extension_list = [
     'cogs.internet',
     'cogs.nsfw',
     'cogs.wows',
-    'cogs.soku'
+    'cogs.soku',
+    'cogs.extras'
 ]
 
 description = """Super cute Kamikaze will attend to your KC needs."""
