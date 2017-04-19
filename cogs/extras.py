@@ -1,4 +1,4 @@
-import discord, asyncio, random
+import discord, asyncio, random, datetime
 from discord.ext import commands
 from cogs.utilities import tools, checks
 try:
@@ -35,6 +35,20 @@ class Extras:
         coin_stash = tools.loadPickle('coin_stash.pickle')
         description = '\n'.join([("{}: **{}**x {}".format(ctx.message.server.get_member(x).name, coin_stash[x], self.coin_emoji)) for x in coin_stash])
         title = "Everyone's coin purses"
+        em = tools.createEmbed(title=title, description=description)
+        await self.bot.say(embed=em)
+
+    @coins.command(pass_context=True)
+    async def shop(self, ctx):
+        """Seize the means of production"""
+        wordMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        dateSuffix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th']
+        today = datetime.datetime.today()
+        title = "Goods for the {}{} of {}".format(today.day, dateSuffix[today.day % 10], wordMonths[today.month - 1])
+        # retrieve past shop information from pickle
+        # evaluate whether old or current
+        # change shop contents if required and save to pickle
+        description = "Nothing in stock..." # temp
         em = tools.createEmbed(title=title, description=description)
         await self.bot.say(embed=em)
 
