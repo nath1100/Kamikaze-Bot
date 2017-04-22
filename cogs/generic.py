@@ -26,6 +26,42 @@ class Generic:
     '''
 
     @commands.command(pass_context=True)
+    async def count(self, ctx, *, count_what : str):
+        """Get Kamikaze to count something for you"""
+        AUTO_TIMEOUT = 10800 # 3 hours
+        count = 0
+        title = "{}'s counter".format(ctx.message.author.name)
+        description = "Increment count with _count N_, _cancel_ to stop."
+        em = tools.createEmbed(title=title, description=description)
+        em.add_field(name=count_what, value=count)
+        info = await self.bot.say(embed=em)
+        msg = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author, check=lambda x: x.content.split(' ')[0].lower() in ['count', 'cancel'])
+        try:
+            while msg.content.lower() != 'cancel':
+                try:
+                    count += int(msg.content.strip('count '))
+                    em.set_field_at(index=0, name=count_what, value=count)
+                    await self.bot.delete_messages([info, msg])
+                    info = await self.bot.say(embed=em)
+                    msg = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author, check=lambda x: x.content.split(' ')[0].lower() in ['count', 'cancel'])
+                except ValueError:
+                    await self.bot.say("Syntax should _count N_ where N is the number to increment by.")
+        except AttributeError:
+            await self.bot.say("{} your count for _{}_ has timed out. Last count: **{}**".format(ctx.message.author.mention, count_what, count))
+            return
+        await self.bot.say("Stopped counting.")
+
+    @commands.command(pass_context=True)
+    async def avatar(self, ctx, *, user : str):
+        """View a user's avatar. (!k.avatar @user)"""
+        user_id = user.strip('<@>')
+        member = ctx.message.server.get_member(user_id)
+        title = "{}'s avatar".format(member.name)
+        em = tools.createEmbed(title=title)
+        em.set_image(url=member.avatar_url)
+        await self.bot.say(embed=em)
+
+    @commands.command(pass_context=True)
     async def notepad(self, ctx, *, content : str=None):
         """Store some text for later viewing. Clear with '!k.notepad clear'"""
         data = tools.loadPickle('notepad.pickle')

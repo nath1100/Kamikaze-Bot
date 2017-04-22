@@ -14,7 +14,7 @@ def dumpPickle(data, file : str):
     with open(file, 'wb') as f:
         pickle.dump(data, f)
 
-def createEmbed(title, description):
+def createEmbed(title, description=None):
     return discord.Embed(title=title, description=description, color=14031172)
 
 def gainCoins(target, amount : int):

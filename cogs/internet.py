@@ -21,14 +21,22 @@ class Internet:
         description += '\n'.join([( "**{}**. {}".format(results.index(x) + 1, x) )  for x in results])
         description += "\n\n**0**. Cancel search"
         em = tools.createEmbed(title="Search results for {}".format(search), description=description)
-        await self.bot.say(embed=em)
-        msg = await self.bot.wait_for_message(author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content) and int(x.content) in range(len(results) + 1))
-        if int(msg.content) == 0:
+        search_selection = await self.bot.say(embed=em)
+        msg = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content) and int(x.content) in range(len(results) + 1))
+        if msg is None:
+            await self.bot.say("{} Your search has timed out...".format(ctx.message.author.mention))
+            await self.bot.delete_message(search_selection)
+            return
+        elif int(msg.content) == 0:
             await self.bot.say("Search cancelled.")
+            await self.bot.delete_messages([search_selection, msg])
             return
         article_title = results[int(msg.content) - 1]
+        await self.bot.delete_messages([search_selection, msg])
+        notice = await self.bot.say("Retrieving summary information...")
         page = wikipedia.page(article_title)
         em = tools.createEmbed(title="Result #{}: {}".format(msg.content, article_title), description=page.summary)
+        await self.bot.delete_message(notice)
         await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)

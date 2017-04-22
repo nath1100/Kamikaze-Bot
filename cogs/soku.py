@@ -41,6 +41,7 @@ class Soku:
     async def challenge(self, ctx, *, opponent : str):
         """Challenge another opponent!"""
         MATCH_TIMEOUT = 30
+        AUTO_TIMEOUT = 10800 # 3 hours
         if checks.check_soku(ctx.message):
             if await sendChallenge(self.bot, ctx.message, opponent):
                 message = ctx.message
@@ -56,20 +57,26 @@ class Soku:
                 embed_output = await self.bot.say(embed=em)
                 prompt = await self.bot.say("Match result for challenger (**w**in/**l**oss/**c**ancel):")
                 await asyncio.sleep(MATCH_TIMEOUT)
-                msg = await self.bot.wait_for_message(author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
-                while msg.content.lower() != 'c':
-                    if msg.content.lower() == 'w':
-                        challenger_wins += 1
-                        em.set_field_at(index=0, name=challenger.name, value="Matches won: **{}**".format(challenger_wins))
-                    elif msg.content.lower() == 'l':
-                        opp_wins += 1
-                        em.set_field_at(index=1, name=opp.name, value="Matches won: **{}**".format(opp_wins))
-                    await self.bot.delete_messages([prompt, msg, embed_output])
-                    embed_output = await self.bot.say(embed=em)
-                    prompt = await self.bot.say("Match result for challenger: (**w**in/**l**oss/**c**ancel):")
-                    await asyncio.sleep(MATCH_TIMEOUT)
-                    msg = await self.bot.wait_for_message(author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
-                await self.bot.say("Session over")
+                msg = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
+                try:
+                    while msg.content.lower() != 'c':
+                        if msg.content.lower() == 'w':
+                            challenger_wins += 1
+                            em.set_field_at(index=0, name=challenger.name, value="Matches won: **{}**".format(challenger_wins))
+                        elif msg.content.lower() == 'l':
+                            opp_wins += 1
+                            em.set_field_at(index=1, name=opp.name, value="Matches won: **{}**".format(opp_wins))
+                        await self.bot.delete_messages([prompt, msg, embed_output])
+                        embed_output = await self.bot.say(embed=em)
+                        prompt = await self.bot.say("Match result for challenger: (**w**in/**l**oss/**c**ancel):")
+                        await asyncio.sleep(MATCH_TIMEOUT)
+                        msg = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=challenger, check=lambda x: x.content.lower() in 'wlc' and len(x.content) == 1)
+                    await self.bot.say("Session over")
+                except AttributeError:
+                    await self.bot.say("{} your soku match with **{}** has timed out...".format(challenger.mention, opp.name))
+                    tools.gainCoins(challenger, challenger_wins)
+                    tools.gainCoins(opp, opp_wins)
+                    return
                 # Add coins
                 tools.gainCoins(challenger, challenger_wins)
                 tools.gainCoins(opp, opp_wins)
