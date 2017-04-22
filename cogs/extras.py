@@ -53,7 +53,7 @@ class Extras:
         await self.bot.say(embed=em)
 
     async def on_message(self, message):
-        if message.author == self.bot.user:
+        if message.author == self.bot.user or message.author.bot:
             return
         else:
             # Probablity of gaining a coin from a sent message

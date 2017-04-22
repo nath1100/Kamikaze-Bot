@@ -9,7 +9,7 @@ class Keywords:
         self.bot = bot
 
     async def on_message(self, message):
-        if message.author == self.bot.user:
+        if message.author == self.bot.user or message.author.bot:
             return
         else:
             if 'marry me kamikaze' == message.content.lower():
