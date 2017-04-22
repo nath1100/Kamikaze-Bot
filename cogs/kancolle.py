@@ -9,6 +9,12 @@ except ImportError:
 #constants
 upload_folder = paths.uploadFolder()
 
+async def oaswSuggestions(bot, ctx, kanmusu):
+    kanmusu = kanmusu.lower()
+    if kanmusu == 'hibiki':
+        suggestion = 'Verniy, Bep'
+        await bot.send_message(ctx.message.channel, "Perhaps you meant _{}_".format(suggestion))
+
 class Kancolle:
     """Commands related to Kancolle stuff"""
 
@@ -76,39 +82,23 @@ class Kancolle:
         await self.bot.upload(upload_folder + '\\' + 'fit.png')
 
     #### REQUIRES REWORK ####
-    @commands.command()
-    async def oasw(self, kanmusu : str):
+    @commands.command(pass_context=True)
+    async def oasw(self, ctx, *, kanmusu : str):
         """Searches oasw lvl requirements of kanmusu"""
-        ## integrate into checks
-        with open('oasw_database.pickle', 'rb') as f:
-            oasw_database = pickle.load(f)
-        ##
-        kanmusu = kanmusu.strip("'\"")
+        oasw_database = tools.loadPickle('oasw_database.pickle')
+        kanmusu = kanmusu.split(' ')[0].lower() # strip off any unnecessary tags (such as 'kai', 'kai ni', etc.)
         try:
-            length = len(oasw_database[kanmusu.lower()]) # optimise the try/exception block later
+            data = oasw_database[kanmusu]
         except KeyError:
-            if kanmusu + ' kai' in oasw_database:
-                kanmusu += ' kai'
-                length = len(oasw_database[kanmusu.lower()])
-            elif kanmusu + ' kai ni' in oasw_database:
-                kanmusu += ' kai ni'
-                length = len(oasw_database[kanmusu.lower()])
-            else:
-                await self.bot.say("Sorry, couldn't find her in the database.")
-                return
-        counter = 0
-        result = ''
-        if length == 11:
-            tags = ['T4/T4/T4', 'T4/T4/T3', 'T4/T4/DC', 'T4/T3/DC', 'T3/T3/DC', 'T4/T4', 'T4/T3', 'T4/DC', 'T3/DC', 'T4', 'T3']
-        elif length == 17:
-            tags = ['T4/T4/T4/T4', 'T4/T4/T4/T3', 'T4/T4/T4/DC', 'T4/T4/T3/DC', 'T4/T3/T3/DC', 'T3/T3/T3/DC', 'T4/T4/T4', 'T4/T4/T3', 'T4/T4/DC', 'T4/T3/DC', 'T3/T3/DC', 'T4/T4', 'T4/T3', 'T4/DC', 'T3/DC', 'T4', 'T3']
+            await self.bot.say("Unable to find **{}'s** data. Remember to use long sounds eg. _Y**uu**dachi_, not _Y**u**dachi_.".format(kanmusu[0].upper() + kanmusu[1:]))
+            await oaswSuggestions(self.bot, ctx, kanmusu)
+            return
+        tags = oasw_database[len(oasw_database[kanmusu])]
+        title = "{}'s' Opening ASW data".format(kanmusu[0].upper() + kanmusu[1:])
+        description = "Assuming highest kai'd form..."
+        em = tools.createEmbed(title=title, description=description)
         for x in tags:
-            setID = str(oasw_database[kanmusu.lower()][counter])
-            padding = "-"*(18 - len(x))
-            result += "{0}:{1}**{2}**\n".format(x, padding, setID)
-            counter += 1
-        title = 'OASW information for ' + kanmusu[0].upper() + kanmusu[1:]
-        em = tools.createEmbed(title=title, description=result)
+            em.add_field(name=x, value=data[tags.index(x)])
         await self.bot.say(embed=em)
 
     @commands.command()
