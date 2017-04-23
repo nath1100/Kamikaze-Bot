@@ -23,7 +23,7 @@ class Keywords:
                             'Marriage? Don\'t you have more important duties to attend to?', 'Maybe when you\'re a little older...',
                             'The age gap though... Sorry.']
                         if message.author.id == '172704013911982080': #if you're Jimmy:
-                            more_choices = ['But you have Kawakaze...', 'But you\'re already married to Kongou...']
+                            more_choices = ['But you have Kawakaze...', 'But you\'re already married to Kongou...', 'If you had a girlfriend, you wouldn\'t need to constantly propose to me.', 'If you had a girlfriend, I wouldn\'t have to constantly reject you.']
                         elif message.author.id == '176610457992429568': #if you're nyanko:
                             more_choices = ['But you have Bep...']
                         try:
