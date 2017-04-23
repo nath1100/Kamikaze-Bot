@@ -30,7 +30,8 @@ extension_list = [
     'cogs.nsfw',
     'cogs.wows',
     'cogs.soku',
-    'cogs.extras'
+    'cogs.extras',
+    'cogs.music'
 ]
 
 description = """Super cute Kamikaze will attend to your KC needs."""
