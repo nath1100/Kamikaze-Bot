@@ -1,2 +1,2 @@
 # Kamikaze-Bot
-A discord bot written using the python api wrapper.
+A discord bot written in Python using discord.py
