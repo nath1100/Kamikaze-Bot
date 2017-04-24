@@ -1,5 +1,42 @@
 import discord, asyncio
 from discord.ext import commands
+from cogs.utilities import tools
+from apiclient.discovery import build
+from apiclient.errors import HttpError
+
+API_KEY = tools.loadPickle('youtube_api_key.pickle')
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
+
+SELECTION_TIMEOUT = 300 # 5 minutes
+
+def youtube_search(q):
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=API_KEY)
+    search_response = youtube.search().list(q=q, type="video", part="snippet", maxResults=9).execute()
+    videos = []
+    for item in search_response['items']:
+        videos.append((item['id']['videoId'], item['snippet']['title']))
+    return videos # returns a list of (ID, VIDEO_TITLE)
+
+async def display_choices(bot, ctx, options, query : str):
+    title = "Results for: _{}_".format(query)
+    description = "Please select an option:\n\n"
+    description += '\n'.join(["**{}.** {}".format(options.index(x) + 1, x[1]) for x in options])
+    description += "\n\n**c.** cancel"
+    em = tools.createEmbed(title=title, description=description)
+    selections = await bot.send_message(ctx.message.channel, embed=em)
+    msg = await bot.wait_for_message(timeout=SELECTION_TIMEOUT, author=ctx.message.author, check=lambda x: x.content.lower() in ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'c'])
+    if msg is None:
+        await bot.send_message(ctx.message.channel, "{}, your selection has timed out.".format(ctx.message.author.mention))
+        await bot.delete_message(selections)
+        return
+    elif msg.content.lower() == "c":
+        await bot.say("Selection cancelled.")
+        await bot.delete_messages([msg, selections])
+    else:
+        await bot.delete_messages([msg, selections])
+        # return video URL
+        return "https://www.youtube.com/watch?v={}".format(options[int(msg.content) - 1][0])
 
 class Music:
 
@@ -46,8 +83,20 @@ class Music:
                 self.players[server.id].stop()
             except KeyError:
                 pass
-            self.players[server.id] = await voice_client.create_ytdl_player(url)
-            await asyncio.sleep(1)
+            if '/watch?v=' in url:
+                self.players[server.id] = await voice_client.create_ytdl_player(url)
+            else:
+                # if player did not enter a URL:
+                try:
+                    search_results = youtube_search(url)
+                except HttpError as e:
+                    await self.bot.say("An HTTP error {} occurred: {}".format(e.resp.status, e.content))
+                selection = await display_choices(self.bot, ctx, search_results, url)
+                if selection is None:
+                    return
+                else:
+                    self.players[server.id] = await voice_client.create_ytdl_player(selection)
+            await asyncio.sleep(1) # sleep required to not skip first second of song
             self.players[server.id].start()
             await self.bot.delete_message(ctx.message)
             await self.bot.say("Playing **{}**".format(self.players[server.id].title))
