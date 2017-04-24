@@ -99,7 +99,9 @@ class Music:
             await asyncio.sleep(1) # sleep required to not skip first second of song
             self.players[server.id].start()
             await self.bot.delete_message(ctx.message)
-            await self.bot.say("Playing **{}**".format(self.players[server.id].title))
+            length_seconds = divmod(self.players[server.id].duration, 60)
+            song_length = "{}:{:02d}".format(length_seconds[0], length_seconds[1])
+            await self.bot.say("Playing **{}** _{}_".format(self.players[server.id].title, song_length))
         else:
             await self.bot.say("Not connected to any voice channel...")
 
@@ -148,7 +150,9 @@ class Music:
         server = ctx.message.server
         try:
             if not self.players[server.id].is_done():
-                await self.bot.say("Currently playing **{}**".format(self.players[server.id].title))
+                length_seconds = divmod(self.players[server.id].duration, 60)
+                song_length = "{}:{:02d}".format(length_seconds[0], length_seconds[1])
+                await self.bot.say("Currently playing **{}** {}".format(self.players[server.id].title, song_length))
             else:
                 await self.bot.say("Currently not playing anything...")
         except KeyError:
