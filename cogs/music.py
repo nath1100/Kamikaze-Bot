@@ -38,11 +38,16 @@ async def display_choices(bot, ctx, options, query : str):
         # return video URL
         return "https://www.youtube.com/watch?v={}".format(options[int(msg.content) - 1][0])
 
+async def process_queue(bot, ctx, queue):
+    #do something
+    pass
+
 class Music:
 
     def __init__(self, bot):
         self.bot = bot
         self.players = {}
+        self.queue = {}
 
     @commands.command(pass_context=True)
     async def join(self, ctx):

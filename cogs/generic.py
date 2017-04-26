@@ -1,9 +1,13 @@
-import datetime, discord, asyncio, random, os
+import discord, asyncio, random, os
 from discord.ext import commands
 from cogs.utilities import paths, tools
+from datetime import datetime, timedelta
 
 #constants
-upload_folder = paths.uploadFolder()
+UPLOAD_FOLDER = paths.uploadFolder()
+
+def removeMicroseconds(tdelta):
+    return tdelta - timedelta(microseconds=tdelta.microseconds)
 
 class Generic:
     """A range of general and misc commands"""
@@ -24,6 +28,57 @@ class Generic:
                 page += "{}: {}\n".format(command.name, command.description)
             await self.bot.say(page)
     '''
+
+    @commands.group(pass_context=True)
+    async def countdown(self, ctx):
+        """A countdown timer to a specified event"""
+        # Check if the server is already in the list, if not, add a dummy datetime
+        countdown_all = tools.loadPickle('countdown_all.pickle')
+        try:
+            countdown_server = countdown_all[ctx.message.server.id]
+        except KeyError:
+            countdown_all[ctx.message.server.id] = [datetime.now(), "remain"]
+            tools.dumpPickle(countdown_all, 'countdown_all.pickle')
+            countdown_server = countdown_all[ctx.message.server.id]
+
+        if ctx.invoked_subcommand is None:
+            if countdown_server[0] > datetime.now():
+                tdelta = countdown_server[0] - datetime.now()
+                text = countdown_server[1]
+            else:
+                tdelta = datetime(year=2100, month=10, day=10, hour=10, minute=10, second=10) - datetime.now()
+                text = "until nothing happens..."
+            #await self.bot.say("`{}` {}".format(removeMicroseconds(tdelta), text))
+            #await self.bot.say(embed=tools.createEmbed(title="{} {}".format(removeMicroseconds(tdelta), text)))
+            await self.bot.say(embed=tools.createEmbed(title=str(removeMicroseconds(tdelta)), description=text))
+
+    @countdown.command(pass_context=True)
+    async def edit(self, ctx):
+        """Edit the countdown target"""
+        AUTO_TIMEOUT = 300 # 5 minutes
+        info1 = await self.bot.say("Please enter a new target date in format: **DD-MM-YYYY, HH:MM:SS**")
+        msg1 = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author)
+        if msg1 is None:
+            await tools.inputTimeout(self.bot, ctx, topic="countdown edit")
+            return
+        else:
+            try:
+                newTime = datetime.strptime(msg1.content, '%d-%m-%Y, %H:%M:%S')
+            except ValueError:
+                await self.bot.say("Sorry, formatting was incorrect. Remember to include 0s where needed. Try _!k.countdown edit_ again.")
+                return
+        info2 = await self.bot.say("Please enter the countdown timer's flavour text:")
+        msg2 = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author)
+        if msg2 is None:
+            await tools.inputTimeout(self.bot, ctx, topic="countdown edit")
+            return
+        else:
+            text = msg2.content
+            countdown_all = tools.loadPickle('countdown_all.pickle')
+            countdown_all[ctx.message.server.id] = [newTime, text]
+            tools.dumpPickle(countdown_all, 'countdown_all.pickle')
+            await self.bot.delete_messages([info1, msg1, info2, msg2])
+            await self.bot.say("Successfully updated the server countdown target!")
 
     @commands.command(pass_context=True)
     async def count(self, ctx, *, count_what : str):
@@ -106,17 +161,17 @@ class Generic:
             pass
         elif item == 'list':
             item_list = []
-            for x in os.listdir(upload_folder):
+            for x in os.listdir(UPLOAD_FOLDER):
                 item_list.append(str(x).strip('[]'))
             await self.bot.say('```{}```'.format(item_list))
-        elif item in os.listdir(upload_folder): # make certain to keep kamikaze_bot.py in her directory, and that the file dir is correct
-            await self.bot.upload(upload_folder + '\\' + item)
+        elif item in os.listdir(UPLOAD_FOLDER): # make certain to keep kamikaze_bot.py in her directory, and that the file dir is correct
+            await self.bot.upload(UPLOAD_FOLDER + '\\' + item)
         else:
             try:
-                await self.bot.upload(upload_folder + '\\{}.jpg'.format(item))
+                await self.bot.upload(UPLOAD_FOLDER + '\\{}.jpg'.format(item))
             except Exception:
                 try:
-                    await self.bot.upload(upload_folder + '\\{}.png'.format(item))
+                    await self.bot.upload(UPLOAD_FOLDER + '\\{}.png'.format(item))
                 except Exception:
                     pass
 

@@ -26,3 +26,6 @@ def gainCoins(target, amount : int):
         coin_stash[target.id] = amount
     with open('coin_stash.pickle', 'wb') as f:
         pickle.dump(coin_stash, f)
+
+async def inputTimeout(bot, ctx, topic : str):
+    await bot.send_message(ctx.message.channel, "{}, your {} has timed out".format(ctx.message.author.mention, topic))
