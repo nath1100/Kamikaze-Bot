@@ -4,6 +4,12 @@ except ImportError:
     import pickle
 import datetime
 
+''' COUNTDOWN
+countdown_all = {}
+with open('countdown_all.pickle', 'wb') as f:
+    pickle.dump(countdown_all, f)
+'''
+
 ''' COIN STASH
 coin_stash = {'178112312845139969':0}
 with open('coin_stash.pickle', 'wb') as f:
@@ -38,13 +44,6 @@ with open('soku_ip.pickle','wb') as f:
 kamikaze_status = ["Waiting for the event"]
 with open('kamikaze_status.pickle', 'wb') as f:
     pickle.dump(kamikaze_status, f)
-'''
-
-'''
-doomsday_target = {"260977178131431425":[datetime.datetime(year=2050, month=12, day=31, hour=23, minute=59, second=59), 'remain']}
-
-with open('doomsday_target.pickle', 'wb') as f:
-    pickle.dump(doomsday_target, f)
 '''
 
 ''' OASW

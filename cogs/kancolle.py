@@ -1,4 +1,4 @@
-import asyncio, discord, datetime, random
+import asyncio, discord, random, datetime
 from discord.ext import commands
 from cogs.utilities import paths, staticData, tools
 try:
@@ -20,44 +20,6 @@ class Kancolle:
 
     def __init__(self, bot):
         self.bot = bot
-
-    '''
-    @commands.group(pass_context=True)
-    async def doomsday(self, ctx):
-        """Doomsday counter counting down to something"""
-        serverID = ctx.message.server.id
-        doomsday_target = tools.loadPickle('doomsday_target.pickle')
-        target = doomsday_target[serverID][0]
-        flavour_text = doomsday_target[serverID][1]
-
-        time_left = target - datetime.datetime.now()
-        if ((time_left.days*24*60*60) + time_left.seconds) < 0:
-            time_left = datetime.datetime(2222, 9, 25, 0, 0, 0) - datetime.datetime.now()
-            random_flavour_text = ['kittens fly', 'One Piece ends', 'Eva refloats her rightful ship', 'Samidare Kai Ni', 'Sims gets proper torpedoes',
-                'Gremyaschy gets nerfed', 'we run out of salt', 'HotD season 2', 'Shinomiya wins', 'Shirogane wins', 'Ishigami overcomes his fear of Shinomiya',
-                'Suzukaze Kai Ni', 'Gisele Alain comes off haitus', 'Mizuki awakens to his inner self', 'the Abyssals win the war', 'future bass becomes present bass',
-                'Kamikaze turns 300', '2017 winter E-3 debuff confirmed']
-            flavour_text = 'until ' + random.choice(random_flavour_text)
-        seconds_left = time_left.seconds + (time_left.days*24*60*60)
-        mins, seconds = divmod(seconds_left, 60)
-        hrs, minutes = divmod(mins, 60)
-        days, hours = divmod(hrs, 24)
-        if ctx.message.content == '!k.doomsday':
-            await self.bot.say('**{} days, {} hours, {} minutes and {} seconds {}**'.format(days, hours, minutes, seconds, flavour_text))
-
-    @doomsday.command(pass_context=True)
-    async def edit(self, ctx, year : int, month : int, day : int, hour : int, minute : int, second : int, *, flavour_text : str):
-        """Edits the target date of the doomsday command"""
-        serverID = ctx.message.server.id
-        doomsday_target = tools.loadPickle('doomsday_target.pickle')
-        doomsday_target[serverID] = [datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second), flavour_text]
-        try:
-            tools.dumpPickle(doomsday_target, 'doomsday_target.pickle')
-            await self.bot.say('Successfully updated the doomsday target!')
-        except Exception as e:
-            await self.bot.say('Uh oh, something went wrong... PM an admin.')
-            await self.bot.say("{}: {}.format(type(e).__name__, e)")
-    '''
 
     @commands.command(pass_context=True)
     async def lbasRange(self, ctx, shortest_range : int):

@@ -64,6 +64,8 @@ class Keywords:
                             pass
                 except KeyError:
                     await self.bot.send_message(message.channel, "No server info detected. Please run _serverSetup command.")
+                except AttributeError:
+                    pass
 
 def setup(bot):
     bot.add_cog(Keywords(bot))
