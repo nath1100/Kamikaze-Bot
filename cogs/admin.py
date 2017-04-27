@@ -47,13 +47,13 @@ class Admin:
             await self.bot.send_message(self.bot.get_channel(channel_id), msg)
 
     @commands.command(pass_context=True)
-    async def clean(self, ctx, search=20):
+    async def clean(self, ctx, search=40):
         """Cleans a few of kamikaze's latest messages"""
         if checks.check_moderator(ctx.message):
             predicate = lambda m: m.author == self.bot.user or m.content.startswith('!k.')
             deleted = await self.bot.purge_from(ctx.message.channel, limit=search+1, check=predicate)
             await asyncio.sleep(1)
-            await self.bot.say("Deleted {} message(s).".format(len(deleted)-1))
+            await self.bot.say("Deleted {} message(s).".format(len(deleted)-1), delete_after=6)
 
     @commands.command(pass_context=True)
     async def list(self, ctx):
@@ -75,11 +75,6 @@ class Admin:
             await self.bot.delete_message(ctx.message)
             await self.bot.say("Setting up...", delete_after=12)
             try:
-                #doomsday
-                doomsday_target = tools.loadPickle('doomsday_target.pickle')
-                doomsday_target[serverID] = [datetime.datetime(year=2050, month=12, day=31, hour=23, minute=59, second=59), 'remain']
-                tools.dumpPickle(doomsday_target, 'doomsday_target.pickle')
-                await self.bot.say("**doomsday_target** setup success", delete_after=10)
                 #kamikaze chime
                 kamikaze_chime = tools.loadPickle('kamikaze_chime.pickle')
                 kamikaze_chime[serverID] = True

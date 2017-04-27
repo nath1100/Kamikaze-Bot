@@ -56,29 +56,33 @@ class Generic:
     async def edit(self, ctx):
         """Edit the countdown target"""
         AUTO_TIMEOUT = 300 # 5 minutes
-        info1 = await self.bot.say("Please enter a new target date in format: **DD-MM-YYYY, HH:MM:SS**")
-        msg1 = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author)
-        if msg1 is None:
-            await tools.inputTimeout(self.bot, ctx, topic="countdown edit")
-            return
-        else:
-            try:
-                newTime = datetime.strptime(msg1.content, '%d-%m-%Y, %H:%M:%S')
-            except ValueError:
-                await self.bot.say("Sorry, formatting was incorrect. Remember to include 0s where needed. Try _!k.countdown edit_ again.")
+        if checks.check_moderator(ctx.message):
+            info1 = await self.bot.say("Please enter a new target date in format: **DD-MM-YYYY, HH:MM:SS**")
+            msg1 = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author)
+            if msg1 is None:
+                await tools.inputTimeout(self.bot, ctx, topic="countdown edit")
                 return
-        info2 = await self.bot.say("Please enter the countdown timer's flavour text:")
-        msg2 = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author)
-        if msg2 is None:
-            await tools.inputTimeout(self.bot, ctx, topic="countdown edit")
-            return
+            else:
+                try:
+                    newTime = datetime.strptime(msg1.content, '%d-%m-%Y, %H:%M:%S')
+                except ValueError:
+                    await self.bot.say("Sorry, formatting was incorrect. Remember to include 0s where needed. Try _!k.countdown edit_ again.")
+                    return
+            info2 = await self.bot.say("Please enter the countdown timer's flavour text:")
+            msg2 = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=ctx.message.author)
+            if msg2 is None:
+                await tools.inputTimeout(self.bot, ctx, topic="countdown edit")
+                return
+            else:
+                text = msg2.content
+                countdown_all = tools.loadPickle('countdown_all.pickle')
+                countdown_all[ctx.message.server.id] = [newTime, text]
+                tools.dumpPickle(countdown_all, 'countdown_all.pickle')
+                await self.bot.delete_messages([info1, msg1, info2, msg2])
+                await self.bot.say("Successfully updated the server countdown target!")
         else:
-            text = msg2.content
-            countdown_all = tools.loadPickle('countdown_all.pickle')
-            countdown_all[ctx.message.server.id] = [newTime, text]
-            tools.dumpPickle(countdown_all, 'countdown_all.pickle')
-            await self.bot.delete_messages([info1, msg1, info2, msg2])
-            await self.bot.say("Successfully updated the server countdown target!")
+            await self.bot.say("You do not have permission to do that.")
+            return
 
     @commands.command(pass_context=True)
     async def count(self, ctx, *, count_what : str):
