@@ -19,7 +19,7 @@ class Admin:
 
     @commands.command(pass_context=True, hidden=True)
     async def return_id_info(self, ctx, target_id : str):
-        if checks.check_admin(ctx.message):
+        if checks.check_owner(ctx.message):
             server = self.bot.get_server(id=target_id)
             if server is None:
                 for x in self.bot.servers:
