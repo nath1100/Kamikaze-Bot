@@ -18,6 +18,21 @@ class Admin:
         await self.bot.say("discord.py version: **{}**".format(discord.__version__))
 
     @commands.command(pass_context=True, hidden=True)
+    async def return_id_info(self, ctx, target_id : str):
+        if checks.check_admin(ctx.message):
+            server = self.bot.get_server(id=target_id)
+            if server is None:
+                for x in self.bot.servers:
+                    if x.get_member(target_id) is not None:
+                        server = x
+                        break
+            channel = self.bot.get_channel(id=target_id)
+            member = server.get_member(user_id=target_id)
+            await self.bot.say("SERVER: **{}**\nCHANNEL: **{}**\nMEMBER: **{}**".format(server, channel, member))
+        else:
+            await self.bot.say("You do not have permission to use that command.")
+
+    @commands.command(pass_context=True, hidden=True)
     async def close(self, ctx):
         if checks.check_owner(ctx.message):
             await self.bot.say('Bye Teitoku~')
