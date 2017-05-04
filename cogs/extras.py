@@ -12,6 +12,21 @@ class Extras:
         self.bot = bot
         self.coin_emoji = "<:coin:303374759687749632>"
 
+    @commands.command(pass_context=True)
+    async def colour(self, ctx, *, new_colour : str):
+        """Change your member colour. !k.colour reset to remove colour."""
+        colours = [
+            "teal", "dark teal", "green", "dark green", "blue", "dark blue", "purple", "dark purple", "magenta", "dark magenta", "gold",
+            "dark gold", "orange", "dark orange", "red", "dark red", "lighter grey", "dark grey", "light grey", "darker grey"
+        ]
+        if new_colour.lower() == "list":
+            title = "List of colours"
+            description = ', '.join(colours)
+            await self.bot.say(embed=tools.createEmbed(title=title, description=description))
+        else:
+            #do something
+            pass
+
     @commands.group(pass_context=True)
     async def coins(self, ctx):
         """How many coins do you have?"""
