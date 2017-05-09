@@ -12,6 +12,11 @@ class Admin:
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(hidden=True)
+    async def ping2(self):
+        """Non-embed message ping"""
+        await self.bot.say("Pong!")
+
     @commands.command(pass_context=True, hidden=True)
     async def get_discord_version(self, ctx):
         """Output discord.py version"""

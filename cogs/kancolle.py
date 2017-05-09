@@ -56,7 +56,7 @@ class Kancolle:
             await oaswSuggestions(self.bot, ctx, kanmusu)
             return
         tags = oasw_database[len(oasw_database[kanmusu])]
-        title = "{}'s' Opening ASW data".format(kanmusu[0].upper() + kanmusu[1:])
+        title = "{}'s Opening ASW data".format(kanmusu[0].upper() + kanmusu[1:])
         description = "Assuming highest kai'd form..."
         em = tools.createEmbed(title=title, description=description)
         for x in tags:
