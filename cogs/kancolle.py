@@ -84,7 +84,7 @@ class Kancolle:
                     await self.bot.upload(file_origin + '\\{0}-{1}_Map.png'.format(field[0], field[1]))
                 except Exception as e:
                     await self.bot.say("Unable to retrieve World {0}-{1} map info.".format(field[0], field[1]))
-                    await self.bot.say('{}: {}'.format(type(e).__name__, e))
+                    #await self.bot.say('{}: {}'.format(type(e).__name__, e))
             try:
                 await self.bot.upload(file_origin + '\\{0}-{1}.png'.format(field[0], field[1]))
             except Exception:
@@ -92,7 +92,7 @@ class Kancolle:
                     await self.bot.upload(file_origin + '\\{0}-{1}.jpg'.format(field[0], field[1]))
                 except Exception as e:
                     await self.bot.say("Unable to retrieve World {0}-{1} branching rules info.".format(field[0], field[1]))
-                    await self.bot.say('{}: {}'.format(type(e).__name__, e))
+                    #await self.bot.say('{}: {}'.format(type(e).__name__, e))
             try:
                 nodes = staticData.airPower(int(field[0]), int(field[1]))
                 data = 'Node/AS/AS+\n\n'
@@ -104,7 +104,7 @@ class Kancolle:
                 #await self.bot.say('```Air superiority requirements\n{}```'.format(data))
             except Exception as e:
                 await self.bot.say("Unable to display AS data.")
-                await self.bot.say('{}: {}'.format(type(e).__name__, e))
+                #await self.bot.say('{}: {}'.format(type(e).__name__, e))
 
 
 def setup(bot):
