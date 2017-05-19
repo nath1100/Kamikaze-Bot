@@ -33,12 +33,12 @@ class Kancolle:
             try:
                 ship1 = shelf[firstShip.lower()]
             except KeyError:
-                await self.bot.send_message(channel, "Unable to find **{}**".format(compare1))
+                await self.bot.send_message(ctx.message.channel, "Unable to find **{}**.".format(firstShip))
                 return
             try:
                 ship2 = shelf[secondShip.lower()]
             except KeyError:
-                await self.bot.send_message(channel, "Unable to find **{}**".format(compare2))
+                await self.bot.send_message(ctx.message.channel, "Unable to find **{}**.".format(secondShip))
                 return
         if ship1 is None or ship2 is None:
             return
@@ -62,11 +62,11 @@ class Kancolle:
             ]
             for stat in stats:
                 if ship1[stat[0]] == -1 or ship2[stat[0]] == -1:
-                    statResult = 'N/A'
+                    statResult = 'No Data'
                 else:
                     statResult = ship1[stat[0]] - ship2[stat[0]]
                     if statResult > 0:
-                        statResult = "+" + str(statResult)
+                        statResult = "**+{}**".format(statResult)
                 em.add_field(name=stat[1], value=statResult)
             await self.bot.say(embed=em)
 
