@@ -1,4 +1,4 @@
-import asyncio, discord, random, datetime
+import asyncio, discord, random, datetime, shelve
 from discord.ext import commands
 from cogs.utilities import paths, staticData, tools
 try:
@@ -20,6 +20,55 @@ class Kancolle:
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(pass_context=True)
+    async def compareships(self, ctx, *, args : str):
+        """Enter two comma separated kanmusu to compare their stats."""
+        try:
+            firstShip, secondShip = args.split(', ')
+        except ValueError:
+            await self.bot.say("Did you forget to put a **comma** and **space** (`ship1, ship2`) or did you put too many?")
+            return
+        with shelve.open("db\\ship_db", "r") as shelf:
+            try:
+                ship1 = shelf[firstShip.lower()]
+            except KeyError:
+                await self.bot.send_message(channel, "Unable to find **{}**".format(compare1))
+                return
+            try:
+                ship2 = shelf[secondShip.lower()]
+            except KeyError:
+                await self.bot.send_message(channel, "Unable to find **{}**".format(compare2))
+                return
+        if ship1 is None or ship2 is None:
+            return
+        else:
+            #build the embed
+            firstShipFormatted, secondShipFormatted = firstShip[0].upper() + firstShip[1:].lower(), secondShip[0].upper() + secondShip[1:].lower()
+            title = "{}'s stats VS {}".format(firstShipFormatted, secondShipFormatted)
+            description = "Comparing max stats (except luck)"
+            em = tools.createEmbed(title=title, description=description)
+            stats = [
+                ('fire_max', 'Firepower'),
+                ('torpedo_max', 'Torpedo'),
+                ('aa_max', 'AA'),
+                ('asw_max', 'ASW'),
+                ('hp', 'HP'),
+                ('armor_max', 'Armour'),
+                ('evasion_max', 'Evasion'),
+                ('luck', 'Luck'),
+                ('fuel', 'Fuel Consumption'),
+                ('ammo', 'Ammo Consumption')
+            ]
+            for stat in stats:
+                if ship1[stat[0]] == -1 or ship2[stat[0]] == -1:
+                    statResult = 'N/A'
+                else:
+                    statResult = ship1[stat[0]] - ship2[stat[0]]
+                    if statResult > 0:
+                        statResult = "+" + str(statResult)
+                em.add_field(name=stat[1], value=statResult)
+            await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
     async def lbasRange(self, ctx, shortest_range : int):
