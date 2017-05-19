@@ -21,32 +21,45 @@ class Kancolle:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
-    async def compareships(self, ctx, *, args : str):
-        """Enter two comma separated kanmusu to compare their stats."""
-        try:
-            firstShip, secondShip = args.split(', ')
-        except ValueError:
-            await self.bot.say("Did you forget to put a **comma** and **space** (`ship1, ship2`) or did you put too many?")
-            return
+    @commands.command()
+    async def compareships(self, *, args : str):
+        """Enter two comma separated kanmusu to compare their stats, or one kanmusu to lookup stats."""
+        ZERO_STAT_COMPARATOR = "0_stat"
+        if ', ' not in args:
+            firstShip = args
+            secondShip = ZERO_STAT_COMPARATOR
+        else:
+            try:
+                firstShip, secondShip = args.split(', ')
+            except ValueError:
+                await self.bot.say("`!k.compareships ship1, ship2` for stat comparison. `!k.compareships ship` for stat lookup.")
+                return
         with shelve.open("db\\ship_db", "r") as shelf:
             try:
                 ship1 = shelf[firstShip.lower()]
             except KeyError:
-                await self.bot.send_message(ctx.message.channel, "Unable to find **{}**.".format(firstShip))
+                await self.bot.say("Unable to find **{}**.".format(firstShip))
+                if ', ' not in args:
+                    await self.bot.say("Did you forget the comma? `!k.compareships ship1, ship2`")
                 return
             try:
                 ship2 = shelf[secondShip.lower()]
             except KeyError:
-                await self.bot.send_message(ctx.message.channel, "Unable to find **{}**.".format(secondShip))
+                await self.bot.say("Unable to find **{}**.".format(secondShip))
+                if ', ' not in args:
+                    await self.bot.say("Did you forget the comma? `!k.compareships ship1, ship2`")
                 return
         if ship1 is None or ship2 is None:
             return
         else:
             #build the embed
             firstShipFormatted, secondShipFormatted = firstShip[0].upper() + firstShip[1:].lower(), secondShip[0].upper() + secondShip[1:].lower()
-            title = "{}'s stats VS {}".format(firstShipFormatted, secondShipFormatted)
-            description = "Comparing max stats (except luck)"
+            if secondShip is not ZERO_STAT_COMPARATOR:
+                title = "{}'s stats VS {}".format(firstShipFormatted, secondShipFormatted)
+                description = "Comparing max stats (except luck)"
+            else:
+                title = "{}'s stats".format(firstShipFormatted)
+                description = "{} stat lookup".format(firstShipFormatted)
             em = tools.createEmbed(title=title, description=description)
             stats = [
                 ('fire_max', 'Firepower'),
@@ -65,7 +78,7 @@ class Kancolle:
                     statResult = 'No Data'
                 else:
                     statResult = ship1[stat[0]] - ship2[stat[0]]
-                    if statResult > 0:
+                    if statResult > 0 and secondShip != ZERO_STAT_COMPARATOR:
                         statResult = "**+{}**".format(statResult)
                 em.add_field(name=stat[1], value=statResult)
             await self.bot.say(embed=em)
