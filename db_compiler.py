@@ -27,10 +27,18 @@ def fixSuffix(suffix : str):
 
 def fixShipName(dictionary):
     """Pass dictionary, return proper ship name"""
+    # this list identifies same-name ships (like the fog ships) in terms of romaji
+    specialCases_romaji = [
+        'haruna',
+        'takao'
+    ]
+    # this list identifies english translations of JA_JP names when JA_ROMAJI cannot be used
     specialCases = {
+        "タカオ": "Takao (fog)",
+        "ハルナ": "Haruna (fog)",
         "Гангут": "Gangut",
         "水無月": "Minazuki",
-        "Октябрьская революция": "Gangut",
+        "Октябрьская революция": "Gangut kai",
         "Верный": "Verniy"
     }
     name = dictionary['name']
@@ -39,6 +47,8 @@ def fixShipName(dictionary):
             return specialCases[name['ja_jp']]
         else:
             return name['ja_jp']
+    elif name['ja_romaji'] in specialCases_romaji and name['ja_jp'] in specialCases: # account for the fog ships
+        return specialCases[name['ja_jp']]
     else:
         return name['ja_romaji']
 
