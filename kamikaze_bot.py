@@ -68,7 +68,7 @@ async def on_command_error(error, ctx):
     elif isinstance(error, commands.CommandNotFound):
         await bot.send_message(ctx.message.channel, "That command does not exist. Try !k.help")
     else:
-        error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nI've notified a Teitoku about it. Please be patient~!")
+        error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nPlease be patient until this is fixed~!")
         await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
         #await asyncio.sleep(10)
         #await bot.delete_message(error_m)
