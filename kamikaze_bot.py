@@ -1,6 +1,5 @@
-import asyncio, datetime, discord, json, logging, os, random, requests
+import asyncio, discord, logging, os
 from discord.ext import commands
-from bs4 import BeautifulSoup
 from cogs.utilities import paths
 try:
     import cPickle as pickle
@@ -71,8 +70,8 @@ async def on_command_error(error, ctx):
     else:
         error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nI've notified a Teitoku about it. Please be patient~!")
         await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
-        await asyncio.sleep(10)
-        await bot.delete_message(error_m)
+        #await asyncio.sleep(10)
+        #await bot.delete_message(error_m)
 
 #admin and other
 @bot.event
