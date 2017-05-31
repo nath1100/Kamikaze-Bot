@@ -9,6 +9,34 @@ except ImportError:
 #constants
 upload_folder = paths.uploadFolder()
 
+def createExpeditionEmbed(data):
+    title = "Expedition {}: {}".format(data["id"], data["name"])
+    description = "Ships: **{}**".format(data["requirements"]["ships"])
+    description += "\nDrums: **{}**".format(data["requirements"]["drums"])
+    time_h, time_m = divmod(data["time"], 60)
+    description += "\nTime: **{}:{:02.0f}**".format(time_h, time_m)
+    em = tools.createEmbed(title=title, description=description)
+
+    # level requirements
+    value0 = "FS: {}\nTotal: {}".format(data["requirements"]["fs"], data["requirements"]["total"])
+    em.add_field(name="Level Requirements", value=value0, inline=False)
+
+    # hourly yields
+    value1 = "Resources: {}".format(" / ".join(str(x) for x in data["yield"]["hourly"]))
+    value1 += "\nHQ xp: {}\nShip xp: {}".format(data["exp"]["hourly"]["hq"], data["exp"]["hourly"]["ship"])
+    em.add_field(name="Hourly Yield", value=value1, inline=False)
+
+    # total yields
+    value2 = "Resources: {}".format(" / ".join(str(x) for x in data["yield"]["total"]))
+    value2 += "\nHQ xp: {}\nShip xp: {}".format(data["exp"]["total"]["hq"], data["exp"]["total"]["ship"])
+    em.add_field(name="Total Yield", value=value2, inline=False)
+
+    # rewards
+    value3 = "Common: {}\nGreat Success: {}".format(data["reward"][0], data["reward"][1])
+    em.add_field(name="Rewards", value=value3, inline=False)
+
+    return em
+
 async def oaswSuggestions(bot, ctx, kanmusu):
     kanmusu = kanmusu.lower()
     if kanmusu == 'hibiki':
@@ -20,6 +48,18 @@ class Kancolle:
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def expedition(self, exped_number : str):
+        """Lookup the data for a certain expedition"""
+        with shelve.open("db\\expedition_db\\exped_db", "r") as shelf:
+            try:
+                data = shelf[exped_number]
+            except KeyError:
+                await self.bot.say("Could not find expedition `{}`".format(exped_number))
+                return
+        em = createExpeditionEmbed(data)
+        await self.bot.say(embed=em)
 
     @commands.command()
     async def compareships(self, *, args : str):
