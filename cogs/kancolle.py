@@ -18,7 +18,7 @@ def createExpeditionEmbed(data):
     em = tools.createEmbed(title=title, description=description)
 
     # level requirements
-    value0 = "FS: {}\nTotal: {}".format(data["requirements"]["fs"], data["requirements"]["total"])
+    value0 = "Flagship: {}\nTotal: {}".format(data["requirements"]["fs"], data["requirements"]["total"])
     em.add_field(name="Level Requirements", value=value0, inline=False)
 
     # hourly yields
@@ -34,6 +34,12 @@ def createExpeditionEmbed(data):
     # rewards
     value3 = "Common: {}\nGreat Success: {}".format(data["reward"][0], data["reward"][1])
     em.add_field(name="Rewards", value=value3, inline=False)
+
+    # great success rewards
+    gs_hourly = " / ".join(str(int(y)) for y in [x*1.5 for x in data["yield"]["hourly"]])
+    gs_total = " / ".join(str(int(y)) for y in [x*1.5 for x in data["yield"]["total"]])
+    value4 = "Hourly: {}\nTotal: {}".format(gs_hourly, gs_total)
+    em.add_field(name="Great Success Yields", value=value4, inline=False)
 
     return em
 
