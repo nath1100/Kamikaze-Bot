@@ -18,7 +18,7 @@ def createExpeditionEmbed(data):
     em = tools.createEmbed(title=title, description=description)
 
     # level requirements
-    value0 = "Flagship: {}\nTotal: {}".format(data["requirements"]["fs"], data["requirements"]["total"])
+    value0 = "Flagship: **{}**\nTotal: **{}**".format(data["requirements"]["fs"], data["requirements"]["total"])
     em.add_field(name="Level Requirements", value=value0, inline=False)
 
     # hourly yields
