@@ -38,7 +38,7 @@ class Extras:
     async def roll(self, ctx):
         """Perform an RNG roll."""
         if ctx.invoked_subcommand is None:
-            roll_commands = ["Dice"]
+            roll_commands = ["dice", "number"]
             title = "List of roll commands"
             description = '\n'.join(roll_commands)
             em = tools.createEmbed(title=title, description=description)
@@ -47,7 +47,18 @@ class Extras:
     @roll.command()
     async def dice(self):
         """Roll a dice."""
-        pass
+        faces = [":one:", ":two:", ":three:", ":four:", ":five:", ":six:"]
+        await self.bot.say("You rolled a {}".format(random.choice(faces)))
+
+    @roll.command()
+    async def number(self, minimum, maximum):
+        """Roll a number between an inclusive range."""
+        try:
+            value = random.randint(int(minimum), int(maximum))
+        except ValueError:
+            await self.bot.say("Invalid number range. Do `!k.roll number <min_num> <max_num>`")
+            return
+        await self.bot.say(embed=tools.createEmbed(title="You rolled **{}**".format(value)))
 
     @commands.group(pass_context=True)
     async def coins(self, ctx):
