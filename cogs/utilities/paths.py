@@ -2,7 +2,7 @@
 
 def uploadFolder():
     """Folder containing files that are uploaded"""
-    return r"C:\Users\Nathan\Desktop\kamikaze_bot\upload_command_files"
+    return r"C:\Users\Nathan\Desktop\kamikaze_bot\Kamikaze-Bot\upload_command_files"
 
 def retrieveToken():
     """Token location"""
@@ -10,4 +10,4 @@ def retrieveToken():
 
 def worldInfo():
     """World info folder"""
-    return r"C:\Users\Nathan\Desktop\kamikaze_bot\upload_worldinfo"
+    return r"C:\Users\Nathan\Desktop\kamikaze_bot\Kamikaze-Bot\upload_worldinfo"
