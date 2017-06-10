@@ -12,6 +12,7 @@ class Extras:
         self.bot = bot
         self.coin_emoji = "<:coin:303374759687749632>"
 
+    '''
     @commands.command(pass_context=True)
     async def colour(self, ctx, *, new_colour : str):
         """Change your member colour. !k.colour reset to remove colour."""
@@ -26,6 +27,22 @@ class Extras:
         else:
             #do something
             pass
+    '''
+
+    @commands.group(pass_context=True)
+    async def roll(self, ctx):
+        """Perform an RNG roll."""
+        if ctx.invoked_subcommand is None:
+            roll_commands = ["Dice"]
+            title = "List of roll commands"
+            description = '\n'.join(roll_commands)
+            em = tools.createEmbed(title=title, description=description)
+            await self.bot.say(embed=em)
+
+    @roll.command()
+    async def dice(self):
+        """Roll a dice."""
+        pass
 
     @commands.group(pass_context=True)
     async def coins(self, ctx):
