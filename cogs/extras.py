@@ -6,11 +6,16 @@ try:
 except ImportError:
     import pickle
 
+def getCoin(message):
+    if checks.check_hourai(message):
+        return "<:coin:303374759687749632>"
+    else:
+        return ":dollar:"
+
 class Extras:
 
     def __init__(self, bot):
         self.bot = bot
-        self.coin_emoji = "<:coin:303374759687749632>"
 
     '''
     @commands.command(pass_context=True)
@@ -48,24 +53,27 @@ class Extras:
     async def coins(self, ctx):
         """How many coins do you have?"""
         if ctx.invoked_subcommand is None:
+            coinEmoji = getCoin(ctx.message)
             author = ctx.message.author
             try:
                 coin_stash = tools.loadPickle("coin_stash.pickle")
+                # check if can use custom coin emoji
                 title = "{}'s coin purse".format(author.name)
-                description ="**{}**x {}".format(coin_stash[author.id], self.coin_emoji)
+                description ="**{}**x {}".format(coin_stash[author.id], coinEmoji)
                 em = tools.createEmbed(title=title, description=description)
                 await self.bot.say(embed=em)
-                #await self.bot.say("{} has **{}** {}".format(author.mention, coin_stash[author.id], self.coin_emoji))
+                #await self.bot.say("{} has **{}** {}".format(author.mention, coin_stash[author.id], coinEmoji))
             except KeyError:
-                await self.bot.say("You do not have any {}...".format(self.coin_emoji))
+                await self.bot.say("You do not have any {}...".format(coinEmoji))
                 coin_stash[author.id] = 0
                 tools.dumpPickle(coin_stash, 'coin_stash.pickle')
 
     @coins.command(pass_context=True)
     async def all(self, ctx):
         """Check other people's coins"""
+        coinEmoji = getCoin(ctx.message)
         coin_stash = tools.loadPickle('coin_stash.pickle')
-        description = '\n'.join([("{}: **{}**x {}".format(ctx.message.server.get_member(x).name, coin_stash[x], self.coin_emoji)) for x in coin_stash])
+        description = '\n'.join([("{}: **{}**x {}".format(ctx.message.server.get_member(x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
         title = "Everyone's coin purses"
         em = tools.createEmbed(title=title, description=description)
         await self.bot.say(embed=em)
@@ -85,6 +93,7 @@ class Extras:
         await self.bot.say(embed=em)
 
     async def on_message(self, message):
+        coinEmoji = getCoin(message)
         if message.author == self.bot.user or message.author.bot:
             return
         else:
@@ -96,7 +105,7 @@ class Extras:
                 except KeyError:
                     coin_stash[message.author.id] = 1
                 tools.dumpPickle(coin_stash, 'coin_stash.pickle')
-                alert = await self.bot.send_message(message.channel, "{} found a {}:".format(message.author.mention, self.coin_emoji))
+                alert = await self.bot.send_message(message.channel, "{} found a {}:".format(message.author.mention, coinEmoji))
                 await asyncio.sleep(4)
                 await self.bot.delete_message(alert)
 

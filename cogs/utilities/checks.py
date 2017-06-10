@@ -20,6 +20,8 @@ def check_admin(message):
 def check_moderator(message):
     return message.channel.permissions_for(message.author).manage_messages
 
+def check_hourai(message):
+    return message.server.id == "260977178131431425"
 
 # Channel ID checks (pass message)
 def check_soku(message):
