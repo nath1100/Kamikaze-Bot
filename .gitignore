@@ -4,3 +4,6 @@
 *.pyc
 *.pickle
 *.log
+*.bak
+*.dir
+*.dat
