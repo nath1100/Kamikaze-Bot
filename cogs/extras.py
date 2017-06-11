@@ -53,12 +53,14 @@ class Extras:
     @roll.command()
     async def number(self, minimum, maximum):
         """Roll a number between an inclusive range."""
+        numbers = {"-":":heavy_minus_sign:","0":":zero:","1":":one:","2":":two:","3":":three:","4":":four:","5":":five:","6":":six:","7":":seven:","8":":eight:","9":":nine:"}
         try:
-            value = random.randint(int(minimum), int(maximum))
+            value = str(random.randint(int(minimum), int(maximum)))
         except ValueError:
             await self.bot.say("Invalid number range. Do `!k.roll number <min_num> <max_num>`")
             return
-        await self.bot.say(embed=tools.createEmbed(title="You rolled **{}**".format(value)))
+        output = ''.join([numbers[x] for x in value])
+        await self.bot.say(embed=tools.createEmbed(title="You rolled **{}**".format(output)))
 
     @commands.group(pass_context=True)
     async def coins(self, ctx):
