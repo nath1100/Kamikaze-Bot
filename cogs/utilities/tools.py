@@ -27,5 +27,12 @@ def gainCoins(target, amount : int):
     with open('coin_stash.pickle', 'wb') as f:
         pickle.dump(coin_stash, f)
 
+def findMember(bot, member_id : str):
+    """Looks in each server and returns a member if found."""
+    for server in bot.servers:
+        member = server.get_member(member_id)
+        if member is not None:
+            return member 
+
 async def inputTimeout(bot, ctx, topic : str):
     await bot.send_message(ctx.message.channel, "{}, your {} has timed out".format(ctx.message.author.mention, topic))

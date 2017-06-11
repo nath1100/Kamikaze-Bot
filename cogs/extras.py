@@ -84,7 +84,7 @@ class Extras:
         """Check other people's coins"""
         coinEmoji = getCoin(ctx.message)
         coin_stash = tools.loadPickle('coin_stash.pickle')
-        description = '\n'.join([("{}: **{}**x {}".format(ctx.message.server.get_member(x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
+        description = '\n'.join([("{}: **{}**x {}".format(tools.findMember(self.bot, x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
         title = "Everyone's coin purses"
         em = tools.createEmbed(title=title, description=description)
         await self.bot.say(embed=em)
@@ -109,7 +109,7 @@ class Extras:
             return
         else:
             # Probablity of gaining a coin from a sent message
-            if random.choice([False for x in range(59)] + [True]) and message.channel != self.bot.user and message.server.id == "260977178131431425" and not message.content.startswith('!k.'):
+            if random.choice([False for x in range(69)] + [True]) and message.channel != self.bot.user and not message.content.startswith('!k.'):
                 coin_stash = tools.loadPickle('coin_stash.pickle')
                 try:
                     coin_stash[message.author.id] += 1
