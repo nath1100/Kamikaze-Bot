@@ -7,9 +7,12 @@ except ImportError:
     import pickle
 
 def getCoin(message):
-    if checks.check_hourai(message):
-        return "<:coin:303374759687749632>"
-    else:
+    try:
+        if checks.check_hourai(message):
+            return "<:coin:303374759687749632>"
+        else:
+            return ":dollar:"
+    except AttributeError:
         return ":dollar:"
 
 class Extras:
