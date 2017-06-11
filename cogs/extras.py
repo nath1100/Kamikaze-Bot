@@ -121,7 +121,7 @@ class Extras:
                 except KeyError:
                     coin_stash[message.author.id] = 1
                 tools.dumpPickle(coin_stash, 'coin_stash.pickle')
-                alert = await self.bot.send_message(message.channel, "{} found a {}:".format(message.author.mention, coinEmoji))
+                alert = await self.bot.send_message(message.channel, "{} found a {}".format(message.author.mention, coinEmoji))
                 await asyncio.sleep(4)
                 await self.bot.delete_message(alert)
 
