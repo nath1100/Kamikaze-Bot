@@ -117,7 +117,8 @@ class Kancolle:
                 ('evasion_max', 'Evasion'),
                 ('luck', 'Luck'),
                 ('fuel', 'Fuel Consumption'),
-                ('ammo', 'Ammo Consumption')
+                ('ammo', 'Ammo Consumption'),
+                ('base_lvl', 'Base Level')
             ]
             for stat in stats:
                 if ship1[stat[0]] == -1 or ship2[stat[0]] == -1:
