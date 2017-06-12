@@ -43,6 +43,7 @@ async def process_queue(bot, ctx, queue):
     pass
 
 class Music:
+    """Commands for music control in voice channels."""
 
     def __init__(self, bot):
         self.bot = bot

@@ -4,7 +4,7 @@ from discord.ext import commands
 from cogs.utilities import checks, tools
 
 class Internet:
-    """Various commands that pull internet data"""
+    """Various commands that involve internet data."""
 
     def __init__(self, bot):
         self.bot = bot

@@ -26,7 +26,8 @@ async def wrongServerError(bot, message):
     await bot.send_message(message.channel, "Command must be used in <#{}> in server <{}>".format(bot.get_channel('271935186151669774'), bot.get_server('260977178131431425')))
 
 class Soku:
-    """TH12.3 Hisoutensoku related commands"""
+    """TH12.3 Hisoutensoku related commands."""
+
     def __init__(self, bot):
         self.bot = bot
 

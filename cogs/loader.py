@@ -3,7 +3,7 @@ from discord.ext import commands
 from cogs.utilities import checks
 
 class Loader:
-    """Commands to control cogs"""
+    """Commands for loading and unloading cogs."""
 
     def __init__(self, bot):
         self.bot = bot

@@ -16,6 +16,7 @@ def getCoin(message):
         return ":dollar:"
 
 class Extras:
+    """Miscellaneous commands for fun."""
 
     def __init__(self, bot):
         self.bot = bot

@@ -50,7 +50,7 @@ async def oaswSuggestions(bot, ctx, kanmusu):
         await bot.send_message(ctx.message.channel, "Perhaps you meant _{}_".format(suggestion))
 
 class Kancolle:
-    """Commands related to Kancolle stuff"""
+    """Commands related to Kantai Collection."""
 
     def __init__(self, bot):
         self.bot = bot

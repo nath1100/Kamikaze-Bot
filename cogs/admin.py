@@ -7,7 +7,7 @@ except ImportError:
     import pickle
 
 class Admin:
-    """Administrator commands"""
+    """Various commands for Administrators."""
 
     def __init__(self, bot):
         self.bot = bot

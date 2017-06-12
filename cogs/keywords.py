@@ -3,7 +3,7 @@ from discord.ext import commands
 from cogs.utilities import checks, tools
 
 class Keywords:
-    """Various keywords that trigger responses"""
+    """Special commands that trigger responses from Kamikaze."""
 
     def __init__(self, bot):
         self.bot = bot

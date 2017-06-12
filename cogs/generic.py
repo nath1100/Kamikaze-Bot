@@ -5,29 +5,51 @@ from datetime import datetime, timedelta
 
 #constants
 UPLOAD_FOLDER = paths.uploadFolder()
+UNLISTED_COGS = ['Loader', 'Repl', 'Keywords']
 
 def removeMicroseconds(tdelta):
     return tdelta - timedelta(microseconds=tdelta.microseconds)
 
 class Generic:
-    """A range of general and misc commands"""
+    """A range of general and misc functionality commands."""
 
     def __init__(self, bot):
         self.bot = bot
 
-    '''
-    @commands.group(pass_context=True)
-    async def help(self, ctx):
+    def createCogHelpEmbed(self):
+        """Create the help output that lists all of Kamikaze's cogs."""
+        title = "Help - List of categories"
+        description = "A list of Kamikaze's command categories. Use `!k.help <category>` for more help."
+        em = tools.createEmbed(title=title, description=description)
+        for cog in self.bot.cogs:
+            if cog not in UNLISTED_COGS:
+                em.add_field(name=cog, value=self.bot.cogs[cog].__doc__, inline=False)
+        return em
+
+    @commands.command(pass_context=True)
+    async def help(self, ctx, keyword=""):
+        """Get help for Kamikaze's commands."""
+        #if raw !k.help, show available cogs
+        if keyword == "":
+            await self.bot.say(embed=self.createCogHelpEmbed())
+
+    @commands.group(pass_context=True, hidden=True)
+    async def test(self, ctx):
         """Get some help"""
         if ctx.invoked_subcommand is None:
             # print out help
-            cog_list = [x for x in self.bot.cogs]
-            await self.bot.say(cog_list)
+            #await self.bot.say(self.bot.cogs)
             page = ''
-            for command in self.bot.commands:
-                page += "{}: {}\n".format(command.name, command.description)
+            '''
+            for cog in self.bot.cogs:
+                page += "{}: {}\n".format(cog, self.bot.cogs[cog].commands)
             await self.bot.say(page)
-    '''
+            '''
+            #print(self.bot.commands)
+            for command in self.bot.commands:
+                page += "{}: {}\n".format(command, self.bot.commands[command].help)
+            print(page)
+            #await self.bot.say(page)
 
     @commands.group(pass_context=True)
     async def countdown(self, ctx):

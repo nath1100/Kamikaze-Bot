@@ -3,6 +3,7 @@ from discord.ext import commands
 from cogs.utilities import checks, tools
 
 class Nsfw:
+    """Ecchi commands. (///v///)"""
 
     def __init__(self, bot):
         self.bot = bot
