@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from cogs.utilities import staticData
 
-class WoWs:
+class Wows:
     """World of Warships related commands."""
 
     def __init__(self, bot):
@@ -18,4 +18,4 @@ class WoWs:
             #await self.bot.say('{}: {}'.format(type(e).__name__, e))
 
 def setup(bot):
-    bot.add_cog(WoWs(bot))
+    bot.add_cog(Wows(bot))

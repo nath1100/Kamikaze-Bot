@@ -18,7 +18,7 @@ class Generic:
 
     def createCogHelpEmbed(self):
         """Create the help output that lists all of Kamikaze's cogs."""
-        title = "Help - List of categories"
+        title = "HELP - List of categories"
         description = "A list of Kamikaze's command categories. Use `!k.help <category>` for more help."
         em = tools.createEmbed(title=title, description=description)
         for cog in self.bot.cogs:
@@ -26,12 +26,41 @@ class Generic:
                 em.add_field(name=cog, value=self.bot.cogs[cog].__doc__, inline=False)
         return em
 
+    def processHelpCommand(self, keyword):
+        """Parse the keyword and display appropriately formatted command help"""
+        # must first check if command has sub commands. If so, output a list of sub commands.
+        # if no sub commands, display the command's help page.
+        return tools.createEmbed(title="WIP", description="Not yet implemented")
+
+    def processHelpKeyword(self, keyword):
+        """Parse the keyword and display the appropriate help page."""
+        # first check if the keyword is a cog:
+        casedKeyword = keyword[0].upper() + keyword[1:]
+        if casedKeyword in self.bot.cogs and casedKeyword not in UNLISTED_COGS:
+            title = "HELP - {} commands".format(casedKeyword)
+            description = "List of commands under the {} category. Use `!k.help <command>` for more detail.".format(casedKeyword)
+            em = tools.createEmbed(title=title, description=description)
+            for command in self.bot.commands:
+                if keyword.lower() == self.bot.commands[command].module.__name__.replace('cogs.',''): #splice off "cogs."
+                    em.add_field(name=command, value=self.bot.commands[command].help, inline=False)
+            return em
+        # else, check if the keyword is a command:
+        elif keyword.lower() in [x.lower() for x in self.bot.commands]:
+            return self.processHelpCommand(keyword)
+        # else, output an error mesage
+        else:
+            description = "What you entered is neither a category nor command. Please check your case/spelling and try again."
+            em = tools.createEmbed(title="HELP - {}".format(keyword), description=description)
+            return em
+
     @commands.command(pass_context=True)
     async def help(self, ctx, keyword=""):
-        """Get help for Kamikaze's commands."""
+        """This help command."""
         #if raw !k.help, show available cogs
         if keyword == "":
             await self.bot.say(embed=self.createCogHelpEmbed())
+        else:
+            await self.bot.say(embed=self.processHelpKeyword(keyword))
 
     @commands.group(pass_context=True, hidden=True)
     async def test(self, ctx):
@@ -45,11 +74,17 @@ class Generic:
                 page += "{}: {}\n".format(cog, self.bot.cogs[cog].commands)
             await self.bot.say(page)
             '''
-            #print(self.bot.commands)
+            print(self.bot.commands)
             for command in self.bot.commands:
-                page += "{}: {}\n".format(command, self.bot.commands[command].help)
+                page += "{}: {}\n".format(command, self.bot.commands[command].module.__name__[5:])
             print(page)
             #await self.bot.say(page)
+
+    @commands.command()
+    async def test2(self):
+        em = tools.createEmbed(title="test", description="test desc")
+        em.add_field(name="test field", value=None, inline=False)
+        await self.bot.say(embed=em)
 
     @commands.group(pass_context=True)
     async def countdown(self, ctx):
