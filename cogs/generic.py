@@ -30,12 +30,12 @@ class Generic:
         """Parse the keyword and display appropriately formatted command help"""
         # must first check if command has sub commands. If so, output a list of sub commands.
         # if no sub commands, display the command's help page.
-        return tools.createEmbed(title="WIP", description="Not yet implemented") # STUB
+        return tools.createEmbed(title="WIP", description="Command help not yet implemented") # STUB
 
     def processHelpKeyword(self, keyword):
         """Parse the keyword and display the appropriate help page."""
         # first check if the keyword is a cog:
-        casedKeyword = keyword[0].upper() + keyword[1:]
+        casedKeyword = keyword[0].upper() + keyword[1:].lower()
         if casedKeyword in self.bot.cogs and casedKeyword not in UNLISTED_COGS:
             title = "HELP - {} commands".format(casedKeyword)
             description = "List of commands under the {} category. Use `!k.help <command>` for more detail.".format(casedKeyword)
@@ -55,7 +55,7 @@ class Generic:
 
     @commands.command(pass_context=True)
     async def help(self, ctx, keyword=""):
-        """This help command."""
+        """Show this help command. Lookup various categories and commands with this."""
         destination = ctx.message.author
         #if raw !k.help, show available cogs
         if keyword == "":
@@ -65,7 +65,7 @@ class Generic:
 
     @commands.command(pass_context=True, hidden=True)
     async def test(self, ctx):
-        """Get some help"""
+        """Stop staring..."""
         if checks.check_owner(ctx.message):
             # print out help
             #await self.bot.say(self.bot.cogs)
@@ -83,6 +83,7 @@ class Generic:
 
     @commands.command(pass_context=True, hidden=True)
     async def test2(self, ctx):
+        """Seriously..."""
         if checks.check_owner(ctx.message):
             em = tools.createEmbed(title="test", description="test desc")
             em.add_field(name="test field", value=None, inline=False)
@@ -90,7 +91,7 @@ class Generic:
 
     @commands.group(pass_context=True)
     async def countdown(self, ctx):
-        """A countdown timer to a specified event"""
+        """Displays the remaining time until a specified event."""
         # Check if the server is already in the list, if not, add a dummy datetime
         countdown_all = tools.loadPickle('countdown_all.pickle')
         try:
@@ -113,7 +114,7 @@ class Generic:
 
     @countdown.command(pass_context=True)
     async def edit(self, ctx):
-        """Edit the countdown target"""
+        """Edit the countdown target."""
         AUTO_TIMEOUT = 300 # 5 minutes
         if checks.check_moderator(ctx.message):
             info1 = await self.bot.say("Please enter a new target date in format: **DD-MM-YYYY, HH:MM:SS**")
@@ -145,7 +146,7 @@ class Generic:
 
     @commands.command(pass_context=True)
     async def count(self, ctx, *, count_what : str):
-        """Get Kamikaze to count something for you"""
+        """Get Kamikaze to count something for you. 1 transport, 2 transports..."""
         AUTO_TIMEOUT = 10800 # 3 hours
         count = 0
         title = "{}'s counter".format(ctx.message.author.name)
@@ -171,7 +172,7 @@ class Generic:
 
     @commands.command(pass_context=True)
     async def avatar(self, ctx, *, user : str):
-        """View a user's avatar. (!k.avatar @user)"""
+        """View a user's profile picture. (!k.avatar @user)"""
         user_id = user.strip('<@>')
         member = ctx.message.server.get_member(user_id)
         title = "{}'s avatar".format(member.name)
@@ -181,7 +182,7 @@ class Generic:
 
     @commands.command(pass_context=True)
     async def notepad(self, ctx, *, content : str=None):
-        """Store some text for later viewing. Clear with '!k.notepad clear'"""
+        """Store some text for later viewing. Clear with '!k.notepad clear.'"""
         data = tools.loadPickle('notepad.pickle')
         author = ctx.message.author
         if content is None:
@@ -212,14 +213,14 @@ class Generic:
 
     @commands.command()
     async def fact(self):
-        """Receive a random fact from Kamikaze"""
+        """Kamikaze shares her 90+ years of knowledge."""
         with open('fact_database', 'r') as f:
             chosen_fact = str(random.choice(f.readlines()))
         await self.bot.say('```{}```'.format(chosen_fact))
 
     @commands.command()
     async def up(self, item : str):
-        """Display a file from Kamikaze's directory."""
+        """Display one of Kamikaze's many images."""
         if '\\' in item:
             pass
         elif item == 'list':
@@ -238,24 +239,24 @@ class Generic:
                 except Exception:
                     pass
 
-    @commands.command(pass_context=True)
-    async def ping(self, ctx):
-        """Ping Kamikaze"""
-        em = tools.createEmbed(title="Pong!", description=None)
-        await self.bot.say(embed=em)
+    @commands.command()
+    async def ping(self):
+        """Ping Kamikaze."""
+        await self.bot.say("Pong!")
 
     @commands.command(pass_context=True)
     async def info(self, ctx):
-        """Retrieve server information"""
+        """Find out about the server and its administrators."""
         try:
-            description = "**Server owner:** {}#{}\n".format(ctx.message.server.owner.name, ctx.message.server.owner.discriminator)
-            description += "**Server region:** {}\n".format(ctx.message.server.region)
+            server = ctx.message.server
+            description = "**Server owner:** {}#{}\n".format(server.owner.name, server.owner.discriminator)
+            description += "**Server region:** {}\n".format(server.region)
             adminList = []
-            for member in ctx.message.server.members:
+            for member in server.members:
                 if ctx.message.channel.permissions_for(member).administrator:
                     adminList.append(member.name)
             description += "\n**Administrators:**\n" + ', '.join(adminList)
-            title = "Server Information: {}".format(ctx.message.server.name)
+            title = "Server Information: {}".format(server.name)
             em = tools.createEmbed(title=title, description=description)
             await self.bot.say(embed=em)
         except Exception as e:
@@ -263,7 +264,7 @@ class Generic:
 
     @commands.command()
     async def github(self):
-        """Retrieve the Kamikaze repository URL"""
+        """Get Kamikaze's github repository."""
         await self.bot.say("You can find my sourcecode here: https://github.com/nath1100/Kamikaze-Bot")
 
 def setup(bot):

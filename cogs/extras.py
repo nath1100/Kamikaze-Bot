@@ -16,7 +16,7 @@ def getCoin(message):
         return ":dollar:"
 
 class Extras:
-    """Miscellaneous commands for fun."""
+    """Miscellaneous commands purely for fun."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -87,7 +87,7 @@ class Extras:
 
     @coins.command(pass_context=True)
     async def all(self, ctx):
-        """Check other people's coins"""
+        """See how many coins everyone else has."""
         coinEmoji = getCoin(ctx.message)
         coin_stash = tools.loadPickle('coin_stash.pickle')
         description = '\n'.join([("{}: **{}**x {}".format(tools.findMember(self.bot, x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
@@ -97,7 +97,7 @@ class Extras:
 
     @coins.command(pass_context=True)
     async def shop(self, ctx):
-        """Seize the means of production"""
+        """Seize the means of production!"""
         wordMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         dateSuffix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th']
         today = datetime.datetime.today()

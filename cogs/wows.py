@@ -10,7 +10,7 @@ class Wows:
 
     @commands.command()
     async def sigma(self, *, battleship : str):
-        """Retrieve sigma value of a BB"""
+        """Retrieve a battleship's sigma value."""
         try:
             await self.bot.say("{:.1}{} sigma: **{}**".format(battleship.upper(), battleship.lower()[1:], staticData.sigmaValues(battleship.lower())))
         except Exception as e:

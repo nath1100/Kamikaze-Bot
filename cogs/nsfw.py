@@ -10,7 +10,7 @@ class Nsfw:
 
     @commands.command(pass_context=True, hidden=True)
     async def nsfw_enable(self, ctx):
-        """Enables NSFW commands for the current channel"""
+        """Enables NSFW commands for the current channel."""
         if checks.check_moderator(ctx.message):
             channel_list = tools.loadPickle('nsfwChannels.pickle')
             if not checks.check_nsfwEnabled(ctx.message):
@@ -22,7 +22,7 @@ class Nsfw:
 
     @commands.command(pass_context=True, hidden=True)
     async def nsfw_disable(self, ctx):
-        """Disables NSFW commands for the current channel"""
+        """Disables NSFW commands for the current channel."""
         if checks.check_moderator(ctx.message):
             channel_list = tools.loadPickle('nsfwChannels.pickle')
             if checks.check_nsfwEnabled(ctx.message):
@@ -34,7 +34,7 @@ class Nsfw:
 
     @commands.command(pass_context=True)
     async def nhentai(self, ctx, *, keywords : str):
-        """Search nhentai. Does not support search tags yet. "Random" for random."""
+        """Search nhentai. Does not support search tags yet. `!k.nhentai random` for random."""
         if checks.check_nsfwEnabled(ctx.message):
             if keywords.lower() == "random":
                 await self.bot.send_message(ctx.message.author, "https://nhentai.net/random/")
