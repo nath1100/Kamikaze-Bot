@@ -68,7 +68,7 @@ class Extras:
 
     @commands.group(pass_context=True)
     async def coins(self, ctx):
-        """How many coins do you have?"""
+        """View the amount of coins you possess."""
         if ctx.invoked_subcommand is None:
             coinEmoji = getCoin(ctx.message)
             author = ctx.message.author

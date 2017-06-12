@@ -67,11 +67,11 @@ class Admin:
             await self.bot.send_message(self.bot.get_channel(channel_id), msg)
 
     @commands.command(pass_context=True)
-    async def clean(self, ctx, search=40):
+    async def clean(self, ctx, msg_amount=40):
         """Purges command messages and Kamikaze's outputs from the channel."""
         if checks.check_moderator(ctx.message):
             predicate = lambda m: m.author == self.bot.user or m.content.startswith('!k.')
-            deleted = await self.bot.purge_from(ctx.message.channel, limit=search+1, check=predicate)
+            deleted = await self.bot.purge_from(ctx.message.channel, limit=msg_amount+1, check=predicate)
             await asyncio.sleep(1)
             await self.bot.say("Deleted {} message(s).".format(len(deleted)-1), delete_after=6)
 

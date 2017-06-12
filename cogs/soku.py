@@ -88,7 +88,7 @@ class Soku:
 
     @commands.group(pass_context=True)
     async def ip(self, ctx):
-        """Soku IP related commands."""
+        """View the Soku IP list."""
         if ctx.invoked_subcommand is None:    
             soku_ip = tools.loadPickle('soku_ip.pickle')
             try:

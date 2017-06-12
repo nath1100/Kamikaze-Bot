@@ -1,4 +1,4 @@
-import discord, asyncio, random, os
+import discord, asyncio, random, os, inspect
 from discord.ext import commands
 from cogs.utilities import paths, tools, checks
 from datetime import datetime, timedelta
@@ -26,35 +26,59 @@ class Generic:
                 em.add_field(name=cog, value=self.bot.cogs[cog].__doc__, inline=False)
         return em
 
-    def processHelpCommand(self, keyword):
-        """Parse the keyword and display appropriately formatted command help"""
-        # must first check if command has sub commands. If so, output a list of sub commands.
-        # if no sub commands, display the command's help page.
-        return tools.createEmbed(title="WIP", description="Command help not yet implemented") # STUB
+    def displayFinalHelpCommand(self, cmd):
+        """Create and return the help embed for a command with no sub commands."""
+        params = ['<'+x+'>' for x in cmd.params if x not in ['self', 'ctx']]
+        title = "HELP - '{}'".format(cmd)
+        description = "**{}**\n\n__Usage__\n`!k.{} {}`".format(cmd.help, cmd, ' '.join(params))
+        return tools.createEmbed(title=title, description=description)
+
+    def processHelpCommand(self, cmd):
+        """Parse the keyword and display appropriately formatted command help."""
+        #return tools.createEmbed(title="WIP", description="Command help not yet implemented") # STUB
+        all_commands = [x for x in self.bot.walk_commands()]
+        # check if the command has sub commands
+        sub_commands = []
+        for command in all_commands:
+            if str(command).startswith(str(cmd) + ' '):
+                sub_commands.append(command)
+        if len(sub_commands) > 0: # then the command has sub commands
+            title = "HELP - '{}'".format(cmd)
+            description = "**{}**\n\nThe following is a list of subcommands under the **{} command**.\nUse `!k.help {} <subcommand>` for more detailed help.".format(cmd.help, cmd, cmd)
+            em = tools.createEmbed(title=title, description=description)
+            for command in sub_commands:
+                em.add_field(name=command.name, value=command.help, inline=False)
+            return em
+        else: # the command doesn't have any sub commands
+            return self.displayFinalHelpCommand(cmd)
 
     def processHelpKeyword(self, keyword):
         """Parse the keyword and display the appropriate help page."""
+        cmd = self.bot.get_command(keyword.lower())
         # first check if the keyword is a cog:
         casedKeyword = keyword[0].upper() + keyword[1:].lower()
         if casedKeyword in self.bot.cogs and casedKeyword not in UNLISTED_COGS:
-            title = "HELP - {} commands".format(casedKeyword)
-            description = "List of commands under the {} category. Use `!k.help <command>` for more detail.".format(casedKeyword)
+            title = "HELP - '{}' commands".format(casedKeyword)
+            description = "List of commands under the **{} category**. Use `!k.help <command>` for more detail.".format(casedKeyword)
             em = tools.createEmbed(title=title, description=description)
+            # add the cog's commands to its help page
             for command in self.bot.commands:
-                if keyword.lower() == self.bot.commands[command].module.__name__.replace('cogs.','') and not self.bot.commands[command].hidden: #splice off "cogs."
-                    em.add_field(name=command, value=self.bot.commands[command].help, inline=False)
+                commandObj = self.bot.get_command(command)
+                if keyword.lower() == commandObj.module.__name__.replace('cogs.','') and not commandObj.hidden: #splice off "cogs."
+                    em.add_field(name=command, value=commandObj.help, inline=False)
             return em
-        # else, check if the keyword is a command:
-        elif keyword.lower() in [x.lower() for x in self.bot.commands]:
-            return self.processHelpCommand(keyword)
-        # else, output an error mesage
+        # else, check if the keyword is a command/subcommand:
+        #elif keyword.lower() in [x.lower() for x in self.bot.commands]:
+        elif cmd is not None:
+            return self.processHelpCommand(cmd)
+        # else, output an error message
         else:
             description = "What you entered is neither a category nor command. Please check your case/spelling and try again."
-            em = tools.createEmbed(title="HELP - {}".format(keyword), description=description)
+            em = tools.createEmbed(title="HELP - '{}'".format(keyword), description=description)
             return em
 
     @commands.command(pass_context=True)
-    async def help(self, ctx, keyword=""):
+    async def help(self, ctx, *, keyword=""):
         """Show this help command. Lookup various categories and commands with this."""
         destination = ctx.message.author
         #if raw !k.help, show available cogs
@@ -77,17 +101,19 @@ class Generic:
             '''
             print(self.bot.commands)
             for command in self.bot.commands:
-                page += "{}: {}\n".format(command, self.bot.commands[command].module.__name__[5:])
+                page += "{}: {}\n".format(command, self.bot.commands[command])
             print(page)
             #await self.bot.say(page)
 
     @commands.command(pass_context=True, hidden=True)
-    async def test2(self, ctx):
+    async def test2(self, ctx, *, command):
         """Seriously..."""
-        if checks.check_owner(ctx.message):
-            em = tools.createEmbed(title="test", description="test desc")
-            em.add_field(name="test field", value=None, inline=False)
-            await self.bot.say(embed=em)
+        #all_commands = [x for x in self.bot.walk_commands()]
+        #for x in all_commands:
+        #    print(x)
+        #print([str(x) for x in all_commands])
+        d = [x for x in self.bot.get_command(command).params]
+        print(d)
 
     @commands.group(pass_context=True)
     async def countdown(self, ctx):
