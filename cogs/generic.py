@@ -30,7 +30,7 @@ class Generic:
         """Parse the keyword and display appropriately formatted command help"""
         # must first check if command has sub commands. If so, output a list of sub commands.
         # if no sub commands, display the command's help page.
-        return tools.createEmbed(title="WIP", description="Not yet implemented")
+        return tools.createEmbed(title="WIP", description="Not yet implemented") # STUB
 
     def processHelpKeyword(self, keyword):
         """Parse the keyword and display the appropriate help page."""
@@ -41,7 +41,7 @@ class Generic:
             description = "List of commands under the {} category. Use `!k.help <command>` for more detail.".format(casedKeyword)
             em = tools.createEmbed(title=title, description=description)
             for command in self.bot.commands:
-                if keyword.lower() == self.bot.commands[command].module.__name__.replace('cogs.',''): #splice off "cogs."
+                if keyword.lower() == self.bot.commands[command].module.__name__.replace('cogs.','') and not self.bot.commands[command].hidden: #splice off "cogs."
                     em.add_field(name=command, value=self.bot.commands[command].help, inline=False)
             return em
         # else, check if the keyword is a command:
@@ -56,16 +56,17 @@ class Generic:
     @commands.command(pass_context=True)
     async def help(self, ctx, keyword=""):
         """This help command."""
+        destination = ctx.message.author
         #if raw !k.help, show available cogs
         if keyword == "":
-            await self.bot.say(embed=self.createCogHelpEmbed())
+            await self.bot.send_message(destination, embed=self.createCogHelpEmbed())
         else:
-            await self.bot.say(embed=self.processHelpKeyword(keyword))
+            await self.bot.send_message(destination, embed=self.processHelpKeyword(keyword))
 
-    @commands.group(pass_context=True, hidden=True)
+    @commands.command(pass_context=True, hidden=True)
     async def test(self, ctx):
         """Get some help"""
-        if ctx.invoked_subcommand is None:
+        if checks.check_owner(ctx.message):
             # print out help
             #await self.bot.say(self.bot.cogs)
             page = ''
@@ -80,11 +81,12 @@ class Generic:
             print(page)
             #await self.bot.say(page)
 
-    @commands.command()
-    async def test2(self):
-        em = tools.createEmbed(title="test", description="test desc")
-        em.add_field(name="test field", value=None, inline=False)
-        await self.bot.say(embed=em)
+    @commands.command(pass_context=True, hidden=True)
+    async def test2(self, ctx):
+        if checks.check_owner(ctx.message):
+            em = tools.createEmbed(title="test", description="test desc")
+            em.add_field(name="test field", value=None, inline=False)
+            await self.bot.say(embed=em)
 
     @commands.group(pass_context=True)
     async def countdown(self, ctx):
