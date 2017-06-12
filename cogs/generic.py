@@ -87,34 +87,6 @@ class Generic:
         else:
             await self.bot.send_message(destination, embed=self.processHelpKeyword(keyword))
 
-    @commands.command(pass_context=True, hidden=True)
-    async def test(self, ctx):
-        """Stop staring..."""
-        if checks.check_owner(ctx.message):
-            # print out help
-            #await self.bot.say(self.bot.cogs)
-            page = ''
-            '''
-            for cog in self.bot.cogs:
-                page += "{}: {}\n".format(cog, self.bot.cogs[cog].commands)
-            await self.bot.say(page)
-            '''
-            print(self.bot.commands)
-            for command in self.bot.commands:
-                page += "{}: {}\n".format(command, self.bot.commands[command])
-            print(page)
-            #await self.bot.say(page)
-
-    @commands.command(pass_context=True, hidden=True)
-    async def test2(self, ctx, *, command):
-        """Seriously..."""
-        #all_commands = [x for x in self.bot.walk_commands()]
-        #for x in all_commands:
-        #    print(x)
-        #print([str(x) for x in all_commands])
-        d = [x for x in self.bot.get_command(command).params]
-        print(d)
-
     @commands.group(pass_context=True)
     async def countdown(self, ctx):
         """Displays the remaining time until a specified event."""
