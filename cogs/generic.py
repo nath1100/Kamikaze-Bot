@@ -1,4 +1,4 @@
-import discord, asyncio, random, os, inspect
+import discord, asyncio, random, os
 from discord.ext import commands
 from cogs.utilities import paths, tools, checks
 from datetime import datetime, timedelta

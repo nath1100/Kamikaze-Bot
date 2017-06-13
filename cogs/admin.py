@@ -15,7 +15,8 @@ class Admin:
     @commands.command(pass_context=True, hidden=True)
     async def get_discord_version(self, ctx):
         """Output the discord.py version."""
-        await self.bot.say("discord.py version: **{}**".format(discord.__version__))
+        if checks.check_owner(ctx.message):
+            await self.bot.say("discord.py version: **{}**".format(discord.__version__))
 
     @commands.command(pass_context=True, hidden=True)
     async def return_id_info(self, ctx, target_id : str):
