@@ -1,6 +1,6 @@
 import asyncio, discord, logging, os
 from discord.ext import commands
-from cogs.utilities import paths
+from cogs.utilities import tools
 try:
     import cPickle as pickle
 except ImportError:
@@ -13,9 +13,13 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-#token retrieval
-with open(paths.retrieveToken(), 'r') as f:
-    token = f.read()
+def get_key():
+    creds = tools.loadPickle("crds.pickle")
+    with open(creds['keyPath'], "r") as f:
+        key = f.read()
+    return key
+
+token = get_key()
 
 version = '1.0.2.6'
 

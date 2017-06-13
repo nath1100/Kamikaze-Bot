@@ -221,27 +221,6 @@ class Generic:
         await self.bot.say('```{}```'.format(chosen_fact))
 
     @commands.command()
-    async def up(self, item : str):
-        """Display one of Kamikaze's many images."""
-        if '\\' in item:
-            pass
-        elif item == 'list':
-            item_list = []
-            for x in os.listdir(UPLOAD_FOLDER):
-                item_list.append(str(x).strip('[]'))
-            await self.bot.say('```{}```'.format(item_list))
-        elif item in os.listdir(UPLOAD_FOLDER): # make certain to keep kamikaze_bot.py in her directory, and that the file dir is correct
-            await self.bot.upload(UPLOAD_FOLDER + '\\' + item)
-        else:
-            try:
-                await self.bot.upload(UPLOAD_FOLDER + '\\{}.jpg'.format(item))
-            except Exception:
-                try:
-                    await self.bot.upload(UPLOAD_FOLDER + '\\{}.png'.format(item))
-                except Exception:
-                    pass
-
-    @commands.command()
     async def ping(self):
         """Ping Kamikaze."""
         await self.bot.say("Pong!")
