@@ -78,6 +78,10 @@ class Generic:
             return em
 
     @commands.command(pass_context=True)
+    async def test(self, ctx):
+        await self.bot.say(ctx.message.channel.name is None)
+
+    @commands.command(pass_context=True)
     async def help(self, ctx, *, keyword=""):
         """Show this help command. Lookup various categories and commands with this."""
         destination = ctx.message.author
@@ -243,7 +247,7 @@ class Generic:
         await self.bot.say("Pong!")
 
     @commands.command(pass_context=True)
-    async def info(self, ctx):
+    async def server_info(self, ctx):
         """Find out about the server and its administrators."""
         try:
             server = ctx.message.server
@@ -259,6 +263,24 @@ class Generic:
             await self.bot.say(embed=em)
         except Exception as e:
             await self.bot.say("{}: {}".format(type(e).__name__, e))
+
+    @commands.command()
+    async def info(self):
+        """Display info about Kamikaze."""
+        owner = await self.bot.get_user_info("178112312845139969")
+        title = "Information about Kamikaze"
+        description = "I am a Discord bot written in python using Rapptz's discord api wrapper.\n"
+        description += "I was written by **{}**.\n".format(owner)
+        description += "My sourcecode can be found here: https://github.com/nath1100/Kamikaze-Bot"
+        em = tools.createEmbed(title=title, description=description)
+        # dependencies
+        depends = "**Rapptz's API wrapper:** https://github.com/Rapptz/discord.py\n"
+        depends += "Version {}".format(discord.__version__)
+        em.add_field(name="Dependencies", value=depends, inline=False)
+        # other credits
+        credits = "**Diablohu's KC data:** https://github.com/Diablohu/WhoCallsTheFleet/"
+        em.add_field(name="Other credits", value=credits, inline=False)
+        await self.bot.say(embed=em)
 
     @commands.command()
     async def github(self):

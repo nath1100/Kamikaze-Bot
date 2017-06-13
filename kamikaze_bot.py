@@ -70,9 +70,11 @@ async def on_command_error(error, ctx):
         pass
     else:
         error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nPlease be patient until this is fixed~!")
-        await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
-        #await asyncio.sleep(10)
-        #await bot.delete_message(error_m)
+        try:
+            await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
+        except AttributeError:
+            # do not send error reports for PMs
+            pass
 
 #admin and other
 @bot.event
@@ -80,8 +82,6 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
-    else:
-        pass
     await bot.process_commands(message)
 
 if __name__ == '__main__':
