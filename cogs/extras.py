@@ -1,10 +1,12 @@
 import discord, asyncio, random, datetime
 from discord.ext import commands
-from cogs.utilities import tools, checks
+from cogs.utilities import tools, checks, paths
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
+
+UPLOAD_FOLDER = paths.uploadFolder()
 
 def getCoin(message):
     try:
@@ -20,7 +22,7 @@ class Extras:
 
     def __init__(self, bot):
         self.bot = bot
-    
+
     '''
     @commands.command(pass_context=True)
     async def colour(self, ctx, *, new_colour : str):
@@ -37,6 +39,37 @@ class Extras:
             #do something
             pass
     '''
+
+    @commands.group(pass_context=True)
+    async def img(self, ctx):
+        """Upload an image from Kamikaze's directory."""
+        if ctx.invoked_subcommand is None:
+            await self.bot.say("Use `!k.help img` to view available commands.")
+
+    @img.command()
+    async def twoearsorfour(self):
+        """'Do I have two ears or four?'"""
+        await self.bot.upload(UPLOAD_FOLDER + "\\2earsor4.png")
+
+    @img.command()
+    async def happyend(self):
+        """'Yosh!'"""
+        await self.bot.upload(UPLOAD_FOLDER + "\\happyend.jpg")
+
+    @img.command()
+    async def kami(self):
+        """'Ehehehe'"""
+        await self.bot.upload(UPLOAD_FOLDER + "\\kami.jpg")
+
+    @img.command()
+    async def panic(self):
+        """;;;;;;"""
+        await self.bot.upload(UPLOAD_FOLDER + "\\panic.jpg")
+
+    @img.command()
+    async def rpfisfine(self):
+        """It's true."""
+        await self.bot.upload(UPLOAD_FOLDER + "\\rpfisfine.png")
 
     @commands.group(pass_context=True)
     async def roll(self, ctx):

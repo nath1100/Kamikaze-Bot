@@ -4,7 +4,6 @@ from cogs.utilities import paths, tools, checks
 from datetime import datetime, timedelta
 
 #constants
-UPLOAD_FOLDER = paths.uploadFolder()
 UNLISTED_COGS = ['Loader', 'Repl', 'Keywords']
 
 def removeMicroseconds(tdelta):
