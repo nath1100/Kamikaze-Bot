@@ -33,10 +33,9 @@ class Internet:
             return
         article_title = results[int(msg.content) - 1]
         await self.bot.delete_messages([search_selection, msg])
-        notice = await self.bot.say("Retrieving summary information...")
+        await self.bot.send_typing(ctx.message.channel)
         page = wikipedia.page(article_title)
         em = tools.createEmbed(title="Result #{}: {}".format(msg.content, article_title), description=page.summary)
-        await self.bot.delete_message(notice)
         await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
