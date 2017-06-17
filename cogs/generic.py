@@ -77,10 +77,6 @@ class Generic:
             return em
 
     @commands.command(pass_context=True)
-    async def test(self, ctx):
-        await self.bot.say(ctx.message.channel.name is None)
-
-    @commands.command(pass_context=True)
     async def help(self, ctx, *, keyword=""):
         """Show this help command. Lookup various categories and commands with this."""
         destination = ctx.message.author
