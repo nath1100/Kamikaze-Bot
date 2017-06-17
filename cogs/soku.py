@@ -145,7 +145,8 @@ class Soku:
                 try:
                     ip = soku_ip[target[0].upper() + target[1:].lower()]
                     em = tools.createEmbed(title="{}'s Soku IP".format(target[0].upper() + target[1:]), description=ip)
-                    await self.bot.say(embed=em, delete_after=30)
+                    await self.bot.say(embed=em, delete_after=60)
+                    await self.bot.delete_message(ctx.message)
                 except KeyError:
                     await self.bot.say("Unable to find {} in the list.".format(target))
             except Exception as e:

@@ -1,4 +1,4 @@
-import discord, asyncio, random, datetime
+import discord, asyncio, random, datetime, os
 from discord.ext import commands
 from cogs.utilities import tools, checks, paths
 try:
@@ -7,6 +7,7 @@ except ImportError:
     import pickle
 
 UPLOAD_FOLDER = paths.uploadFolder()
+upload_images = [x[:-4] for x in os.listdir(UPLOAD_FOLDER)]
 
 def getCoin(message):
     try:
@@ -40,36 +41,19 @@ class Extras:
             pass
     '''
 
-    @commands.group(pass_context=True)
-    async def img(self, ctx):
-        """Upload an image from Kamikaze's directory."""
-        if ctx.invoked_subcommand is None:
-            await self.bot.say("Use `!k.help img` to view available commands.")
-
-    @img.command()
-    async def twoearsorfour(self):
-        """'Do I have two ears or four?'"""
-        await self.bot.upload(UPLOAD_FOLDER + "\\2earsor4.png")
-
-    @img.command()
-    async def happyend(self):
-        """'Yosh!'"""
-        await self.bot.upload(UPLOAD_FOLDER + "\\happyend.jpg")
-
-    @img.command()
-    async def kami(self):
-        """'Ehehehe'"""
-        await self.bot.upload(UPLOAD_FOLDER + "\\kami.jpg")
-
-    @img.command()
-    async def panic(self):
-        """;;;;;;"""
-        await self.bot.upload(UPLOAD_FOLDER + "\\panic.jpg")
-
-    @img.command()
-    async def rpfisfine(self):
-        """It's true."""
-        await self.bot.upload(UPLOAD_FOLDER + "\\rpfisfine.png")
+    @commands.command(pass_context=True)
+    async def img(self, ctx, *, image_name : str):
+        """Upload an image from Kamikaze's directory. `!k.img list` for a list of available images."""
+        if image_name == "list":
+            await self.bot.say("```{}```".format(', '.join(upload_images)))
+        elif image_name in upload_images:
+            await self.bot.send_typing(ctx.message.channel)
+            try:
+                await self.bot.upload(UPLOAD_FOLDER + "\\{}.png".format(image_name))
+            except FileNotFoundError:
+                await self.bot.upload(UPLOAD_FOLDER + "\\{}.jpg".format(image_name))
+        else:
+            await self.bot.say("No such image. Try `!k.img list` for a list.")
 
     @commands.group(pass_context=True)
     async def roll(self, ctx):

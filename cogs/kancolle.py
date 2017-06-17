@@ -143,14 +143,16 @@ class Kancolle:
         except IndexError:
             await self.bot.say("Please enter a range between 2 and 9.")
 
-    @commands.command()
-    async def aaci(self):
+    @commands.command(pass_context=True)
+    async def aaci(self, ctx):
         """Display an AACI info chart."""
+        await self.bot.send_typing(ctx.message.channel)
         await self.bot.upload(upload_folder + '\\' + 'aaci.png')
 
-    @commands.command()
-    async def fit(self):
+    @commands.command(pass_context=True)
+    async def fit(self, ctx):
         """Displays overweight penalties and fit guns for battleships."""
+        await self.bot.send_typing(ctx.message.channel)
         await self.bot.upload(upload_folder + '\\' + 'fit.png')
 
     @commands.command(pass_context=True)

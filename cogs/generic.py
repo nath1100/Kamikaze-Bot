@@ -84,6 +84,8 @@ class Generic:
     async def help(self, ctx, *, keyword=""):
         """Show this help command. Lookup various categories and commands with this."""
         destination = ctx.message.author
+        if not ctx.message.channel.is_private:
+            await self.bot.say("Help sent to PM.")
         #if raw !k.help, show available cogs
         if keyword == "":
             await self.bot.send_message(destination, embed=self.createCogHelpEmbed())
