@@ -7,3 +7,7 @@ def uploadFolder():
 def worldInfo():
     """World info folder"""
     return r"upload_worldinfo"
+
+def sinoaliceInfo():
+    """SINoALICE translation folder"""
+    return r"upload_sinoalice"
