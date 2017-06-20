@@ -1,6 +1,7 @@
 import discord, os
 from discord.ext import commands
-from cogs.utilities import paths
+from cogs.utilities import paths, checks
+from datetime import datetime, date, time
 
 class Sinoalice:
     """Various commands related to mobile game SINoALICE."""
@@ -8,6 +9,25 @@ class Sinoalice:
     def __init__(self, bot):
         self.bot = bot
         self.uploadFolder = paths.sinoaliceInfo()
+
+    @commands.command()
+    async def regen(self, current_AP : int, end_time : str):
+        """Calculate the amount of AP regenerated specifying current AP and a target time.
+        End_time format should be HH:MM, eg 06:00 or 23:41."""
+        try:
+            hour, minute = end_time.split(":")
+        except ValueError:
+            await self.bot.say("Format should be `!k.regen <current_AP> <24h end_time>`. `!k.help regen` for examples.")
+            return
+        if not checks.convertsToInt(hour) and checks.convertsToInt(minute):
+            await self.bot.say("`End_time` should be a 24 hour time in format HH:MM.")
+        else:
+            timeLeft = datetime.combine(date.min, time(hour=int(hour), minute=int(minute))) - datetime.combine(date.min, datetime.time(datetime.now()))
+            seconds = timeLeft.total_seconds()
+            if seconds < 0:
+                await self.bot.say("`End_time` cannot be in the past! @ ~ @;")
+                return
+            await self.bot.say("You will have **{}** AP by {}".format(int(seconds/180) + current_AP, end_time))
 
     @commands.command(pass_context=True)
     async def menu(self, ctx, *, menu_page=None):
