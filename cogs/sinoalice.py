@@ -11,13 +11,14 @@ class Sinoalice:
         self.uploadFolder = paths.sinoaliceInfo()
 
     @commands.command()
-    async def regen(self, current_AP : int, end_time : str):
+    async def regen(self, current_AP : str, end_time : str):
         """Calculate the amount of AP regenerated specifying current AP and a target time.
         End_time format should be HH:MM, eg 06:00 or 23:41."""
         try:
+            current_AP = int(current_AP)
             hour, minute = end_time.split(":")
         except ValueError:
-            await self.bot.say("Format should be `!k.regen <current_AP> <24h end_time>`. `!k.help regen` for examples.")
+            await self.bot.say("`<current_AP>` should be integer and `<end_time>` should be HH:MM 24 hour time.")
             return
         if not checks.convertsToInt(hour) and checks.convertsToInt(minute):
             await self.bot.say("`End_time` should be a 24 hour time in format HH:MM.")
