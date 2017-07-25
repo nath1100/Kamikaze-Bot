@@ -3,11 +3,13 @@ from discord.ext import commands
 from cogs.utilities import checks, tools
 
 class Nsfw:
-    """Ecchi commands. (///v///)"""
+    """Ecchi commands. (///v///)
+    [Removed until reworked]"""
 
     def __init__(self, bot):
         self.bot = bot
 
+    '''
     @commands.command(pass_context=True)
     async def nhentai(self, ctx, *, keywords : str):
         """Search nhentai. Does not support search tags yet. `!k.nhentai random` for random."""
@@ -23,6 +25,7 @@ class Nsfw:
                 await self.bot.say(searchResult)
         else:
             await self.bot.say("NSFW commands can only be used in NSFW channels!")
+    '''
 
 def setup(bot):
     bot.add_cog(Nsfw(bot))

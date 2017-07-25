@@ -169,15 +169,27 @@ class Generic:
             return
         await self.bot.say("Stopped counting.")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, no_pm=True)
     async def avatar(self, ctx, *, user : str):
-        """View a user's profile picture. (!k.avatar @user)"""
-        user_id = user.strip('<@>')
-        member = ctx.message.server.get_member(user_id)
+        """View a user's profile picture. User can be exact name or @ mention."""
+        server = ctx.message.server
+        if "@" in user:
+            user_id = user.strip('<@!>')
+            member = server.get_member(user_id)
+        else:
+            member = server.get_member_named(user)
+            if member is None:
+                await self.bot.say("Unable to find specified user. Please check for case sensitivity or use an @ mention.")
+                return
         title = "{}'s avatar".format(member.name)
-        em = tools.createEmbed(title=title)
-        em.set_image(url=member.avatar_url)
-        await self.bot.say(embed=em)
+        await self.bot.say(member.avatar_url)
+        #em = tools.createEmbed(title=title)
+        #em.set_image(url=member.avatar_url)
+        #await self.bot.say(embed=em)
+
+    @commands.command(pass_context=True)
+    async def testing(self, ctx):
+        await self.bot.say(ctx.message.server.get_member("172704013911982080").name)
 
     @commands.command(pass_context=True)
     async def notepad(self, ctx, *, content : str=None):

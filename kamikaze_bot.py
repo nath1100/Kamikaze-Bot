@@ -72,7 +72,9 @@ async def on_command_error(error, ctx):
         await bot.send_message(ctx.message.channel, "Did you forget a parameter?")
     elif isinstance(error, commands.CommandNotFound):
         #await bot.send_message(ctx.message.channel, "That command does not exist. Try !k.help")
-        pass
+        pass # let command fail silently
+    elif isinstance(error, commands.NoPrivateMessage):
+        await bot.send_message(ctx.message.channel, "This command cannot be used in private message.")
     else:
         error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nPlease be patient until this is fixed~!")
         try:
