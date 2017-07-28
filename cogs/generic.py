@@ -188,10 +188,6 @@ class Generic:
         #await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
-    async def testing(self, ctx):
-        await self.bot.say(ctx.message.server.get_member("172704013911982080").name)
-
-    @commands.command(pass_context=True)
     async def notepad(self, ctx, *, content : str=None):
         """Store some text for later viewing. Clear with '!k.notepad clear.'"""
         data = tools.loadPickle('notepad.pickle')

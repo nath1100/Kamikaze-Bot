@@ -7,7 +7,6 @@ except ImportError:
     import pickle
 
 UPLOAD_FOLDER = paths.uploadFolder()
-upload_images = [x[:-4] for x in os.listdir(UPLOAD_FOLDER)]
 
 def getCoin(message):
     try:
@@ -42,8 +41,9 @@ class Extras:
     '''
 
     @commands.command(pass_context=True)
-    async def img(self, ctx, *, image_name : str):
-        """Upload an image from Kamikaze's directory. `!k.img list` for a list of available images."""
+    async def up(self, ctx, *, image_name : str):
+        """Upload an image from Kamikaze's directory. `!k.up list` for a list of available images."""
+        upload_images = [x[:-4] for x in os.listdir(UPLOAD_FOLDER)]
         if image_name == "list":
             await self.bot.say("```{}```".format(', '.join(upload_images)))
         elif image_name in upload_images:
@@ -53,7 +53,18 @@ class Extras:
             except FileNotFoundError:
                 await self.bot.upload(UPLOAD_FOLDER + "\\{}.jpg".format(image_name))
         else:
-            await self.bot.say("No such image. Try `!k.img list` for a list.")
+            await self.bot.say("No such image. Try `!k.up list` for a list.")
+    
+    ''' SHELVED UNTIL SECURE METHOD
+    @commands.command(pass_context=True)
+    async def down(self, ctx, image_name : str):
+        """[missing]"""
+        image_data = ctx.message.attachments[0] # only take the first attachment (if there happens to be more than 1)
+        if bool([x for x in [".jpg", ".png"] if x in image_data["filename"]]): # return True if filename contains .png or .jpg
+            pass
+        else:
+            await self.bot.say("Please upload a .JPG or .PNG")
+    '''
 
     @commands.group(pass_context=True)
     async def roll(self, ctx):
@@ -82,6 +93,11 @@ class Extras:
             return
         output = ''.join([numbers[x] for x in value])
         await self.bot.say(embed=tools.createEmbed(title="You rolled **{}**".format(output)))
+
+    @commands.command()
+    async def poi(self):
+        """Poi!"""
+        await self.bot.say(embed=tools.createEmbed(title="Poi!"))
 
     @commands.group(pass_context=True)
     async def coins(self, ctx):

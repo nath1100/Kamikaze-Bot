@@ -42,6 +42,12 @@ class Admin:
             await self.bot.close()
 
     @commands.command(pass_context=True, hidden=True)
+    async def change_profile_name(self, ctx, new_name : str):
+        """Change Kamikaze's profile name"""
+        if checks.check_owner(ctx.message):
+            await self.bot.edit_profile(username=new_name)
+
+    @commands.command(pass_context=True, hidden=True)
     async def status(self, ctx, *, new_status : str):
         """Change Kamikaze's status message."""
         if checks.check_owner(ctx.message):
@@ -66,6 +72,15 @@ class Admin:
             await self.bot.send_typing(self.bot.get_channel(channel_id))
             await asyncio.sleep(len(msg) / 7)
             await self.bot.send_message(self.bot.get_channel(channel_id), msg)
+
+    @commands.command(pass_context=True, hidden=True)
+    async def stylish_say(self, ctx, channel_id : str, *, msg : str):
+        """Get Kamikaze to type and send a message to a channel using embeds."""
+        if checks.check_owner(ctx.message):
+            await self.bot.delete_message(ctx.message)
+            await self.bot.send_typing(self.bot.get_channel(channel_id))
+            await asyncio.sleep(len(msg) / 7)
+            await self.bot.send_message(self.bot.get_channel(channel_id), embed=tools.createEmbed(title=msg))
 
     @commands.command(pass_context=True)
     async def clean(self, ctx, msg_amount=40):
