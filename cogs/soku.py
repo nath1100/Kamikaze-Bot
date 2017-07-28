@@ -26,7 +26,8 @@ async def wrongServerError(bot, message):
     await bot.send_message(message.channel, "Command must be used in <#{}> in server <{}>".format(bot.get_channel('271935186151669774'), bot.get_server('260977178131431425')))
 
 class Soku:
-    """TH12.3 Hisoutensoku related commands"""
+    """TH 12.3 Hisoutensoku related commands."""
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -39,7 +40,7 @@ class Soku:
 
     @ranked.command(pass_context=True)
     async def challenge(self, ctx, *, opponent : str):
-        """Challenge another opponent!"""
+        """Challenge another opponent to a match of Soku!"""
         MATCH_TIMEOUT = 30
         AUTO_TIMEOUT = 10800 # 3 hours
         if checks.check_soku(ctx.message):
@@ -87,7 +88,7 @@ class Soku:
 
     @commands.group(pass_context=True)
     async def ip(self, ctx):
-        """Soku IP related commands"""
+        """View the Soku IP list."""
         if ctx.invoked_subcommand is None:    
             soku_ip = tools.loadPickle('soku_ip.pickle')
             try:
@@ -104,7 +105,7 @@ class Soku:
 
     @ip.command(pass_context=True)
     async def add(self, ctx, ip : str):
-        """Add yourself to the soku IP list"""
+        """Add yourself to the soku IP list."""
         await self.bot.delete_message(ctx.message)
         soku_ip = tools.loadPickle('soku_ip.pickle')
         soku_ip[ctx.message.author.name] = ip
@@ -119,7 +120,7 @@ class Soku:
 
     @ip.command(pass_context=True, hidden=True)
     async def add_other(self, ctx, target : str, ip : str):
-        """Add someone else's IP to the list"""
+        """Add someone else's IP to the list."""
         if checks.check_admin(ctx.message):
             try:
                 await self.bot.delete_message(ctx.message)
@@ -135,7 +136,7 @@ class Soku:
 
     @ip.command(pass_context=True)
     async def get(self, ctx, *, target : str):
-        """Retrieve the target user's IP"""
+        """Retrieve the target user's IP."""
         soku_ip = tools.loadPickle('soku_ip.pickle')
         # you can only retrieve ips in the soku channel
         if checks.check_soku(ctx.message):
@@ -144,7 +145,8 @@ class Soku:
                 try:
                     ip = soku_ip[target[0].upper() + target[1:].lower()]
                     em = tools.createEmbed(title="{}'s Soku IP".format(target[0].upper() + target[1:]), description=ip)
-                    await self.bot.say(embed=em, delete_after=30)
+                    await self.bot.say(embed=em, delete_after=60)
+                    await self.bot.delete_message(ctx.message)
                 except KeyError:
                     await self.bot.say("Unable to find {} in the list.".format(target))
             except Exception as e:
@@ -168,7 +170,7 @@ class Soku:
 
     @ip.command(pass_context=True, hidden=True)
     async def remove_other(self, ctx, *, target : str):
-        """Remove an entry from the soku IP list"""
+        """Remove an entry from the soku IP list."""
         if checks.check_admin(ctx.message):
             try:
                 soku_ip = tools.loadPickle('soku_ip.pickle')

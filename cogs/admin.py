@@ -7,23 +7,20 @@ except ImportError:
     import pickle
 
 class Admin:
-    """Administrator commands"""
+    """Various commands for Administrators."""
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(hidden=True)
-    async def ping2(self):
-        """Non-embed message ping"""
-        await self.bot.say("Pong!")
-
     @commands.command(pass_context=True, hidden=True)
     async def get_discord_version(self, ctx):
-        """Output discord.py version"""
-        await self.bot.say("discord.py version: **{}**".format(discord.__version__))
+        """Output the discord.py version."""
+        if checks.check_owner(ctx.message):
+            await self.bot.say("discord.py version: **{}**".format(discord.__version__))
 
     @commands.command(pass_context=True, hidden=True)
     async def return_id_info(self, ctx, target_id : str):
+        """Lookup an ID."""
         if checks.check_owner(ctx.message):
             server = self.bot.get_server(id=target_id)
             if server is None:
@@ -39,12 +36,20 @@ class Admin:
 
     @commands.command(pass_context=True, hidden=True)
     async def close(self, ctx):
+        """Ternminate Kamikaze."""
         if checks.check_owner(ctx.message):
             await self.bot.say('Bye Teitoku~')
             await self.bot.close()
 
     @commands.command(pass_context=True, hidden=True)
+    async def change_profile_name(self, ctx, new_name : str):
+        """Change Kamikaze's profile name"""
+        if checks.check_owner(ctx.message):
+            await self.bot.edit_profile(username=new_name)
+
+    @commands.command(pass_context=True, hidden=True)
     async def status(self, ctx, *, new_status : str):
+        """Change Kamikaze's status message."""
         if checks.check_owner(ctx.message):
             kamikaze_status = []
             kamikaze_status.append(new_status)
@@ -54,30 +59,41 @@ class Admin:
 
     @commands.command(name='say', pass_context=True, hidden=True)
     async def _say(self, ctx, channel_id : str, *, msg : str):
+        """Get Kamikaze to output a message. Requires Administrator permission."""
         if checks.check_owner(ctx.message) or checks.check_admin(ctx.message):
             await self.bot.send_message(discord.Object(id=str(channel_id)), msg)
             await self.bot.delete_message(ctx.message)
 
     @commands.command(name='type', pass_context=True, hidden=True)
     async def _type(self, ctx, channel_id : str, *, msg : str):
+        """Get Kamikaze to type and send a message to a channel."""
         if checks.check_owner(ctx.message):
             await self.bot.delete_message(ctx.message)
             await self.bot.send_typing(self.bot.get_channel(channel_id))
             await asyncio.sleep(len(msg) / 7)
             await self.bot.send_message(self.bot.get_channel(channel_id), msg)
 
+    @commands.command(pass_context=True, hidden=True)
+    async def stylish_say(self, ctx, channel_id : str, *, msg : str):
+        """Get Kamikaze to type and send a message to a channel using embeds."""
+        if checks.check_owner(ctx.message):
+            await self.bot.delete_message(ctx.message)
+            await self.bot.send_typing(self.bot.get_channel(channel_id))
+            await asyncio.sleep(len(msg) / 7)
+            await self.bot.send_message(self.bot.get_channel(channel_id), embed=tools.createEmbed(title=msg))
+
     @commands.command(pass_context=True)
-    async def clean(self, ctx, search=40):
-        """Cleans a few of kamikaze's latest messages"""
+    async def clean(self, ctx, msg_amount=40):
+        """Purges command messages and Kamikaze's outputs from the channel."""
         if checks.check_moderator(ctx.message):
             predicate = lambda m: m.author == self.bot.user or m.content.startswith('!k.')
-            deleted = await self.bot.purge_from(ctx.message.channel, limit=search+1, check=predicate)
+            deleted = await self.bot.purge_from(ctx.message.channel, limit=msg_amount+1, check=predicate)
             await asyncio.sleep(1)
             await self.bot.say("Deleted {} message(s).".format(len(deleted)-1), delete_after=6)
 
     @commands.command(pass_context=True)
     async def list(self, ctx):
-        """View a list of Kamikaze's available cogs"""
+        """View a list of Kamikaze's available cogs."""
         if checks.check_admin(ctx.message):
             unInstalledCogs = str([x for x in os.listdir(".\cogs") if x.endswith(".py") and x[:-3] not in (cog.lower() for cog in self.bot.cogs)]).strip('[]').replace("'","").replace(".py", "")
             installedCogs = str([x for x in self.bot.cogs]).strip('[]').replace("'","")
@@ -89,7 +105,7 @@ class Admin:
 
     @commands.command(pass_context=True, hidden=True)
     async def _serverSetup(self, ctx):
-        """Setup server specific persistence modules"""
+        """Setup server specific persistence modules."""
         if checks.check_owner(ctx.message) or checks.check_admin(ctx.message):
             serverID = ctx.message.server.id
             await self.bot.delete_message(ctx.message)
@@ -108,6 +124,7 @@ class Admin:
     ## UTILITY COMMANDS
     @commands.command(pass_context=True, hidden=True)
     async def cls(self, ctx):
+        """Pseudo cls on std_out."""
         if checks.check_owner(ctx.message):
             print('\n'*10)
 

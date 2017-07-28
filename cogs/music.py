@@ -43,6 +43,7 @@ async def process_queue(bot, ctx, queue):
     pass
 
 class Music:
+    """Commands for music control in voice channels."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -51,7 +52,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def join(self, ctx):
-        """Get Kamikaze to join the voice channel you are in."""
+        """Get Kamikaze to join the voice channel you are connected to."""
         if not self.bot.is_voice_connected(ctx.message.server):
             if ctx.message.author.voice.voice_channel is None:
                 # if the user isn't in any voice channel:
@@ -65,7 +66,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def leave(self, ctx):
-        """Get Kamikaze to leave the voice channel she is connected in"""
+        """Get Kamikaze to leave the voice channel she is connected to."""
         server = ctx.message.server
         if self.bot.is_voice_connected(server):
             voice_client = self.bot.voice_client_in(server)
@@ -80,7 +81,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def play(self, ctx, *, url : str):
-        """Get Kamikaze to play a song"""
+        """Get Kamikaze to play the audio from a Youtube video."""
         server = ctx.message.server
         if self.bot.is_voice_connected(server):
             voice_client = self.bot.voice_client_in(server)
@@ -112,7 +113,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def pause(self, ctx):
-        """Pause the currently playing song"""
+        """Pause the currently playing song."""
         server = ctx.message.server
         try:
             if self.players[server.id].is_playing():
@@ -125,7 +126,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def resume(self, ctx):
-        """Resume the currently playing song"""
+        """Resume the currently playing song."""
         server = ctx.message.server
         try:
             if not self.players[server.id].is_done():
@@ -138,7 +139,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def stop(self, ctx):
-        """Stop playing the current song"""
+        """Stop playing the current song."""
         server = ctx.message.server
         try:
             if self.players[server.id].is_playing():
@@ -151,7 +152,7 @@ class Music:
 
     @commands.command(pass_context=True)
     async def np(self, ctx):
-        """Get the currently playing song's title"""
+        """Get the currently playing song's title."""
         server = ctx.message.server
         try:
             if not self.players[server.id].is_done():

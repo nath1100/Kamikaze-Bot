@@ -1,10 +1,12 @@
-import discord, asyncio, random, datetime
+import discord, asyncio, random, datetime, os
 from discord.ext import commands
-from cogs.utilities import tools, checks
+from cogs.utilities import tools, checks, paths
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
+
+UPLOAD_FOLDER = paths.uploadFolder()
 
 def getCoin(message):
     try:
@@ -16,6 +18,7 @@ def getCoin(message):
         return ":dollar:"
 
 class Extras:
+    """Miscellaneous commands purely for fun."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -35,6 +38,32 @@ class Extras:
         else:
             #do something
             pass
+    '''
+
+    @commands.command(pass_context=True)
+    async def up(self, ctx, *, image_name : str):
+        """Upload an image from Kamikaze's directory. `!k.up list` for a list of available images."""
+        upload_images = [x[:-4] for x in os.listdir(UPLOAD_FOLDER)]
+        if image_name == "list":
+            await self.bot.say("```{}```".format(', '.join(upload_images)))
+        elif image_name in upload_images:
+            await self.bot.send_typing(ctx.message.channel)
+            try:
+                await self.bot.upload(UPLOAD_FOLDER + "\\{}.png".format(image_name))
+            except FileNotFoundError:
+                await self.bot.upload(UPLOAD_FOLDER + "\\{}.jpg".format(image_name))
+        else:
+            await self.bot.say("No such image. Try `!k.up list` for a list.")
+    
+    ''' SHELVED UNTIL SECURE METHOD
+    @commands.command(pass_context=True)
+    async def down(self, ctx, image_name : str):
+        """[missing]"""
+        image_data = ctx.message.attachments[0] # only take the first attachment (if there happens to be more than 1)
+        if bool([x for x in [".jpg", ".png"] if x in image_data["filename"]]): # return True if filename contains .png or .jpg
+            pass
+        else:
+            await self.bot.say("Please upload a .JPG or .PNG")
     '''
 
     @commands.group(pass_context=True)
@@ -65,9 +94,14 @@ class Extras:
         output = ''.join([numbers[x] for x in value])
         await self.bot.say(embed=tools.createEmbed(title="You rolled **{}**".format(output)))
 
+    @commands.command()
+    async def poi(self):
+        """Poi!"""
+        await self.bot.say(embed=tools.createEmbed(title="Poi!"))
+
     @commands.group(pass_context=True)
     async def coins(self, ctx):
-        """How many coins do you have?"""
+        """View the amount of coins you possess."""
         if ctx.invoked_subcommand is None:
             coinEmoji = getCoin(ctx.message)
             author = ctx.message.author
@@ -86,7 +120,7 @@ class Extras:
 
     @coins.command(pass_context=True)
     async def all(self, ctx):
-        """Check other people's coins"""
+        """See how many coins everyone else has."""
         coinEmoji = getCoin(ctx.message)
         coin_stash = tools.loadPickle('coin_stash.pickle')
         description = '\n'.join([("{}: **{}**x {}".format(tools.findMember(self.bot, x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
@@ -96,7 +130,7 @@ class Extras:
 
     @coins.command(pass_context=True)
     async def shop(self, ctx):
-        """Seize the means of production"""
+        """Seize the means of production!"""
         wordMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         dateSuffix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th']
         today = datetime.datetime.today()

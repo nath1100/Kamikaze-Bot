@@ -50,14 +50,14 @@ async def oaswSuggestions(bot, ctx, kanmusu):
         await bot.send_message(ctx.message.channel, "Perhaps you meant _{}_".format(suggestion))
 
 class Kancolle:
-    """Commands related to Kancolle stuff"""
+    """Commands related to Kantai Collection."""
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
     async def expedition(self, exped_number : str):
-        """Lookup the data for a certain expedition"""
+        """Lookup the data for a certain expedition."""
         with shelve.open("db\\expedition_db\\exped_db", "r") as shelf:
             try:
                 data = shelf[exped_number]
@@ -69,7 +69,8 @@ class Kancolle:
 
     @commands.command()
     async def compareships(self, *, args : str):
-        """Enter two comma separated kanmusu to compare their stats, or one kanmusu to lookup stats."""
+        """Compare the stats of two kanmusu with `!k.comapreships <ship1>, <ship2>`
+        or lookup stats with `!k.compareships <ship>`"""
         ZERO_STAT_COMPARATOR = "0_stat"
         if ', ' not in args:
             firstShip = args
@@ -131,8 +132,8 @@ class Kancolle:
             await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
-    async def lbasRange(self, ctx, shortest_range : int):
-        """Display LBAS range bonuses given the lowest aircraft range"""
+    async def lbas_range(self, ctx, shortest_range : int):
+        """Display LBAS range bonuses given the lowest equipped aircraft range."""
         try:
             data = staticData.lbasRangeData(shortest_range)
             output = 'LBAS range bonuses:\n'
@@ -142,20 +143,21 @@ class Kancolle:
         except IndexError:
             await self.bot.say("Please enter a range between 2 and 9.")
 
-    @commands.command()
-    async def aaci(self):
-        """Displays an AACI chart"""
+    @commands.command(pass_context=True)
+    async def aaci(self, ctx):
+        """Display an AACI info chart."""
+        await self.bot.send_typing(ctx.message.channel)
         await self.bot.upload(upload_folder + '\\' + 'aaci.png')
 
-    @commands.command()
-    async def fit(self):
-        """Displays overweight penalties and fit guns for battleships"""
+    @commands.command(pass_context=True)
+    async def fit(self, ctx):
+        """Displays overweight penalties and fit guns for battleships."""
+        await self.bot.send_typing(ctx.message.channel)
         await self.bot.upload(upload_folder + '\\' + 'fit.png')
 
-    #### REQUIRES REWORK ####
     @commands.command(pass_context=True)
     async def oasw(self, ctx, *, kanmusu : str):
-        """Searches oasw lvl requirements of kanmusu"""
+        """Show the OASW level requirements for a kanmusu."""
         oasw_database = tools.loadPickle('oasw_database.pickle')
         kanmusu = kanmusu.split(' ')[0].lower() # strip off any unnecessary tags (such as 'kai', 'kai ni', etc.)
         try:
@@ -174,12 +176,12 @@ class Kancolle:
 
     @commands.command()
     async def akashi(self):
-        """Akashi's arsenal information"""
+        """Akashi's arsenal information (link to akashi-list)."""
         await self.bot.say('http://akashi-list.me')
 
     @commands.command()
     async def world(self, level : str):
-        """View world information"""
+        """View information for a specified map X-X."""
         if len(level) != 3 or level[1] != '-':
             await self.bot.say("Please do '!k.world N-N', where N is the world level.")
         else:
@@ -214,7 +216,6 @@ class Kancolle:
             except Exception as e:
                 await self.bot.say("Unable to display AS data.")
                 #await self.bot.say('{}: {}'.format(type(e).__name__, e))
-
 
 def setup(bot):
     bot.add_cog(Kancolle(bot))

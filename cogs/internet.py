@@ -4,14 +4,14 @@ from discord.ext import commands
 from cogs.utilities import checks, tools
 
 class Internet:
-    """Various commands that pull internet data"""
+    """Various commands that involve internet data."""
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(pass_context=True)
     async def wikipedia(self, ctx, *, search : str):
-        """Search for articles on wikipedia"""
+        """Retrieve the summary of a Wikipedia article."""
         results = wikipedia.search(search, results=6)
         if results == []:
            await self.bot.say("No results found for **{}**...".format(search))
@@ -33,15 +33,14 @@ class Internet:
             return
         article_title = results[int(msg.content) - 1]
         await self.bot.delete_messages([search_selection, msg])
-        notice = await self.bot.say("Retrieving summary information...")
+        await self.bot.send_typing(ctx.message.channel)
         page = wikipedia.page(article_title)
         em = tools.createEmbed(title="Result #{}: {}".format(msg.content, article_title), description=page.summary)
-        await self.bot.delete_message(notice)
         await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
     async def danbooru(self, ctx, tag_name : str, image_limit : int):
-        """Kamikaze will PM you the first 10 danbooru images related to the tag"""
+        """Retrieve the latest images for a Danbooru tag."""
         page = requests.get("https://danbooru.donmai.us/posts.json?limit={}&tags={}".format(image_limit, tag_name))
         data = json.loads(str(BeautifulSoup(page.content, 'html.parser')))
         try:

@@ -4,34 +4,93 @@ from cogs.utilities import paths, tools, checks
 from datetime import datetime, timedelta
 
 #constants
-UPLOAD_FOLDER = paths.uploadFolder()
+UNLISTED_COGS = ['Loader', 'Repl', 'Keywords']
 
 def removeMicroseconds(tdelta):
     return tdelta - timedelta(microseconds=tdelta.microseconds)
 
 class Generic:
-    """A range of general and misc commands"""
+    """A range of general and misc functionality commands."""
 
     def __init__(self, bot):
         self.bot = bot
 
-    '''
-    @commands.group(pass_context=True)
-    async def help(self, ctx):
-        """Get some help"""
-        if ctx.invoked_subcommand is None:
-            # print out help
-            cog_list = [x for x in self.bot.cogs]
-            await self.bot.say(cog_list)
-            page = ''
+    def createCogHelpEmbed(self):
+        """Create the help output that lists all of Kamikaze's cogs."""
+        title = "HELP - List of categories"
+        description = "A list of Kamikaze's command categories. Use `!k.help <category>` for more help."
+        em = tools.createEmbed(title=title, description=description)
+        for cog in self.bot.cogs:
+            if cog not in UNLISTED_COGS:
+                em.add_field(name=cog, value=self.bot.cogs[cog].__doc__, inline=False)
+        return em
+
+    def displayFinalHelpCommand(self, cmd):
+        """Create and return the help embed for a command with no sub commands."""
+        params = ['<'+x+'>' for x in cmd.params if x not in ['self', 'ctx']]
+        title = "HELP - '{}'".format(cmd)
+        description = "**{}**\n\n__Usage__\n`!k.{} {}`".format(cmd.help, cmd, ' '.join(params))
+        return tools.createEmbed(title=title, description=description)
+
+    def processHelpCommand(self, cmd):
+        """Parse the keyword and display appropriately formatted command help."""
+        #return tools.createEmbed(title="WIP", description="Command help not yet implemented") # STUB
+        all_commands = [x for x in self.bot.walk_commands()]
+        # check if the command has sub commands
+        sub_commands = []
+        for command in all_commands:
+            if str(command).startswith(str(cmd) + ' '):
+                sub_commands.append(command)
+        if len(sub_commands) > 0: # then the command has sub commands
+            title = "HELP - '{}'".format(cmd)
+            description = "**{}**\n\nThe following is a list of subcommands under the **{} command**.\nUse `!k.help {} <subcommand>` for more detailed help.".format(cmd.help, cmd, cmd)
+            em = tools.createEmbed(title=title, description=description)
+            for command in sub_commands:
+                em.add_field(name=command.name, value=command.help, inline=False)
+            return em
+        else: # the command doesn't have any sub commands
+            return self.displayFinalHelpCommand(cmd)
+
+    def processHelpKeyword(self, keyword):
+        """Parse the keyword and display the appropriate help page."""
+        cmd = self.bot.get_command(keyword.lower())
+        # first check if the keyword is a cog:
+        casedKeyword = keyword[0].upper() + keyword[1:].lower()
+        if casedKeyword in self.bot.cogs and casedKeyword not in UNLISTED_COGS:
+            title = "HELP - '{}' commands".format(casedKeyword)
+            description = "List of commands under the **{} category**. Use `!k.help <command>` for more detail.".format(casedKeyword)
+            em = tools.createEmbed(title=title, description=description)
+            # add the cog's commands to its help page
             for command in self.bot.commands:
-                page += "{}: {}\n".format(command.name, command.description)
-            await self.bot.say(page)
-    '''
+                commandObj = self.bot.get_command(command)
+                if keyword.lower() == commandObj.module.__name__.replace('cogs.','') and not commandObj.hidden: #splice off "cogs."
+                    em.add_field(name=command, value=commandObj.help, inline=False)
+            return em
+        # else, check if the keyword is a command/subcommand:
+        #elif keyword.lower() in [x.lower() for x in self.bot.commands]:
+        elif cmd is not None:
+            return self.processHelpCommand(cmd)
+        # else, output an error message
+        else:
+            description = "What you entered is neither a category nor command. Please check your case/spelling and try again."
+            em = tools.createEmbed(title="HELP - '{}'".format(keyword), description=description)
+            return em
+
+    @commands.command(pass_context=True)
+    async def help(self, ctx, *, keyword=""):
+        """Show this help command. Lookup various categories and commands with this."""
+        destination = ctx.message.author
+        if not ctx.message.channel.is_private:
+            await self.bot.say("Help sent to PM.")
+        #if raw !k.help, show available cogs
+        if keyword == "":
+            await self.bot.send_message(destination, embed=self.createCogHelpEmbed())
+        else:
+            await self.bot.send_message(destination, embed=self.processHelpKeyword(keyword))
 
     @commands.group(pass_context=True)
     async def countdown(self, ctx):
-        """A countdown timer to a specified event"""
+        """Displays the remaining time until a specified event."""
         # Check if the server is already in the list, if not, add a dummy datetime
         countdown_all = tools.loadPickle('countdown_all.pickle')
         try:
@@ -54,7 +113,7 @@ class Generic:
 
     @countdown.command(pass_context=True)
     async def edit(self, ctx):
-        """Edit the countdown target"""
+        """Edit the countdown target."""
         AUTO_TIMEOUT = 300 # 5 minutes
         if checks.check_moderator(ctx.message):
             info1 = await self.bot.say("Please enter a new target date in format: **DD-MM-YYYY, HH:MM:SS**")
@@ -86,7 +145,7 @@ class Generic:
 
     @commands.command(pass_context=True)
     async def count(self, ctx, *, count_what : str):
-        """Get Kamikaze to count something for you"""
+        """Get Kamikaze to count something for you. 1 transport, 2 transports..."""
         AUTO_TIMEOUT = 10800 # 3 hours
         count = 0
         title = "{}'s counter".format(ctx.message.author.name)
@@ -110,19 +169,27 @@ class Generic:
             return
         await self.bot.say("Stopped counting.")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, no_pm=True)
     async def avatar(self, ctx, *, user : str):
-        """View a user's avatar. (!k.avatar @user)"""
-        user_id = user.strip('<@>')
-        member = ctx.message.server.get_member(user_id)
+        """View a user's profile picture. User can be exact name or @ mention."""
+        server = ctx.message.server
+        if "@" in user:
+            user_id = user.strip('<@!>')
+            member = server.get_member(user_id)
+        else:
+            member = server.get_member_named(user)
+            if member is None:
+                await self.bot.say("Unable to find specified user. Please check for case sensitivity or use an @ mention.")
+                return
         title = "{}'s avatar".format(member.name)
-        em = tools.createEmbed(title=title)
-        em.set_image(url=member.avatar_url)
-        await self.bot.say(embed=em)
+        await self.bot.say(member.avatar_url)
+        #em = tools.createEmbed(title=title)
+        #em.set_image(url=member.avatar_url)
+        #await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
     async def notepad(self, ctx, *, content : str=None):
-        """Store some text for later viewing. Clear with '!k.notepad clear'"""
+        """Store some text for later viewing. Clear with '!k.notepad clear.'"""
         data = tools.loadPickle('notepad.pickle')
         author = ctx.message.author
         if content is None:
@@ -153,58 +220,55 @@ class Generic:
 
     @commands.command()
     async def fact(self):
-        """Receive a random fact from Kamikaze"""
+        """Kamikaze shares her 90+ years of knowledge."""
         with open('fact_database', 'r') as f:
             chosen_fact = str(random.choice(f.readlines()))
         await self.bot.say('```{}```'.format(chosen_fact))
 
     @commands.command()
-    async def up(self, item : str):
-        """Display a file from Kamikaze's directory."""
-        if '\\' in item:
-            pass
-        elif item == 'list':
-            item_list = []
-            for x in os.listdir(UPLOAD_FOLDER):
-                item_list.append(str(x).strip('[]'))
-            await self.bot.say('```{}```'.format(item_list))
-        elif item in os.listdir(UPLOAD_FOLDER): # make certain to keep kamikaze_bot.py in her directory, and that the file dir is correct
-            await self.bot.upload(UPLOAD_FOLDER + '\\' + item)
-        else:
-            try:
-                await self.bot.upload(UPLOAD_FOLDER + '\\{}.jpg'.format(item))
-            except Exception:
-                try:
-                    await self.bot.upload(UPLOAD_FOLDER + '\\{}.png'.format(item))
-                except Exception:
-                    pass
+    async def ping(self):
+        """Ping Kamikaze."""
+        await self.bot.say("Pong!")
 
     @commands.command(pass_context=True)
-    async def ping(self, ctx):
-        """Ping Kamikaze"""
-        em = tools.createEmbed(title="Pong!", description=None)
-        await self.bot.say(embed=em)
-
-    @commands.command(pass_context=True)
-    async def info(self, ctx):
-        """Retrieve server information"""
+    async def server_info(self, ctx):
+        """Find out about the server and its administrators."""
         try:
-            description = "**Server owner:** {}#{}\n".format(ctx.message.server.owner.name, ctx.message.server.owner.discriminator)
-            description += "**Server region:** {}\n".format(ctx.message.server.region)
+            server = ctx.message.server
+            description = "**Server owner:** {}#{}\n".format(server.owner.name, server.owner.discriminator)
+            description += "**Server region:** {}\n".format(server.region)
             adminList = []
-            for member in ctx.message.server.members:
+            for member in server.members:
                 if ctx.message.channel.permissions_for(member).administrator:
                     adminList.append(member.name)
             description += "\n**Administrators:**\n" + ', '.join(adminList)
-            title = "Server Information: {}".format(ctx.message.server.name)
+            title = "Server Information: {}".format(server.name)
             em = tools.createEmbed(title=title, description=description)
             await self.bot.say(embed=em)
         except Exception as e:
             await self.bot.say("{}: {}".format(type(e).__name__, e))
 
     @commands.command()
+    async def info(self):
+        """Display info about Kamikaze."""
+        owner = await self.bot.get_user_info("178112312845139969")
+        title = "Information about Kamikaze"
+        description = "I am a Discord bot written in python using Rapptz's discord api wrapper.\n"
+        description += "I was written by **{}**.\n".format(owner)
+        description += "My sourcecode can be found here: https://github.com/nath1100/Kamikaze-Bot"
+        em = tools.createEmbed(title=title, description=description)
+        # dependencies
+        depends = "**Rapptz's API wrapper:** https://github.com/Rapptz/discord.py\n"
+        depends += "Version {}".format(discord.__version__)
+        em.add_field(name="Dependencies", value=depends, inline=False)
+        # other credits
+        credits = "**Diablohu's KC data:** https://github.com/Diablohu/WhoCallsTheFleet/"
+        em.add_field(name="Other credits", value=credits, inline=False)
+        await self.bot.say(embed=em)
+
+    @commands.command()
     async def github(self):
-        """Retrieve the Kamikaze repository URL"""
+        """Get Kamikaze's github repository."""
         await self.bot.say("You can find my sourcecode here: https://github.com/nath1100/Kamikaze-Bot")
 
 def setup(bot):

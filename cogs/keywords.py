@@ -3,7 +3,7 @@ from discord.ext import commands
 from cogs.utilities import checks, tools
 
 class Keywords:
-    """Various keywords that trigger responses"""
+    """Special commands that trigger responses from Kamikaze."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -34,7 +34,7 @@ class Keywords:
                         response = random.choice(response_choices)
                 await self.bot.send_message(message.channel, response)
 
-            elif 'shutup kamikaze' in message.content.lower():
+            elif 'shut up kamikaze' in message.content.lower():
                 switch = tools.loadPickle('kamikaze_chime.pickle')
                 switch[message.server.id] = False
                 tools.dumpPickle(switch, 'kamikaze_chime.pickle')

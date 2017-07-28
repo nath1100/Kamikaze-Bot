@@ -27,11 +27,11 @@ def check_hourai(message):
 def check_soku(message):
     return message.channel.id == '271935186151669774'
 
-def check_nsfwEnabled(message):
-    with open('nsfwChannels.pickle', 'rb') as f:
-        ch_list = pickle.load(f)
-    return message.channel.id in ch_list
-
+def check_nsfw(message):
+    try:
+        return message.channel.name == "nsfw" or message.channel.name.startswith("nsfw-")
+    except AttributeError: # name is None
+        return message.channel.is_private
 
 ## Type checks
 def convertsToInt(obj):

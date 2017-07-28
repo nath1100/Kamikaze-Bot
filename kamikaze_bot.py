@@ -1,6 +1,6 @@
 import asyncio, discord, logging, os
 from discord.ext import commands
-from cogs.utilities import paths
+from cogs.utilities import tools
 try:
     import cPickle as pickle
 except ImportError:
@@ -13,11 +13,15 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-#token retrieval
-with open(paths.retrieveToken(), 'r') as f:
-    token = f.read()
+def get_key():
+    creds = tools.loadPickle("crds.pickle")
+    with open(creds['keyPath'], "r") as f:
+        key = f.read()
+    return key
 
-version = '1.0.2.5'
+token = get_key()
+
+version = '1.0.2.6'
 
 extension_list = [
     'cogs.loader',
@@ -30,12 +34,13 @@ extension_list = [
     'cogs.wows',
     'cogs.soku',
     'cogs.extras',
-    'cogs.music'
+    'cogs.music',
+    'cogs.sinoalice'
 ]
 
 description = """Super cute Kamikaze will attend to your KC needs."""
 bot = commands.Bot(command_prefix='!k.', description=description)
-#bot.remove_command('help')
+bot.remove_command('help')
 
 with open('oasw_database.pickle', 'rb') as f:
     oasw_database = pickle.load(f)
@@ -66,12 +71,17 @@ async def on_command_error(error, ctx):
     if isinstance(error, commands.MissingRequiredArgument):
         await bot.send_message(ctx.message.channel, "Did you forget a parameter?")
     elif isinstance(error, commands.CommandNotFound):
-        await bot.send_message(ctx.message.channel, "That command does not exist. Try !k.help")
+        #await bot.send_message(ctx.message.channel, "That command does not exist. Try !k.help")
+        pass # let command fail silently
+    elif isinstance(error, commands.NoPrivateMessage):
+        await bot.send_message(ctx.message.channel, "This command cannot be used in private message.")
     else:
         error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nPlease be patient until this is fixed~!")
-        await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
-        #await asyncio.sleep(10)
-        #await bot.delete_message(error_m)
+        try:
+            await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
+        except AttributeError:
+            # do not send error reports for PMs
+            pass
 
 #admin and other
 @bot.event
@@ -79,8 +89,6 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
-    else:
-        pass
     await bot.process_commands(message)
 
 if __name__ == '__main__':
