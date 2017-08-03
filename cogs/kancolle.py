@@ -119,11 +119,17 @@ class Kancolle:
                 ('luck', 'Luck'),
                 ('fuel', 'Fuel Consumption'),
                 ('ammo', 'Ammo Consumption'),
-                ('base_lvl', 'Base Level')
+                ('base_lvl', 'Base Level'),
+                ('slot', 'Plane Slots')
             ]
             for stat in stats:
                 if ship1[stat[0]] == -1 or ship2[stat[0]] == -1:
                     statResult = 'No Data'
+                elif stat[0] == "slot":
+                    if secondShip != ZERO_STAT_COMPARATOR:
+                        statResult = "{}: **{}**\n{}: **{}**".format(firstShipFormatted, ship1[stat[0]], secondShipFormatted, ship2[stat[0]])
+                    else:
+                        statResult = ship1[stat[0]]
                 else:
                     statResult = ship1[stat[0]] - ship2[stat[0]]
                     if statResult > 0 and secondShip != ZERO_STAT_COMPARATOR:

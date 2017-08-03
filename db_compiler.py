@@ -64,6 +64,7 @@ def organiseStats(dictionary):
     """Pass dictionary, return appropriate stats dict"""
     d = {**dictionary['stat'], **dictionary['consum']}
     d['base_lvl'] = dictionary['base_lvl']
+    d['slot'] = str(dictionary['slot']).strip('[]')
     return d
 
 #load data as list of dicts
@@ -85,7 +86,7 @@ with shelve.open("db\\ship_db", "c") as shelf:
     for ship in shipData:
         shelf[fixShipName(ship).lower() + addSuffix(ship).lower()] = organiseStats(ship)
     # Add the base 0 comparator
-    shelf['0_stat'] = {"fire_max":0,"torpedo_max":0,"aa_max":0,"asw_max":0,"hp":0,"armor_max":0,"evasion_max":0,"luck":0,"fuel":0,"ammo":0,"base_lvl":0}
+    shelf['0_stat'] = {"fire_max":0,"torpedo_max":0,"aa_max":0,"asw_max":0,"hp":0,"armor_max":0,"evasion_max":0,"luck":0,"fuel":0,"ammo":0,"base_lvl":0, "slot":""}
 
 ''' #shelf retrieval test
 target = input("Kanmusu: ")
