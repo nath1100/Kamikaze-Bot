@@ -65,6 +65,7 @@ def organiseStats(dictionary):
     d = {**dictionary['stat'], **dictionary['consum']}
     d['base_lvl'] = dictionary['base_lvl']
     d['slot'] = str(dictionary['slot']).strip('[]')
+    d['id'] = dictionary['id']
     return d
 
 #load data as list of dicts

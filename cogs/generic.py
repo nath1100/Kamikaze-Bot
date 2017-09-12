@@ -252,24 +252,27 @@ class Generic:
     async def info(self):
         """Display info about Kamikaze."""
         owner = await self.bot.get_user_info("178112312845139969")
-        title = "Information about Kamikaze"
-        description = "I am a Discord bot written in python using Rapptz's discord api wrapper.\n"
-        description += "I was written by **{}**.\n".format(owner)
-        description += "My sourcecode can be found here: https://github.com/nath1100/Kamikaze-Bot"
+        title = " - Information about Kamikaze - "
+        description = "I am a multi-purpose Discord bot written in python using Rapptz's discord api wrapper. You can count on me for your Kancolle needs!\n"
+        description += "I was written with love by **{}**.\n".format(owner)
         em = tools.createEmbed(title=title, description=description)
+        em.set_author(name="Click here for my sourcecode", url="https://github.com/nath1100/Kamikaze-Bot")
+        em.set_thumbnail(url=self.bot.user.avatar_url)
         # dependencies
         depends = "**Rapptz's API wrapper:** https://github.com/Rapptz/discord.py\n"
         depends += "Version {}".format(discord.__version__)
         em.add_field(name="Dependencies", value=depends, inline=False)
         # other credits
-        credits = "**Diablohu's KC data:** https://github.com/Diablohu/WhoCallsTheFleet/"
+        credits = "**Diablohu's Kancolle data:** https://github.com/Diablohu/WhoCallsTheFleet/"
         em.add_field(name="Other credits", value=credits, inline=False)
         await self.bot.say(embed=em)
 
     @commands.command()
     async def github(self):
         """Get Kamikaze's github repository."""
-        await self.bot.say("You can find my sourcecode here: https://github.com/nath1100/Kamikaze-Bot")
+        em = tools.createEmbed(title="", description="")
+        em.set_author(name="Click here for my Github link", url="https://github.com/nath1100/Kamikaze-Bot")
+        await self.bot.say(embed=em)
 
 def setup(bot):
     bot.add_cog(Generic(bot))
