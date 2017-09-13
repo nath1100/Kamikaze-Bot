@@ -1,4 +1,4 @@
-import discord, asyncio, random, datetime, os
+import discord, asyncio, random, datetime, os, shelve
 from discord.ext import commands
 from cogs.utilities import tools, checks, paths
 try:
@@ -23,23 +23,6 @@ class Extras:
     def __init__(self, bot):
         self.bot = bot
 
-    '''
-    @commands.command(pass_context=True)
-    async def colour(self, ctx, *, new_colour : str):
-        """Change your member colour. !k.colour reset to remove colour."""
-        colours = [
-            "teal", "dark teal", "green", "dark green", "blue", "dark blue", "purple", "dark purple", "magenta", "dark magenta", "gold",
-            "dark gold", "orange", "dark orange", "red", "dark red", "lighter grey", "dark grey", "light grey", "darker grey"
-        ]
-        if new_colour.lower() == "list":
-            title = "List of colours"
-            description = ', '.join(colours)
-            await self.bot.say(embed=tools.createEmbed(title=title, description=description))
-        else:
-            #do something
-            pass
-    '''
-
     @commands.command(pass_context=True)
     async def up(self, ctx, *, image_name : str):
         """Upload an image from Kamikaze's directory. `!k.up list` for a list of available images."""
@@ -54,17 +37,62 @@ class Extras:
                 await self.bot.upload(UPLOAD_FOLDER + "\\{}.jpg".format(image_name))
         else:
             await self.bot.say("No such image. Try `!k.up list` for a list.")
-    
-    ''' SHELVED UNTIL SECURE METHOD
-    @commands.command(pass_context=True)
-    async def down(self, ctx, image_name : str):
-        """[missing]"""
-        image_data = ctx.message.attachments[0] # only take the first attachment (if there happens to be more than 1)
-        if bool([x for x in [".jpg", ".png"] if x in image_data["filename"]]): # return True if filename contains .png or .jpg
-            pass
-        else:
-            await self.bot.say("Please upload a .JPG or .PNG")
-    '''
+
+    @commands.group(pass_context=True)
+    async def minigame(self, ctx):
+        """Various for-fun minigames."""
+        if ctx.invoked_subcommand is None:
+            await self.bot.say("!k.help minigame for a list of minigames.")
+
+    @minigame.command(pass_context=True)
+    async def kanmusu(self, ctx):
+        """A game where you attempt to name as many kanmusu as you can.
+        Kamikaze will show you a kanmusu, simply type their name. Try to name as many as you can!"""
+        player = ctx.message.author
+        msg = await self.bot.say("Generating list...")
+        with shelve.open("db\\ship_db", "r") as shelf:
+            kanmusu_list = list(shelf.keys())
+        # Get rid of those fog ships D:
+        for fog in ["iona", "haruna (fog)", "takao (fog)"]:
+            kanmusu_list.pop(kanmusu_list.index(fog))
+        await self.bot.delete_message(msg)
+        # GAME LOOP
+        alive = True
+        AUTO_TIMEOUT = 20 # seconds to name each kanmusu
+        correct = 0
+        await self.bot.say("You have **{} seconds** to name each kanmusu. You do not need to name Kai suffixes (eg. do Yuudachi, not Yuudcahi Kai Ni). Type **start** to begin.".format(AUTO_TIMEOUT))
+        msg = await self.bot.wait_for_message(timeout=120, author=player, check=lambda x: x.content.lower() == "start")
+        if msg is None:
+            await self.bot.say("Minigame cancelled due to timeout.")
+            return
+        elif msg.content.lower() == "start":
+            while alive and len(kanmusu_list) > 1:
+                # randomly select from remaining kanmusu
+                full_name = kanmusu_list.pop(kanmusu_list.index(random.choice(kanmusu_list)))
+                answer = full_name.split(' ')[0] # randomly select the key, then split it so you chop off the "kai" suffixes
+                with shelve.open("db\\ship_db", "r") as shelf:
+                    answer_id = shelf[full_name]['id']
+                # create the embed
+                em = tools.createEmbed(title="Who is this?", description="Player: {}".format(player.name))
+                em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships/{}/8.webp?raw=true".format(answer_id))
+                #em.set_footer(text=answer_id) # FOR DEBUGGING ID
+                question = await self.bot.say(embed=em)
+                # wait for a response from the player
+                response = await self.bot.wait_for_message(timeout=AUTO_TIMEOUT, author=player, check=lambda x: x.content.lower() == answer.lower())
+                if response is None:
+                    # timeout  - wrong answer / no response
+                    await self.bot.say("Out of Time! The answer is **{}**".format(answer))
+                    alive = False
+                    await asyncio.sleep(5)
+                    await self.bot.delete_message(question)
+                elif response.content.lower() == answer.lower():
+                    # answer is correct
+                    fanfare = await self.bot.say("Correct!")
+                    await asyncio.sleep(2)
+                    await self.bot.delete_messages([fanfare, response, question])
+                    kanmusu_list.pop(kanmusu_list.index(answer))
+                    correct += 1
+            await self.bot.say("You correctly named **{}** kanmusu!".format(correct))
 
     @commands.group(pass_context=True)
     async def roll(self, ctx):
@@ -123,23 +151,15 @@ class Extras:
         """See how many coins everyone else has."""
         coinEmoji = getCoin(ctx.message)
         coin_stash = tools.loadPickle('coin_stash.pickle')
-        description = '\n'.join([("{}: **{}**x {}".format(tools.findMember(self.bot, x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
-        title = "Everyone's coin purses"
+        #description = '\n'.join([("{}: **{}**x {}".format(tools.findMember(self.bot, x).name, coin_stash[x], coinEmoji)) for x in coin_stash])
+        #title = "Everyone's coin purses"
+        description = "The 5 richest users."
+        title = "Coin Ranking"
         em = tools.createEmbed(title=title, description=description)
-        await self.bot.say(embed=em)
-
-    @coins.command(pass_context=True)
-    async def shop(self, ctx):
-        """Seize the means of production!"""
-        wordMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        dateSuffix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th']
-        today = datetime.datetime.today()
-        title = "Goods for the {}{} of {}".format(today.day, dateSuffix[today.day % 10], wordMonths[today.month - 1])
-        # retrieve past shop information from pickle
-        # evaluate whether old or current
-        # change shop contents if required and save to pickle
-        description = "Nothing in stock..." # temp
-        em = tools.createEmbed(title=title, description=description)
+        for position in range(1, 6):
+            rich_user = max(coin_stash, key=coin_stash.get)
+            em.add_field(name="{}. {}".format(position, tools.findMember(self.bot, rich_user).name), value="{}x {}".format(coin_stash[rich_user], coinEmoji))
+            coin_stash.pop(rich_user)
         await self.bot.say(embed=em)
 
     async def on_message(self, message):
@@ -148,7 +168,7 @@ class Extras:
             return
         else:
             # Probablity of gaining a coin from a sent message
-            if random.choice([False for x in range(69)] + [True]) and message.channel != self.bot.user and not message.content.startswith('!k.'):
+            if random.choice([False for x in range(69)] + [True]) and message.channel != self.bot.user and message.content[:3] != "!k.":
                 coin_stash = tools.loadPickle('coin_stash.pickle')
                 try:
                     coin_stash[message.author.id] += 1
