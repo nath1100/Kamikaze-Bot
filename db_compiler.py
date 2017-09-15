@@ -41,16 +41,30 @@ def fixShipName(dictionary):
         "Октябрьская революция": "Gangut kai",
         "Верный": "Verniy"
     }
+    # this list identifies name-fixes to otherwise functioning JA_ROMAJI names
+    hardCodedCases = {
+        "shimusyu": "shimushu"
+    }
     name = dictionary['name']
+    # first check if the name has no JA_ROMAJI
     if name['ja_romaji'] == "":
+        # check if the name in the special cases list
         if name['ja_jp'] in specialCases:
+            # return the fixed name
             return specialCases[name['ja_jp']]
         else:
+            # otherwise, return its JA_JP name (for cases like Z1, Z3, etc)
             return name['ja_jp']
     elif name['ja_romaji'] in specialCases_romaji and name['ja_jp'] in specialCases: # account for the fog ships
         return specialCases[name['ja_jp']]
+    # otherwise, if it does have JA_ROMAJI....
     else:
-        return name['ja_romaji']
+        # check if the JA_ROMAJI should be fixed
+        if name["ja_romaji"] in hardCodedCases:
+            return hardCodedCases[name["ja_romaji"]]
+        # otherwise, simply return the JA_ROMAJI
+        else:
+            return name['ja_romaji']
 
 def addSuffix(dictionary):
     """Pass dictionary, return a suffix if any"""
@@ -96,3 +110,6 @@ with shelve.open('db\\ship_db', 'r') as shelf:
 print(data)
 input()
 '''
+
+# Finished output
+input("Compile finished. ENTER to quit.")

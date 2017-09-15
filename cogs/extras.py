@@ -75,6 +75,7 @@ class Extras:
                 # create the embed
                 em = tools.createEmbed(title="Who is this?", description="Player: {}".format(player.name))
                 em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships/{}/8.webp?raw=true".format(answer_id))
+                em.set_thumbnail(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships/{}/0.webp?raw=true".format(answer_id))
                 #em.set_footer(text=answer_id) # FOR DEBUGGING ID
                 question = await self.bot.say(embed=em)
                 # wait for a response from the player
@@ -90,7 +91,6 @@ class Extras:
                     fanfare = await self.bot.say("Correct!")
                     await asyncio.sleep(2)
                     await self.bot.delete_messages([fanfare, response, question])
-                    kanmusu_list.pop(kanmusu_list.index(answer))
                     correct += 1
             await self.bot.say("You correctly named **{}** kanmusu!".format(correct))
 
