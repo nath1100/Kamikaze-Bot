@@ -62,18 +62,19 @@ class Kancolle:
         self.event_countdown.cancel()
 
     async def calc_countdown(self):
-        FREQ = 30 # run task every 30 seconds
+        FREQ = 60 # run task every minute
         message_id = "421155838439194633"
         event_channel = self.bot.get_channel("414474883360358410")
         countdown_message = await self.bot.get_message(channel=event_channel, id=message_id)
         TARGET_TIME = datetime(2018, 3, 23, 13)
-        while not self.bot.is_closed():
+        while not self.bot.is_closed:
             time_left = TARGET_TIME - datetime.now()
             d, s = time_left.days, time_left.seconds
             weeks, days = divmod(d, 7)
             m, seconds = divmod(s, 60)
             hours, minutes = divmod(m, 60)
-            em = tools.createEmbed(title="Time Remaining: {} weeks, {} days, {} hours, {} minutes, {} seconds".format(weeks, days, hours, minutes, seconds), description="Updates every {} second(s)".format(FREQ))
+            em = tools.createEmbed(title="Time Remaining", description="{} weeks, {} days, {} hours, {} minutes".format(weeks, days, hours, minutes))
+            em.set_footer(text="Updates every {} second(s)".format(FREQ))
             await self.bot.edit_message(message=countdown_message, embed=em)
             await asyncio.sleep(FREQ)
 
