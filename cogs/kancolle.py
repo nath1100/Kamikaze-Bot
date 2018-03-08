@@ -1,6 +1,7 @@
-import asyncio, discord, random, datetime, shelve
+import asyncio, discord, random, shelve
 from discord.ext import commands
-from cogs.utilities import paths, staticData, tools
+from datetime import datetime
+from cogs.utilities import checks, paths, staticData, tools
 try:
     import cPickle as pickle
 except ImportError:
@@ -54,6 +55,27 @@ class Kancolle:
 
     def __init__(self, bot):
         self.bot = bot
+        #KC EVENT TIMER
+        self.event_countdown = bot.loop.create_task(self.calc_countdown())
+
+    def __unload(self):
+        self.event_countdown.cancel()
+
+    async def calc_countdown(self):
+        FREQ = 30 # run task every 30 seconds
+        message_id = "421155838439194633"
+        event_channel = self.bot.get_channel("414474883360358410")
+        countdown_message = await self.bot.get_message(channel=event_channel, id=message_id)
+        TARGET_TIME = datetime(2018, 3, 23, 13)
+        while not self.bot.is_closed():
+            time_left = TARGET_TIME - datetime.now()
+            d, s = time_left.days, time_left.seconds
+            weeks, days = divmod(d, 7)
+            m, seconds = divmod(s, 60)
+            hours, minutes = divmod(m, 60)
+            em = tools.createEmbed(title="Time Remaining: {} weeks, {} days, {} hours, {} minutes, {} seconds".format(weeks, days, hours, minutes, seconds), description="Updates every {} second(s)".format(FREQ))
+            await self.bot.edit_message(message=countdown_message, embed=em)
+            await asyncio.sleep(FREQ)
 
     @commands.command()
     async def expedition(self, exped_number : str):
@@ -163,8 +185,10 @@ class Kancolle:
         await self.bot.upload(upload_folder + '\\' + 'fit.png')
 
     @commands.command(pass_context=True)
-    async def oasw(self, ctx, *, kanmusu : str):
-        """Show the OASW level requirements for a kanmusu."""
+    async def oasw(self, ctx):
+        """Link to wikia OASW tables."""
+        '''
+        #async def oasw(self, ctx, *, kanmusu : str):
         oasw_database = tools.loadPickle('oasw_database.pickle')
         kanmusu = kanmusu.split(' ')[0].lower() # strip off any unnecessary tags (such as 'kai', 'kai ni', etc.)
         try:
@@ -180,6 +204,8 @@ class Kancolle:
         for x in tags:
             em.add_field(name=x, value=data[tags.index(x)])
         await self.bot.say(embed=em)
+        '''
+        await self.bot.say("http://kancolle.wikia.com/wiki/Oasw")
 
     @commands.command()
     async def akashi(self):
@@ -223,6 +249,105 @@ class Kancolle:
             except Exception as e:
                 await self.bot.say("Unable to display AS data.")
                 #await self.bot.say('{}: {}'.format(type(e).__name__, e))
+
+    @commands.command(pass_context=True)
+    async def update(self, ctx, *, current_status : str):
+        """Update the Kancolle Event Status Board with your current status.
+        eg. `!k.update Clearing E5H`
+        Only available on private server."""
+        if not checks.check_hourai(ctx.message):
+            return
+        else:
+            # Retrieve Kamikaze's message data
+            message_id = "414614925978238988"
+            event_channel = self.bot.get_channel("414474883360358410")
+            status_message = await self.bot.get_message(channel=event_channel, id=message_id)
+
+            # save current embed info
+            em = status_message.embeds[0]
+            new_em = tools.createEmbed(title="Event Status", description="What Admirals are currently doing in the event.\nUpdate yours with `!k.update <message>`.")
+            try:
+                users = [em["fields"][x]["name"] for x in range(len(em["fields"]))]
+                user_values = [em["fields"][x]["value"] for x in range(len(em["fields"]))]
+                data_exists = True
+            except KeyError:
+                data_exists = False
+
+            if data_exists:
+                if ctx.message.author.name in users:
+                    # pop them if they're already on the list
+                    kill_index = users.index(ctx.message.author.name)
+                    users.pop(kill_index)
+                    user_values.pop(kill_index)
+            new_em.add_field(name=ctx.message.author.name, value=current_status)
+            # recreate the embed using old embed data
+            if data_exists:
+                for user in users:
+                    new_em.add_field(name=user, value=user_values[users.index(user)])
+            # edit the message
+            await self.bot.edit_message(message=status_message, embed=new_em)
+            await self.bot.say("Updated your current event status!")
+
+    @commands.command(pass_context=True)
+    async def medals(self, ctx, *, map_difficulties : str):
+        """Update the Kancolle Event Medal Tally with your current clears.
+        eg. `!k.medals HHCEMHH`
+        Use `!k.medals x` to clear your medal list.
+        Only available on private server."""
+        if not checks.check_hourai(ctx.message):
+            return
+        else:
+            event_length = 7
+            message_id = "414827581624549386"
+            event_channel = self.bot.get_channel("414474883360358410")
+            medal_message = await self.bot.get_message(channel=event_channel, id=message_id)
+
+            # save current embed info
+            em = medal_message.embeds[0]
+            new_em = tools.createEmbed(title="Difficulty Clear Status", description="Event medals that Admirals have currently obtained.\nUpdate yours with `!k.medals <medal string/eg.HHHMME>`\nYou can clear with `!k.medals x`.")
+            try:
+                users = [em["fields"][x]["name"] for x in range(len(em["fields"]))]
+                user_values = [em["fields"][x]["value"] for x in range(len(em["fields"]))]
+                data_exists = True
+            except KeyError:
+                data_exists = False
+
+            # dictionary translations
+            parse = {
+                "C" : "<:EventMedalCasual:414828756130070529>",
+                "E" : "<:EventMedalEasy:414829530910425108>",
+                "M" : "<:EventMedalNormal:414829531283849227>",
+                "N" : "<:EventMedalNormal:414829531283849227>",
+                "H" : "<:EventMedalHard:414829531334180884>",
+                "X" : ":no_entry_sign:"
+            }
+
+            # parse difficulty string
+            map_difficulties = map_difficulties.upper().replace(' ','').replace(',','')
+            if len(map_difficulties) > event_length:
+                await self.bot.say("That's more than 7 medals there. Please look it over and try again.")
+                return
+            parsed_str = ""
+            for x in map_difficulties:
+                if x not in ['C','E','M','N','H','X']:
+                    await self.bot.say("Hmmm, I can't translate that to medals. Try `C`, `E`, `M/N`, and `H`.")
+                    return
+                parsed_str += parse[x]
+
+            if data_exists:
+                if ctx.message.author.name in users:
+                    # pop them if they're already on the list
+                    kill_index = users.index(ctx.message.author.name)
+                    users.pop(kill_index)
+                    user_values.pop(kill_index)
+            new_em.add_field(name=ctx.message.author.name, value=parsed_str)
+            # recreate the embed using old embed data
+            if data_exists:
+                for user in users:
+                    new_em.add_field(name=user, value=user_values[users.index(user)])
+            # edit the message
+            await self.bot.edit_message(message=medal_message, embed=new_em)
+            await self.bot.say("Updated your event medal tally!")
 
 def setup(bot):
     bot.add_cog(Kancolle(bot))

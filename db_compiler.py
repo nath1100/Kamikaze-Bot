@@ -40,7 +40,8 @@ def fixShipName(dictionary):
         "水無月": "Minazuki",
         "Октябрьская революция": "Gangut kai",
         "Верный": "Verniy",
-        "伊504": "i-504"
+        "伊504": "i-504",
+        "Ташкент": "Tashkent"
     }
     # this list identifies name-fixes to otherwise functioning JA_ROMAJI names
     hardCodedCases = {

@@ -11,6 +11,7 @@ class Admin:
 
     def __init__(self, bot):
         self.bot = bot
+        self.silenced = []
 
     @commands.command(pass_context=True, hidden=True)
     async def get_discord_version(self, ctx):
@@ -102,6 +103,23 @@ class Admin:
             em = tools.createEmbed(title, description)
             await self.bot.say(embed=em)
             #await self.bot.say("Here's my currently installed modules ( ;・w・)7\n```{}```".format(cogsList)) #dont forget to replace them later
+
+    '''
+    @commands.command(pass_context=True, hidden=True)
+    async def silence(self, ctx, user):
+        """Prevents a user from sending messages to private server."""
+        pass
+
+    async def on_message(self, message):
+        author = message.author
+        if author == self.bot.user or author.bot:
+            return
+        else:
+            #Check if author is silenced for Houraigekisen, Yoi server only.
+            if author in self.silenced and message.server.id == "260977178131431425":
+                await self.bot.delete_message(message)
+                await self.bot.send_message(author, "You have been temporarily silenced from {}. All sent messages will be removed.".format(message.server.name))
+    '''
 
     @commands.command(pass_context=True, hidden=True)
     async def _serverSetup(self, ctx):
