@@ -62,6 +62,7 @@ class Kancolle:
         self.event_countdown.cancel()
 
     async def calc_countdown(self):
+        await self.bot.wait_until_ready()
         FREQ = 60 # run task every minute
         message_id = "421155838439194633"
         event_channel = self.bot.get_channel("414474883360358410")
@@ -161,6 +162,7 @@ class Kancolle:
                 em.add_field(name=stat[1], value=statResult)
             await self.bot.say(embed=em)
 
+    '''
     @commands.command(pass_context=True)
     async def lbas_range(self, ctx, shortest_range : int):
         """Display LBAS range bonuses given the lowest equipped aircraft range."""
@@ -174,16 +176,87 @@ class Kancolle:
             await self.bot.say("Please enter a range between 2 and 9.")
 
     @commands.command(pass_context=True)
+    async def lbasrange(self, ctx, lowest_range=None):
+        """Display the LBAS range bonuses given by various recon aircraft."""
+        if lowest_range is None:
+            try:
+                await self.bot.send_typing(ctx.message.channel)
+                await self.bot.upload(upload_folder + "\\" + "lbas_range.png")
+            except FileNotFoundError:
+                await self.bot.upload(upload_folder + "\\" + "lbas_range.jpg")
+        else:
+            try:
+                data = staticData.lbasRangeData(lowest_range)
+                output = "LBAS range bonusses:\n" + "\n".join(["{}:\n{:>4}\n".format(x, data[x]) for x in data])
+                await self.bot.say("```{}```".format(output))
+            except IndexError:
+                await self.bot.say("Please enter a range between 2 and 9")
+    '''
+
+    @commands.group(pass_context=True)
+    async def lbas(self, ctx):
+        """Display LBAS aircraft information."""
+        if ctx.invoked_subcommand is None:
+            await tools.uploadImage(self.bot, ctx, filename="lbas")
+
+    @lbas.command(pass_context=True)
+    async def range(self, ctx, lowest_range):
+        """Display the LBAS range bonuses given by various recon aircraft."""
+        try:
+            data = staticData.lbasRangeData(lowest_range)
+            output = "LBAS range bonusses:\n" + "\n".join(["{}:\n{:>4}\n".format(x, data[x]) for x in data])
+            await self.bot.say("```{}```".format(output))
+        except IndexError:
+            await self.bot.say("Please enter a range between 2 and 9")
+
+    @commands.command(pass_context=True)
+    async def damage(self, ctx):
+        """Display the formula for basic attack power."""
+        try:
+            await self.bot.send_typing(ctx.message.channel)
+            await self.bot.upload(upload_folder + "\\" + "damage.png")
+        except FileNotFoundError:
+            await self.bot.upload(upload_folder + "\\" + "damage.jpg")
+
+    @commands.command(pass_context=True)
+    async def defense(self, ctx):
+        """Display the formula for defense power."""
+        await tools.uploadImage(self.bot, ctx, filename="defense")
+
+    @commands.command(pass_context=True)
+    async def fit2(self, ctx):
+        """Display fit bonuses for cruisers."""
+        await tools.uploadImage(self.bot, ctx, filename="fit2")
+
+    @commands.command(pass_context=True)
+    async def scratch(self, ctx):
+        """Display the scratch damage formula."""
+        await tools.uploadImage(self.bot, ctx, filename="scratch")
+
+    @commands.command(pass_context=True)
+    async def vanguard(self, ctx):
+        """Display the modifiers for Vanguard (spoon) formation."""
+        await tools.uploadImage(self.bot, ctx, filename="vanguard")
+
+    @commands.command(pass_context=True)
+    async def yasen(self, ctx):
+        """Display the equipment setups for special night battle attacks."""
+        await tools.uploadImage(self.bot, ctx, filename="yasen")
+
+    @commands.command(pass_context=True)
+    async def yasen2(self, ctx):
+        """Display the equipment setups required for carrier night battle attacks."""
+        await tools.uploadImage(self.bot, ctx, filename="yasen2")
+
+    @commands.command(pass_context=True)
     async def aaci(self, ctx):
         """Display an AACI info chart."""
-        await self.bot.send_typing(ctx.message.channel)
-        await self.bot.upload(upload_folder + '\\' + 'aaci.png')
+        await tools.uploadImage(self.bot, ctx, filename="aaci")
 
     @commands.command(pass_context=True)
     async def fit(self, ctx):
         """Displays overweight penalties and fit guns for battleships."""
-        await self.bot.send_typing(ctx.message.channel)
-        await self.bot.upload(upload_folder + '\\' + 'fit.png')
+        await tools.uploadImage(self.bot, ctx, filename="fit")
 
     @commands.command(pass_context=True)
     async def oasw(self, ctx):
