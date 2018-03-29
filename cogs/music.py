@@ -47,13 +47,14 @@ class Music:
         self.queues = {}
         self.sample_rate = 48000
 
-    async def process_queue(self, server_id):
+    async def process_queue(self, ctx):
+        server_id = ctx.message.server.id
         self.players[server_id] = self.queues[server_id].pop(0)
         await asyncio.sleep(3)
         self.players[server_id].start()
         length_seconds = divmod(self.players[server_id].duration, 60)
         song_length = "{}:{:02d}".format(length_seconds[0], length_seconds[1])
-        await self.bot.say("Playing **{}** _{}_".format(self.players[server_id].title, song_length))
+        await self.bot.send_message(ctx.message.channel, "Playing **{}** _{}_".format(self.players[server_id].title, song_length))
 
     @commands.command(pass_context=True, no_pm=True)
     async def join(self, ctx):
@@ -109,7 +110,7 @@ class Music:
             '''
             if '/watch?v=' in url:
                     #self.players[server.id] = await voice_client.create_ytdl_player(url)
-                    self.queues[server.id].append(await voice_client.create_ytdl_player(url, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(server.id), self.bot.loop).result()))
+                    self.queues[server.id].append(await voice_client.create_ytdl_player(url, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result()))
             else:
                 # if player did not enter a URL:
                 try:
@@ -121,7 +122,7 @@ class Music:
                     return
                 else:
                     #self.players[server.id] = await voice_client.create_ytdl_player(selection)
-                    self.queues[server.id].append(await voice_client.create_ytdl_player(selection, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(server.id), self.bot.loop).result()))
+                    self.queues[server.id].append(await voice_client.create_ytdl_player(selection, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result()))
             await self.bot.say("Added **{}** to the queue.".format(self.queues[server.id][-1].title))
             await self.bot.delete_message(ctx.message)
             '''
@@ -134,9 +135,9 @@ class Music:
             '''
             try:
                 if len(self.queues[server.id]) == 1 and self.players[server.id].is_done():
-                    await self.process_queue(server.id)
+                    await self.process_queue(ctx)
             except KeyError:
-                await self.process_queue(server.id)
+                await self.process_queue(ctx)
         else:
             await self.bot.say("Not connected to any voice channel.")
 
