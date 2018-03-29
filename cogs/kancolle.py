@@ -200,14 +200,17 @@ class Kancolle:
             await tools.uploadImage(self.bot, ctx, filename="lbas")
 
     @lbas.command(pass_context=True)
-    async def range(self, ctx, lowest_range):
+    async def range(self, ctx, lowest_range=None):
         """Display the LBAS range bonuses given by various recon aircraft."""
-        try:
-            data = staticData.lbasRangeData(lowest_range)
-            output = "LBAS range bonusses:\n" + "\n".join(["{}:\n{:>4}\n".format(x, data[x]) for x in data])
-            await self.bot.say("```{}```".format(output))
-        except IndexError:
-            await self.bot.say("Please enter a range between 2 and 9")
+        if lowest_range is None:
+            await tools.uploadImage(self.bot, ctx, filename="lbas_range")
+        else:
+            try:
+                data = staticData.lbasRangeData(lowest_range)
+                output = "LBAS range bonusses:\n" + "\n".join(["{}:\n{:>4}\n".format(x, data[x]) for x in data])
+                await self.bot.say("```{}```".format(output))
+            except IndexError:
+                await self.bot.say("Please enter a range between 2 and 9")
 
     @commands.command(pass_context=True)
     async def damage(self, ctx):
@@ -257,6 +260,16 @@ class Kancolle:
     async def fit(self, ctx):
         """Displays overweight penalties and fit guns for battleships."""
         await tools.uploadImage(self.bot, ctx, filename="fit")
+
+    @commands.command(pass_context=True)
+    async def dgun(self, ctx):
+        """Display 12.7cm D gun bonuses."""
+        await tools.uploadImage(self.bot, ctx, filename="dgun")
+
+    @commands.command(pass_context=True)
+    async def greatsuccess(self, ctx):
+        """Display great success chances for expeditions."""
+        await tools.uploadImage(self.bot, ctx, filename="greatsuccess")
 
     @commands.command(pass_context=True)
     async def oasw(self, ctx):
@@ -324,6 +337,7 @@ class Kancolle:
                 await self.bot.say("Unable to display AS data.")
                 #await self.bot.say('{}: {}'.format(type(e).__name__, e))
 
+    '''
     @commands.command(pass_context=True)
     async def update(self, ctx, *, current_status : str):
         """Update the Kancolle Event Status Board with your current status.
@@ -361,7 +375,9 @@ class Kancolle:
             # edit the message
             await self.bot.edit_message(message=status_message, embed=new_em)
             await self.bot.say("Updated your current event status!")
+    '''
 
+    '''
     @commands.command(pass_context=True)
     async def medals(self, ctx, *, map_difficulties : str):
         """Update the Kancolle Event Medal Tally with your current clears.
@@ -422,6 +438,7 @@ class Kancolle:
             # edit the message
             await self.bot.edit_message(message=medal_message, embed=new_em)
             await self.bot.say("Updated your event medal tally!")
+    '''
 
 def setup(bot):
     bot.add_cog(Kancolle(bot))
