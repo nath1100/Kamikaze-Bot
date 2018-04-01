@@ -210,8 +210,9 @@ class Music:
 
     @commands.command(pass_context=True, no_pm=True)
     async def change_rate(self, ctx):
-        """Change the sample rate of the music player."""
-        desc = "**1.** 8000\n**2.** 12000\n**3.** 16000\n**4.** 24000\n**5.** 48000\n\nCurrent rate: {}".format(self.sample_rate)
+        """Change the sample rate of the music player. Match sample rate with the channel's bitrate for best results.
+        Takes effect after rejoining the voice channel."""
+        desc = "**1.** 8000\n**2.** 12000\n**3.** 16000\n**4.** 24000 (32kbps)\n**5.** 48000 (64kbps)\n\nCurrent rate: {}".format(self.sample_rate)
         rates = [None, 8000, 12000, 16000, 24000, 48000]
         em = tools.createEmbed(title="Select a sample rate", description=desc)
         selection = await self.bot.say(embed=em)

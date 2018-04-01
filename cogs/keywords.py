@@ -34,6 +34,7 @@ class Keywords:
                         response = random.choice(response_choices)
                 await self.bot.send_message(message.channel, response)
 
+            ''' REMOVED FOR APRIL FOOLS
             elif 'shut up kamikaze' in message.content.lower():
                 switch = tools.loadPickle('kamikaze_chime.pickle')
                 switch[message.server.id] = False
@@ -66,6 +67,7 @@ class Keywords:
                     await self.bot.send_message(message.channel, "No server info detected. Please run _serverSetup command.")
                 except AttributeError:
                     pass
+            REMOVED FOR APRIL FOOLS '''
 
 def setup(bot):
     bot.add_cog(Keywords(bot))

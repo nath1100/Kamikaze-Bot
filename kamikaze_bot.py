@@ -1,4 +1,4 @@
-import asyncio, discord, logging, os
+import asyncio, discord, logging, os, random
 from discord.ext import commands
 from cogs.utilities import tools
 try:
@@ -22,6 +22,28 @@ def get_key():
 token = get_key()
 
 version = '1.0.2.6'
+
+tsunpool = [
+    "Hah!? Go do that yourself!",
+    "Why are you asking me to do that!?",
+    "Can't you do that yourself!?",
+    "Stop asking me for things, _Baka!_",
+    "Stop bothering me, you're being annoying!",
+    "Can you shut up? I'm busy.",
+    "Stop bothering me!",
+    "You're being _really_ annoying right now.",
+    "Why are you being such a bother?!",
+    "What is it with you!?",
+    "Hah!?",
+    "Nooope, _Baka!_",
+    "What is it, you beast?",
+    "How about you do that yourself?",
+    "You're being _such_ a pain right now.",
+    "Aaah, _aaaaaaah_, shut up for a bit!",
+    "Stop talking to me!",
+    "Who's listening to _you_.",
+    "Why don't you go outside, _Baka!_"
+]
 
 extension_list = [
     'cogs.loader',
@@ -86,7 +108,13 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
-    await bot.process_commands(message)
+    ## APRIL FOOLS
+    if message.content.startswith("!k.") and random.randint(1, 5) != 1:
+        await bot.send_message(message.channel, "{}".format(random.choice(tsunpool)))
+    else:
+        await bot.process_commands(message)
+    ## END APRIL FOOLS
+    #await bot.process_commands(message)
 
 if __name__ == '__main__':
     for extension in extension_list:
