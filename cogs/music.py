@@ -35,8 +35,8 @@ async def display_choices(bot, ctx, options, query : str):
         await bot.delete_messages([msg, selections])
     else:
         await bot.delete_messages([msg, selections])
-        # return video URL
-        return "https://www.youtube.com/watch?v={}".format(options[int(msg.content) - 1][0])
+        selected_id = int(msg.content) - 1
+        return ("https://www.youtube.com/watch?v={}".format(options[selected_id][0]), options[selected_id][1]) # (video URL, video title)
 
 class Music:
     """Commands for music control in voice channels."""
@@ -48,8 +48,10 @@ class Music:
         self.sample_rate = 48000
 
     async def process_queue(self, ctx):
+        voice_client = self.bot.voice_client_in(ctx.message.server)
         server_id = ctx.message.server.id
-        self.players[server_id] = self.queues[server_id].pop(0)
+        self.players[server_id] = await voice_client.create_ytdl_player(self.queues[server_id].pop(0), after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result())
+        #self.players[server_id] = self.queues[server_id].pop(0)
         await asyncio.sleep(3)
         self.players[server_id].start()
         length_seconds = divmod(self.players[server_id].duration, 60)
@@ -101,7 +103,7 @@ class Music:
         """Get Kamikaze to play the audio from a Youtube video."""
         server = ctx.message.server
         if self.bot.is_voice_connected(server):
-            voice_client = self.bot.voice_client_in(server)
+            #voice_client = self.bot.voice_client_in(server)
             ''' When !k.play is used, stop current song
             try:
                 self.players[server.id].stop()
@@ -110,21 +112,25 @@ class Music:
             '''
             if '/watch?v=' in url:
                     #self.players[server.id] = await voice_client.create_ytdl_player(url)
-                    self.queues[server.id].append(await voice_client.create_ytdl_player(url, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result()))
+                    #self.queues[server.id].append(await voice_client.create_ytdl_player(url, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result()))
+                    self.queues[server.id].append(url)
+                    await self.bot.say("Added to queue.")
             else:
                 # if player did not enter a URL:
                 try:
                     search_results = youtube_search(url)
                 except HttpError as e:
                     await self.bot.say("An HTTP error {} occurred: {}".format(e.resp.status, e.content))
-                selection = await display_choices(self.bot, ctx, search_results, url)
+                selection, title = await display_choices(self.bot, ctx, search_results, url)
                 if selection is None:
                     return
                 else:
                     #self.players[server.id] = await voice_client.create_ytdl_player(selection)
-                    self.queues[server.id].append(await voice_client.create_ytdl_player(selection, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result()))
-            await self.bot.say("Added **{}** to the queue.".format(self.queues[server.id][-1].title))
-            await self.bot.delete_message(ctx.message)
+                    #self.queues[server.id].append(await voice_client.create_ytdl_player(selection, after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result()))
+                    self.queues[server.id].append(selection)
+                    await self.bot.say("Added **{}** to the queue.".format(title))
+            #await self.bot.say("Added **{}** to the queue.".format(self.queues[server.id][-1].title))
+            #await self.bot.delete_message(ctx.message)
             '''
             await asyncio.sleep(1) # sleep required to not skip first second of song
             self.players[server.id].start()
@@ -180,6 +186,8 @@ class Music:
         except KeyError:
             await self.bot.say("Currently not connected to any voice channel.")
 
+    ''' UNABLE TO RETRIEVE SONG TITLES AS PLAYER IS ONLY CREATED AFTER POPPING QUEUE
+    MUST NOT CREATE EARLIER TO PREVENT PIPE BREAKAGES
     @commands.command(pass_context=True, no_pm=True)
     async def queue(self, ctx):
         """View the song queue."""
@@ -193,6 +201,7 @@ class Music:
                 await self.bot.say("No songs are in the queue.")
         except KeyError:
             await self.bot.say("No songs are in the queue.")
+    '''
 
     @commands.command(pass_context=True, no_pm=True)
     async def np(self, ctx):

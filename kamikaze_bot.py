@@ -1,4 +1,4 @@
-import asyncio, discord, logging, os, random
+import asyncio, discord, logging, os, random, time
 from discord.ext import commands
 from cogs.utilities import tools
 try:
@@ -101,5 +101,5 @@ if __name__ == '__main__':
 async def on_server_join(server):
     # Do something
     pass
-
+    
 bot.run(token)

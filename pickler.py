@@ -104,7 +104,7 @@ with open('oasw_database.pickle', 'wb') as f:
     pickle.dump(oasw_database, f)
 '''
 
-''' EXPEDITION
+'''
 #template
 # "id":,"name":"","time":,"exp":{"total":{"hq":,"ship":},"hourly":{"hq":,"ship":}},"yield":{"total":[0,0,0,0],"hourly":[0,0,0,0]},"reward":[None, None],"requirements":{"fs":,"total":None,"ships":"","drums":None},"consumption":[0,0]
 
@@ -112,8 +112,8 @@ expedition_data = {
     "1": {"id":1,"name":"練習航海","time":15,"exp":{"total":{"hq":10,"ship":10},"hourly":{"hq":40,"ship":40}},"yield":{"total":[0,30,0,0],"hourly":[0,120,0,0]},"reward":[None, None],"requirements":{"fs":1,"total":None,"ships":"2XX","drums":None},"consumption":[-3,0]},
     "2": {"id":2,"name":"長距離練習航海","time":30,"exp":{"total":{"hq":20,"ship":15},"hourly":{"hq":40,"ship":30}},"yield":{"total":[0,100,30,0],"hourly":[0,200,60,0]},"reward":["Bucket", None],"requirements":{"fs":2,"total":None,"ships":"4XX","drums":None},"consumption":[-5,0]},
     "3": {"id":3,"name":"警備任務","time":20,"exp":{"total":{"hq":30,"ship":30},"hourly":{"hq":90,"ship":90}},"yield":{"total":[30,30,40,0],"hourly":[90,90,120,0]},"reward":[None, None],"requirements":{"fs":3,"total":None,"ships":"3XX","drums":None},"consumption":[-3,-2]},
-    "4": {"id":4,"name":"対潜警戒任務","time":50,"exp":{"total":{"hq":30,"ship":40},"hourly":{"hq":36,"ship":48}},"yield":{"total":[0,60,0,0],"hourly":[0,72,0,0]},"reward":["Bucket", "Small coin box"],"requirements":{"fs":3,"total":None,"ships":"1CL, 2DD","drums":None},"consumption":[-5,0]},
-    "5": {"id":5,"name":"海上護衛任務","time":90,"exp":{"total":{"hq":40,"ship":40},"hourly":{"hq":26,"ship":26}},"yield":{"total":[200,200,20,20],"hourly":[133,133,13,13]},"reward":[None, None],"requirements":{"fs":3,"total":None,"ships":"1CL, 2DD, 1XX","drums":None},"consumption":[-5,0]},
+    "4": {"id":4,"name":"対潜警戒任務","time":50,"exp":{"total":{"hq":30,"ship":40},"hourly":{"hq":36,"ship":48}},"yield":{"total":[0,60,0,0],"hourly":[0,72,0,0]},"reward":["Bucket", "Small coin box"],"requirements":{"fs":3,"total":None,"ships":"1CL, 2DD OR 1DD, 3DE","drums":None},"consumption":[-5,0]},
+    "5": {"id":5,"name":"海上護衛任務","time":90,"exp":{"total":{"hq":40,"ship":40},"hourly":{"hq":26,"ship":26}},"yield":{"total":[200,200,20,20],"hourly":[133,133,13,13]},"reward":[None, None],"requirements":{"fs":3,"total":None,"ships":"1CL, 2DD, 1XX OR 1DD, 3DE","drums":None},"consumption":[-5,0]},
     "6": {"id":6,"name":"防空射撃演習","time":40,"exp":{"total":{"hq":30,"ship":50},"hourly":{"hq":45,"ship":75}},"yield":{"total":[0,0,0,80],"hourly":[0,0,0,120]},"reward":["Small coin box", None],"requirements":{"fs":4,"total":None,"ships":"4XX","drums":None},"consumption":[-3,-2]},
     "7": {"id":7,"name":"観艦式予行","time":60,"exp":{"total":{"hq":60,"ship":120},"hourly":{"hq":60,"ship":120}},"yield":{"total":[0,0,50,30],"hourly":[0,0,50,30]},"reward":["Flamethrower", None],"requirements":{"fs":5,"total":None,"ships":"6XX","drums":None},"consumption":[-5,0]},
     "8": {"id":8,"name":"観艦式","time":180,"exp":{"total":{"hq":120,"ship":140},"hourly":{"hq":40,"ship":46}},"yield":{"total":[50,100,50,50],"hourly":[16,33,16,16]},"reward":["2x Flamethrower", "DevMat"],"requirements":{"fs":6,"total":None,"ships":"6XX","drums":None},"consumption":[-5,-2]},
@@ -148,7 +148,8 @@ expedition_data = {
     "37": {"id":37,"name":"東京急行","time":165,"exp":{"total":{"hq":50,"ship":65},"hourly":{"hq":18,"ship":23}},"yield":{"total":[0,380,270,0],"hourly":[0,138,98,0]},"reward":["Small coin box", None],"requirements":{"fs":50,"total":200,"ships":"1CL, 5DD","drums":"4 total across 3 ships"},"consumption":[-8,-8]},
     "38": {"id":38,"name":"東京急行(弐)","time":175,"exp":{"total":{"hq":100,"ship":70},"hourly":{"hq":34,"ship":24}},"yield":{"total":[420,0,200,0],"hourly":[144,0,69,0]},"reward":["Small coin box", None],"requirements":{"fs":65,"total":240,"ships":"5DD, 1XX","drums":"8 total across 4 ships"},"consumption":[-8,-8]},
     "39": {"id":39,"name":"遠洋潜水艦作戦","time":1800,"exp":{"total":{"hq":130,"ship":320},"hourly":{"hq":4,"ship":11}},"yield":{"total":[0,0,300,0],"hourly":[0,0,10,0]},"reward":["2x Bucket", "Medium coin box"],"requirements":{"fs":3,"total":180,"ships":"1AS, 4SS","drums":None},"consumption":[-9,-9]},
-    "40": {"id":40,"name":"水上機前線輸送","time":410,"exp":{"total":{"hq":60,"ship":70},"hourly":{"hq":8.9,"ship":10.2}},"yield":{"total":[300,300,0,100],"hourly":[44,44,0,15]},"reward":["3x Small coin box", "Bucket"],"requirements":{"fs":25,"total":150,"ships":"___1CL___, 2AV, 2DD, 1XX","drums":"None, but drums increase GS chance"},"consumption":[-8,-7]}
+    "40": {"id":40,"name":"水上機前線輸送","time":410,"exp":{"total":{"hq":60,"ship":70},"hourly":{"hq":8.9,"ship":10.2}},"yield":{"total":[300,300,0,100],"hourly":[44,44,0,15]},"reward":["3x Small coin box", "Bucket"],"requirements":{"fs":25,"total":150,"ships":"___1CL___, 2AV, 2DD, 1XX","drums":"None, but drums increase GS chance"},"consumption":[-8,-7]},
+    "A1": {"id":"A1", "name":"兵站強化任務","time":25,"exp":{"total":{"hq":15,"ship":10},"hourly":{"hq":36,"ship":24}},"yield":{"total":[45,45,0,0],"hourly":[108,108,0,0]},"reward":[None, None],"requirements":{"fs":5,"total":10,"ships":"3DD/DE, 1XX","drums":"None"},"consumption":[-3.5,0]}
 }
 
 with shelve.open("db\\expedition_db\\exped_db", "c") as shelf:

@@ -162,6 +162,24 @@ class Extras:
             coin_stash.pop(rich_user)
         await self.bot.say(embed=em)
 
+    @commands.command(pass_context=True)
+    async def zine(self, ctx):
+        """Submit an image for the Houraigekisen, Yoi! magazine :)
+        Upload an image along with the command in order to submit the image.
+        Only for Houraigekisen, Yoi! members."""
+        if checks.check_hourai(ctx.message):
+            ZINE_CHANNEL = "435411661457981440"
+            try:
+                url = ctx.message.attachments[0]['url']
+                if any([x in url.lower() for x in [".png", ".jpg"]]):
+                    await self.bot.send_message(self.bot.get_channel(id=ZINE_CHANNEL), url)
+                    await self.bot.say("Added image to the zine :>")
+                else:
+                    await self.bot.say("Please upload a PNG or JPG image.")
+            except IndexError:
+                await self.bot.say("Please upload your image along with `!k.zine`.")
+            
+
     async def on_message(self, message):
         coinEmoji = getCoin(message)
         if message.author == self.bot.user or message.author.bot:

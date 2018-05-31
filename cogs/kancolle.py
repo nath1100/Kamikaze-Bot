@@ -56,10 +56,11 @@ class Kancolle:
     def __init__(self, bot):
         self.bot = bot
         #KC EVENT TIMER
-        self.event_countdown = bot.loop.create_task(self.calc_countdown())
+        #self.event_countdown = bot.loop.create_task(self.calc_countdown())
 
     def __unload(self):
-        self.event_countdown.cancel()
+        #self.event_countdown.cancel()
+        pass
 
     async def calc_countdown(self):
         await self.bot.wait_until_ready()
@@ -91,7 +92,7 @@ class Kancolle:
         em = createExpeditionEmbed(data)
         await self.bot.say(embed=em)
 
-    @commands.command()
+    @commands.command(aliases=["compareship", "comapareships", "comapareship", "comapreships", "comapreship"])
     async def compareships(self, *, args : str):
         """Compare the stats of two kanmusu with `!k.comapreships <ship1>, <ship2>`
         or lookup stats with `!k.compareships <ship>`"""
@@ -162,37 +163,6 @@ class Kancolle:
                 em.add_field(name=stat[1], value=statResult)
             await self.bot.say(embed=em)
 
-    '''
-    @commands.command(pass_context=True)
-    async def lbas_range(self, ctx, shortest_range : int):
-        """Display LBAS range bonuses given the lowest equipped aircraft range."""
-        try:
-            data = staticData.lbasRangeData(shortest_range)
-            output = 'LBAS range bonuses:\n'
-            for x in data:
-                output += "{}:\n{:>4}\n\n".format(x, data[x])
-            await self.bot.say("```{}```".format(output))
-        except IndexError:
-            await self.bot.say("Please enter a range between 2 and 9.")
-
-    @commands.command(pass_context=True)
-    async def lbasrange(self, ctx, lowest_range=None):
-        """Display the LBAS range bonuses given by various recon aircraft."""
-        if lowest_range is None:
-            try:
-                await self.bot.send_typing(ctx.message.channel)
-                await self.bot.upload(upload_folder + "\\" + "lbas_range.png")
-            except FileNotFoundError:
-                await self.bot.upload(upload_folder + "\\" + "lbas_range.jpg")
-        else:
-            try:
-                data = staticData.lbasRangeData(lowest_range)
-                output = "LBAS range bonusses:\n" + "\n".join(["{}:\n{:>4}\n".format(x, data[x]) for x in data])
-                await self.bot.say("```{}```".format(output))
-            except IndexError:
-                await self.bot.say("Please enter a range between 2 and 9")
-    '''
-
     @commands.group(pass_context=True)
     async def lbas(self, ctx):
         """Display LBAS aircraft information."""
@@ -212,24 +182,35 @@ class Kancolle:
             except IndexError:
                 await self.bot.say("Please enter a range between 2 and 9")
 
+    @commands.command(pass_context=True, aliases=["tci_rates"])
+    async def tci(self, ctx):
+        """View a table showing torpedo cut in luck rates."""
+        await tools.uploadImage(self.bot, ctx, filename="tci")
+
+    @commands.command(pass_context=True, aliases=["overkill_rates"])
+    async def overkill(self, ctx):
+        """View overkill rates based on HP."""
+        await tools.uploadImage(self.bot, ctx, filename="overkill_rates")
+
+    @commands.command(pass_context=True, aliases=["tank", "daihatsu", "tankhatsu"])
+    async def tanks(self, ctx):
+        """Display who can carry what daihatsus."""
+        await tools.uploadImage(self.bot, ctx, filename="daihatsu_carriers")
+
+    @commands.command(pass_context=True)
+    async def cvci(self, ctx):
+        """Display information for aircraft carrier day cut in."""
+        await tools.uploadImage(self.bot, ctx, filename="cvci")
+
     @commands.command(pass_context=True)
     async def damage(self, ctx):
         """Display the formula for basic attack power."""
-        try:
-            await self.bot.send_typing(ctx.message.channel)
-            await self.bot.upload(upload_folder + "\\" + "damage.png")
-        except FileNotFoundError:
-            await self.bot.upload(upload_folder + "\\" + "damage.jpg")
+        await tools.uploadImage(self.bot, ctx, filename="damage")
 
     @commands.command(pass_context=True)
     async def defense(self, ctx):
         """Display the formula for defense power."""
         await tools.uploadImage(self.bot, ctx, filename="defense")
-
-    @commands.command(pass_context=True)
-    async def fit2(self, ctx):
-        """Display fit bonuses for cruisers."""
-        await tools.uploadImage(self.bot, ctx, filename="fit2")
 
     @commands.command(pass_context=True)
     async def scratch(self, ctx):
@@ -246,7 +227,7 @@ class Kancolle:
         """Display the equipment setups for special night battle attacks."""
         await tools.uploadImage(self.bot, ctx, filename="yasen")
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=["carrier_yasen", "cv_yasen", "yasen_cvci", "cvci_yasen", "cvci2"])
     async def yasen2(self, ctx):
         """Display the equipment setups required for carrier night battle attacks."""
         await tools.uploadImage(self.bot, ctx, filename="yasen2")
@@ -256,15 +237,25 @@ class Kancolle:
         """Display an AACI info chart."""
         await tools.uploadImage(self.bot, ctx, filename="aaci")
 
+    @commands.command(pass_context=True, aliases=["recipes", "development"])
+    async def recipe(self, ctx):
+        """View the quick equip recipe guide."""
+        await tools.uploadImage(self.bot, ctx, filename="recipe")
+
     @commands.command(pass_context=True)
     async def fit(self, ctx):
         """Displays overweight penalties and fit guns for battleships."""
         await tools.uploadImage(self.bot, ctx, filename="fit")
 
     @commands.command(pass_context=True)
-    async def dgun(self, ctx):
-        """Display 12.7cm D gun bonuses."""
-        await tools.uploadImage(self.bot, ctx, filename="dgun")
+    async def fit2(self, ctx):
+        """Display fit bonuses for cruisers."""
+        await tools.uploadImage(self.bot, ctx, filename="fit2")
+
+    @commands.command(pass_context=True, aliases=["dgun", "cgun", "destroyerfit", "ddfit", "kagerou", "naganami"])
+    async def fit3(self, ctx):
+        """Display fit bonuses for destroyers."""
+        await tools.uploadImage(self.bot, ctx, filename="fit3")
 
     @commands.command(pass_context=True)
     async def greatsuccess(self, ctx):
@@ -336,13 +327,15 @@ class Kancolle:
             except Exception as e:
                 await self.bot.say("Unable to display AS data.")
                 #await self.bot.say('{}: {}'.format(type(e).__name__, e))
+            #Provide wikia link
+            await self.bot.say("Wikia world page: <http://kancolle.wikia.com/wiki/World_{0}#{0}-{1}>".format(field[0], field[1]))
 
     '''
     @commands.command(pass_context=True)
     async def update(self, ctx, *, current_status : str):
         """Update the Kancolle Event Status Board with your current status.
         eg. `!k.update Clearing E5H`
-        Only available on private server."""
+        Only available on Hourai private server."""
         if not checks.check_hourai(ctx.message):
             return
         else:
@@ -383,7 +376,7 @@ class Kancolle:
         """Update the Kancolle Event Medal Tally with your current clears.
         eg. `!k.medals HHCEMHH`
         Use `!k.medals x` to clear your medal list.
-        Only available on private server."""
+        Only available on Hourai private server."""
         if not checks.check_hourai(ctx.message):
             return
         else:

@@ -17,7 +17,9 @@ def fixSuffix(suffix : str):
         "Kaibu": "Bo",
         "Kou": "A",
         "Otsu": "B",
-        "Chou": "D"
+        "Otsukai": "B kai",
+        "Chou": "D",
+        "Choukai": "D kai"
     }
     #if any(case in suffix for case in specialCases):
     for case in specialCases:
