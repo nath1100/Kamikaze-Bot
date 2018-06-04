@@ -30,12 +30,12 @@ extension_list = [
     'cogs.kancolle',
     'cogs.keywords',
     'cogs.internet',
-    'cogs.nsfw',
-    'cogs.wows',
+    #'cogs.nsfw',
+    #'cogs.wows',
     'cogs.soku',
     'cogs.extras',
     'cogs.music',
-    'cogs.sinoalice'
+    #'cogs.sinoalice'
 ]
 
 description = """Super cute Kamikaze will attend to your KC needs."""
