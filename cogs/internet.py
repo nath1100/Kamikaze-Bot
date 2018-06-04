@@ -34,9 +34,14 @@ class Internet:
         article_title = results[int(msg.content) - 1]
         await self.bot.delete_messages([search_selection, msg])
         await self.bot.send_typing(ctx.message.channel)
-        page = wikipedia.page(article_title)
-        em = tools.createEmbed(title="Result #{}: {}".format(msg.content, article_title), description=page.summary)
-        await self.bot.say(embed=em)
+        try:
+            page = wikipedia.page(article_title)
+            em = tools.createEmbed(title="Result #{}: {}".format(msg.content, article_title), description=page.summary)
+            await self.bot.say(embed=em)
+        except wikipedia.DisambiguationError as e:
+            suggestions = "\n".join([x for x in e.options if "(disambiguation)" not in x])
+            await self.bot.say(embed=tools.createEmbed(title="Disambiguation - {} may refer to:".format(article_title.strip(" (disambiguation)")), description=suggestions))
+
 
     @commands.command(pass_context=True)
     async def danbooru(self, ctx, tag_name : str, image_limit : int):
