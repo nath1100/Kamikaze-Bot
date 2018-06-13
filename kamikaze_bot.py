@@ -28,12 +28,12 @@ extension_list = [
     'cogs.admin',
     'cogs.generic',
     'cogs.kancolle',
-    'cogs.keywords',
+    #'cogs.keywords',
     'cogs.internet',
     #'cogs.nsfw',
     #'cogs.wows',
-    'cogs.soku',
-    'cogs.extras',
+    #'cogs.soku',
+    #'cogs.extras',
     'cogs.music',
     #'cogs.sinoalice'
 ]
