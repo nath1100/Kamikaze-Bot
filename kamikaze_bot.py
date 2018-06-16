@@ -7,9 +7,9 @@ except ImportError:
     import pickle
 
 #Initialisations
-logger = logging.getLogger('discord')
+logger = logging.getLogger("discord")
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
@@ -28,12 +28,12 @@ extension_list = [
     'cogs.admin',
     'cogs.generic',
     'cogs.kancolle',
-    #'cogs.keywords',
+    'cogs.keywords',
     'cogs.internet',
     #'cogs.nsfw',
     #'cogs.wows',
-    #'cogs.soku',
-    #'cogs.extras',
+    'cogs.soku',
+    'cogs.extras',
     'cogs.music',
     #'cogs.sinoalice'
 ]

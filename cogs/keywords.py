@@ -17,7 +17,7 @@ class Keywords:
                     response = random.choice(['Fuck off.', 'Shut up you bastard.', 'Kill yourself.', "Why don't you go jerk off to Asanagi, you Kuso."])
                 else: #otherwise, if you're not mintea:
                     if random.randint(1, 10000) == 1: #roll 0.01% chance for happy end
-                        await self.bot.send_message(message.channel, random.choice('Sure~ <3', 'Ok ///w///'))
+                        await self.bot.send_message(message.channel, random.choice(['Sure~ <3', 'Ok ///w///']))
                     else: #otherwise, get a response from the accumulated rejection list
                         response_choices = ['No thanks~', 'Eh? uh.. sorry.', 'Marriage? Eh.. sorry.', 'M-Marriage? Uh.. maybe not.',
                             'Marriage? Don\'t you have more important duties to attend to?', 'Maybe when you\'re a little older...',

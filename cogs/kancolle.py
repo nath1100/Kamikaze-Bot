@@ -92,6 +92,18 @@ class Kancolle:
         em = createExpeditionEmbed(data)
         await self.bot.say(embed=em)
 
+    @commands.command(aliases=["jets"])
+    async def jet(self, slot_size : int, nodes=1):
+        """Lookup the steel consumption of jets based on slot size."""
+        em = tools.createEmbed(title="Jet steel consumption costs", description="The amount of steel required per node for jet aircraft")
+        jets = {
+            "Kikka Kai" : 13,
+            "Jet Keiun Kai" : 14
+        }
+        for jet in jets:
+            em.add_field(name=jet, value=round(0.2 * jets[jet] * slot_size) * nodes)
+        await self.bot.say(embed=em)
+
     @commands.command(aliases=["compareship", "comapareships", "comapareship", "comapreships", "comapreship"])
     async def compareships(self, *, args : str):
         """Compare the stats of two kanmusu with `!k.comapreships <ship1>, <ship2>`
