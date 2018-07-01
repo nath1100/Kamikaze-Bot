@@ -268,6 +268,7 @@ class Kancolle:
     async def fit3(self, ctx):
         """Display fit bonuses for destroyers."""
         await tools.uploadImage(self.bot, ctx, filename="fit3")
+        await self.bot.say("https://i.imgur.com/dxy5NQi.png")
 
     @commands.command(pass_context=True)
     async def greatsuccess(self, ctx):
