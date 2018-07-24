@@ -51,6 +51,7 @@ class Music:
         voice_client = self.bot.voice_client_in(ctx.message.server)
         server_id = ctx.message.server.id
         self.players[server_id] = await voice_client.create_ytdl_player(self.queues[server_id].pop(0), after=lambda: asyncio.run_coroutine_threadsafe(self.process_queue(ctx), self.bot.loop).result())
+        self.players[server_id].volume = 0.1 #set player volume to 10%
         #self.players[server_id] = self.queues[server_id].pop(0)
         await asyncio.sleep(3)
         self.players[server_id].start()

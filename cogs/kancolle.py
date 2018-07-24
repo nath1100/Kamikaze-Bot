@@ -255,6 +255,11 @@ class Kancolle:
         await tools.uploadImage(self.bot, ctx, filename="recipe")
 
     @commands.command(pass_context=True)
+    async def classes(self, ctx):
+        """View destroyer gun and torpedo class categories."""
+        await tools.uploadImage(self.bot, ctx, filename="destroyer_class_bonuses")
+
+    @commands.command(pass_context=True)
     async def fit(self, ctx):
         """Displays overweight penalties and fit guns for battleships."""
         await tools.uploadImage(self.bot, ctx, filename="fit")
@@ -268,7 +273,8 @@ class Kancolle:
     async def fit3(self, ctx):
         """Display fit bonuses for destroyers."""
         await tools.uploadImage(self.bot, ctx, filename="fit3")
-        await self.bot.say("https://i.imgur.com/dxy5NQi.png")
+        #await self.bot.say("https://i.imgur.com/dxy5NQi.png")
+        await tools.uploadImage(self.bot, ctx, filename="bonus_small_guns")
 
     @commands.command(pass_context=True)
     async def greatsuccess(self, ctx):
@@ -341,7 +347,7 @@ class Kancolle:
                 await self.bot.say("Unable to display AS data.")
                 #await self.bot.say('{}: {}'.format(type(e).__name__, e))
             #Provide wikia link
-            await self.bot.say("Wikia world page: <http://kancolle.wikia.com/wiki/World_{0}#{0}-{1}>".format(field[0], field[1]))
+            await self.bot.say("Wikia world page: <http://kancolle.wikia.com/wiki/World_{0}#/{0}-{1}>".format(field[0], field[1]))
 
     '''
     @commands.command(pass_context=True)

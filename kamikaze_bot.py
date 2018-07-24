@@ -35,7 +35,8 @@ extension_list = [
     'cogs.soku',
     'cogs.extras',
     'cogs.music',
-    #'cogs.sinoalice'
+    #'cogs.sinoalice',
+    'cogs.girlsfrontline'
 ]
 
 description = """Super cute Kamikaze will attend to your KC needs."""
