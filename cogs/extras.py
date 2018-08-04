@@ -163,7 +163,7 @@ class Extras:
         await self.bot.say(embed=em)
 
     @commands.command(pass_context=True)
-    async def zine(self, ctx):
+    async def zine(self, ctx, link : str = ""):
         """Submit an image for the Houraigekisen, Yoi! magazine :)
         Upload an image along with the command in order to submit the image.
         Only for Houraigekisen, Yoi! members."""
@@ -174,12 +174,16 @@ class Extras:
                 if any([x in url.lower() for x in [".png", ".jpg"]]):
                     await self.bot.send_message(self.bot.get_channel(id=ZINE_CHANNEL), url)
                     await self.bot.say("Added image to the zine :>")
+                    await self.bot.delete_message(ctx.message)
                 else:
                     await self.bot.say("Please upload a PNG or JPG image.")
             except IndexError:
-                await self.bot.say("Please upload your image along with `!k.zine`.")
+                if len(link) > 3 and any([x in link.lower() for x in [".png", ".jpg"]]):
+                    await self.bot.send_message(self.bot.get_channel(id=ZINE_CHANNEL), link)
+                    await self.bot.delete_message(ctx.message)
+                else:
+                    await self.bot.say("Please upload your image along with `!k.zine`.")
             
-
     async def on_message(self, message):
         coinEmoji = getCoin(message)
         if message.author == self.bot.user or message.author.bot:
@@ -196,7 +200,6 @@ class Extras:
                 alert = await self.bot.send_message(message.channel, "{} found a {}".format(message.author.mention, coinEmoji))
                 await asyncio.sleep(4)
                 await self.bot.delete_message(alert)
-
 
 def setup(bot):
     bot.add_cog(Extras(bot))
