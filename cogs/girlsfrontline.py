@@ -63,7 +63,11 @@ async def getData(gun : str):
                 # Retrieve the T-Doll's tile buff (formatting is the same for old and new)
                 tile_buff_bar = stat_table.find("div", {"style" : "background:rgba(0, 0, 0, 0.5);vertical-align:top;text-align:left;padding:15px;margin:5px;flex-grow:1"})
                 # Parse three lines of data: Affects X, Buff 1, Buff 2 (take new (aura{}) and old (aura{}_t) formatting into account)
-                buffs = [tile_buff_bar.find("div", {"data-tdoll-stat-id" : "aura{}".format(x) if new_formatting else "aura{}_t".format(x)}).contents[0] for x in range(1, 4)]
+                try:
+                    buffs = [tile_buff_bar.find("div", {"data-tdoll-stat-id" : "aura{}".format(x) if new_formatting else "aura{}_t".format(x)}).contents[0] for x in range(1, 4)]
+                except IndexError:
+                    # T-Doll only has 1 buff (so 2 lines, not 3)
+                    buffs = [tile_buff_bar.find("div", {"data-tdoll-stat-id" : "aura{}".format(x) if new_formatting else "aura{}_t".format(x)}).contents[0] for x in range(1, 3)]
                 # If the doll is an HG, append stat data (as stat data is separated from label data)
                 if all([x.endswith(" ") for x in buffs[1:]]):
                     # Parse the div tags holding the linked doll stats for HGs and append them to the buff list
@@ -73,7 +77,7 @@ async def getData(gun : str):
                     # Further remove div tags and double spacing
                     buff_stats = [buff.replace("  "," ").replace('<div style="width:100%;text-align:right"> ','').replace(" </div>","") for buff in buff_stats]
                     # Append the cleaned buffs to the original buff list. buffs[x+1] because index 0 is not a buff.
-                    for x in range(0, 2):
+                    for x in range(0, len(buffs) - 1):
                         buffs[x + 1] = buffs[x + 1] + buff_stats[x]
                 # Add the tile buff data and tile grid to the results dict
                 results["Tile Buff"] = buffs
@@ -87,7 +91,7 @@ async def getData(gun : str):
                     profile_card = soup.find(class_="card-bg")
                     imgs = [img.get("src") for img in profile_card.find_all("img")]
                     for img in imgs:
-                        if gun in image_url:
+                        if gun in img:
                             image_url = img
                 # Add the image URL to the results dict
                 results["Image"] = image_url
@@ -96,6 +100,8 @@ async def getData(gun : str):
 def parseGuns(gun_string : str):
     """Receive gunString and return adequately parsed guns"""
     if "," not in gun_string:
+        # Replace spaces with underscores
+        gun_string = gun_string.replace(" ","_")
         return (gun_string, None)
     else:
         # Split into two variables, gun1 and gun2, taking into account comma habits.
