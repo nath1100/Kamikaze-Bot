@@ -145,7 +145,7 @@ class Kancolle:
                 title = "{}'s stats".format(firstShipFormatted)
                 description = "{} stat lookup".format(firstShipFormatted)
             em = tools.createEmbed(title=title, description=description)
-            em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships/{}/0.webp?raw=true".format(ship1['id']))
+            em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(ship1['id'] / 50) + 1 ,ship1['id']))
             stats = [
                 ('fire_max', 'Firepower'),
                 ('torpedo_max', 'Torpedo'),

@@ -7,6 +7,8 @@ class Keywords:
 
     def __init__(self, bot):
         self.bot = bot
+        # Setup for the dad jokes.
+        self.dad_jokes = tools.loadPickle("dad_jokes.pickle")
 
     async def on_message(self, message):
         if message.author == self.bot.user or message.author.bot:
@@ -17,15 +19,15 @@ class Keywords:
                     response = random.choice(['Fuck off.', 'Shut up you bastard.', 'Kill yourself.', "Why don't you go jerk off to Asanagi, you Kuso."])
                 else: #otherwise, if you're not mintea:
                     if random.randint(1, 10000) == 1: #roll 0.01% chance for happy end
-                        await self.bot.send_message(message.channel, random.choice(['Sure~ <3', 'Ok ///w///']))
+                        await self.bot.send_message(message.channel, "**{}**".format(random.choice(['Sure~ <3', 'Ok ///w///'])))
                     else: #otherwise, get a response from the accumulated rejection list
                         response_choices = ['No thanks~', 'Eh? uh.. sorry.', 'Marriage? Eh.. sorry.', 'M-Marriage? Uh.. maybe not.',
                             'Marriage? Don\'t you have more important duties to attend to?', 'Maybe when you\'re a little older...',
                             'The age gap though... Sorry.']
                         if message.author.id == '172704013911982080': #if you're Jimmy:
-                            more_choices = ['But you have Kawakaze...', 'But you\'re already married to Kongou...', 'If you had a girlfriend, you wouldn\'t need to constantly propose to me.', 'If you had a girlfriend, I wouldn\'t have to constantly reject you.']
+                            more_choices = ['But you have Kawakaze...', 'But you\'re already married to Kongou...', 'If you had a girlfriend, you wouldn\'t need to constantly propose to me.', 'If you had a girlfriend, I wouldn\'t have to constantly reject you.', "Aren't you already married to SR3MP?"]
                         elif message.author.id == '176610457992429568': #if you're nyanko:
-                            more_choices = ['But you have Bep...']
+                            more_choices = ['But you have Bep...', 'Sorry, you have UMP9 already.']
                         try:
                             for x in more_choices:
                                 response_choices.append(x)
@@ -33,6 +35,15 @@ class Keywords:
                             pass
                         response = random.choice(response_choices)
                 await self.bot.send_message(message.channel, response)
+
+            elif any([x in message.content.lower() for x in ["kamikaze make me feel better", "make me feel better kamikaze"]]):
+                if len(self.dad_jokes) > 0:
+                    joke = self.dad_jokes.pop(random.randint(0, len(self.dad_jokes)-1))
+                else:
+                    # Repopulate the jokes list.
+                    self.dad_jokes = tools.loadPickle("dad_jokes.pickle")
+                    joke = self.dad_jokes.pop(random.randint(0, len(self.dad_jokes)-1))
+                await self.bot.send_message(message.channel, joke)
 
             elif 'shut up kamikaze' in message.content.lower():
                 switch = tools.loadPickle('kamikaze_chime.pickle')

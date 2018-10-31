@@ -92,8 +92,8 @@ class Admin:
             await asyncio.sleep(1)
             await self.bot.say("Deleted {} message(s).".format(len(deleted)-1), delete_after=6)
 
-    @commands.command(pass_context=True)
-    async def list(self, ctx):
+    @commands.command(name="list", pass_context=True)
+    async def _list(self, ctx):
         """View a list of Kamikaze's available cogs."""
         if checks.check_admin(ctx.message):
             unInstalledCogs = str([x for x in os.listdir(".\cogs") if x.endswith(".py") and x[:-3] not in (cog.lower() for cog in self.bot.cogs)]).strip('[]').replace("'","").replace(".py", "")
@@ -104,22 +104,27 @@ class Admin:
             await self.bot.say(embed=em)
             #await self.bot.say("Here's my currently installed modules ( ;・w・)7\n```{}```".format(cogsList)) #dont forget to replace them later
 
-    '''
-    @commands.command(pass_context=True, hidden=True)
-    async def silence(self, ctx, user):
-        """Prevents a user from sending messages to private server."""
-        pass
+    @commands.command(pass_context=True)
+    async def mute(self, ctx, user_id : str):
+        """Prevent a member on Hourai from sending messages or speaking. Use again to undo."""
+        server = ctx.message.server
+        if checks.check_teitoku(ctx.message):
+            user = server.get_member(user_id)
+            if user is not None:
+                # Get muted role
+                muted_role = discord.utils.get(server.roles, id="476274041154437123")
+                # Check if user does not have the "muted" role
+                if muted_role not in user.roles:
+                    await self.bot.add_roles(user, muted_role)
+                    await self.bot.say("{} has been muted. Please take this time to cool and reflect.".format(user.mention))
+                else:
+                    # User has the role, so unmute
+                    await self.bot.remove_roles(user, muted_role)
+                    await self.bot.say("{} has been unmuted. Welcome back!".format(user.mention))
+            else:
+                # User is none, so user not found
+                await self.bot.say("Could not find a user with such an ID.")
 
-    async def on_message(self, message):
-        author = message.author
-        if author == self.bot.user or author.bot:
-            return
-        else:
-            #Check if author is silenced for Houraigekisen, Yoi server only.
-            if author in self.silenced and message.server.id == "260977178131431425":
-                await self.bot.delete_message(message)
-                await self.bot.send_message(author, "You have been temporarily silenced from {}. All sent messages will be removed.".format(message.server.name))
-    '''
 
     @commands.command(pass_context=True, hidden=True)
     async def _serverSetup(self, ctx):

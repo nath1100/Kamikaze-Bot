@@ -18,12 +18,14 @@ def fixSuffix(suffix : str):
         "Kou": "A",
         "Otsu": "B",
         "Otsukai": "B kai",
+        "Kai Ni Otsu": "kai ni B",
         "Chou": "D",
-        "Choukai": "D kai"
+        "Choukai": "D kai",
+        "Kai Ni Chou": "kai ni D"
     }
     #if any(case in suffix for case in specialCases):
     for case in specialCases:
-        if  case in suffix:
+        if  case.lower() == suffix.lower():
             return suffix.replace(case, specialCases[case])
     return suffix
 

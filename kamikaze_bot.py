@@ -1,4 +1,5 @@
 import asyncio, discord, logging, os, random, time
+import aiohttp.errors as aiohttpErrors
 from discord.ext import commands
 from cogs.utilities import tools
 try:
@@ -102,5 +103,22 @@ if __name__ == '__main__':
 async def on_server_join(server):
     # Do something
     pass
-    
+
+'''
+while True:
+    try:
+        bot.run(token)
+    except aiohttpErrors.ClientOSError:
+        # Could not establish connection to Discord; retry
+        print("Could not connect to Discord.")
+        for cooldown in range(60, 0, -1):
+            print("Retrying in {} ".format(cooldown), end="\r")
+            time.sleep(1)
+        print("\n")
+    except Exception as e:
+        print("{}: {}".format(type(e), e))
+        input("\nENTER to quit.")
+        break
+'''
+
 bot.run(token)
