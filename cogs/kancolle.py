@@ -1,4 +1,4 @@
-import asyncio, discord, random, shelve
+import asyncio, discord, math, random, shelve
 from discord.ext import commands
 from datetime import datetime
 from cogs.utilities import checks, paths, staticData, tools
@@ -280,6 +280,77 @@ class Kancolle:
     async def greatsuccess(self, ctx):
         """Display great success chances for expeditions."""
         await tools.uploadImage(self.bot, ctx, filename="greatsuccess")
+    
+    @commands.command(pass_context=True, aliases=["shuzii"])
+    async def luck(self, ctx, ship_luck="", ship_level=""):
+        """Display the night cut-in formula or calculate your chance of cutting in by providing the luck value of your ship."""
+        if ship_luck == "" and ship_level == "":
+            # Display the night cut in formula
+            await tools.uploadImage(self.bot, ctx, filename="luck")
+        elif checks.convertsToInt([ship_luck, ship_level]) and int(ship_luck) > 0 and int(ship_level) > 0: # Check positive and non-zero integer parameters
+            # Convert params to int
+            ship_luck, ship_level = int(ship_luck), int(ship_level)
+            # Create cut in type embed prompt and get type value
+            cut_ins = ["Gun Cut-in", "Mixed Gun Cut-in", "Torpedo Cut-in", "Mixed Torpedo Cut-in"]
+            type_factors = {
+                1 : 140,
+                2 : 130,
+                3 : 122,
+                4 : 115
+            }
+            description = ""
+            for x in cut_ins:
+                description += "**{}.** {}\n".format(cut_ins.index(x) + 1, x)
+            em = tools.createEmbed(title="Select your night cut-in setup:", description=description)
+            question = await self.bot.say(embed=em)
+            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content) and int(x.content) in range(1, 5))
+            if response is None:
+                return
+            elif checks.convertsToInt(response.content) and int(response.content) in range(1, 5):
+                type_factor = type_factors[int(response.content)]
+                await self.bot.delete_messages([question, response])
+            
+            # Create modifier embed prompt and get modifier values
+            modifiers = ["Is flagship", "Is chuuha", "Searchlight active", "Star shell active", "Has skilled lookout"]
+            modifier_values = {
+                1 : 15,
+                2 : 18,
+                3 : 7,
+                4 : 4,
+                5 : 5
+            }
+            description = "example input: `1, 2, 5`\n\n"
+            for x in modifiers:
+                description += "**{}.** {}\n".format(modifiers.index(x) + 1, x)
+            description += "\n**0.** NONE"
+            emb = tools.createEmbed(title="Select applicable modifiers:", description=description)
+            msg = await self.bot.say(embed=emb)
+            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content.replace(" ","").split(",")))
+            if response is None:
+                return
+            elif response.content == "0":
+                selections = []
+                modifier = 0
+            elif checks.convertsToInt(response.content.replace(" ","").split(",")) and all([1 <= int(x) <= len(modifiers) for x in response.content.replace(" ","").split(",")]):
+                # parse the response and obtain total modifier value
+                selections = [int(x) for x in response.content.replace(" ","").split(",")]
+                modifier = sum([modifier_values[x] for x in selections])
+                await self.bot.delete_messages([msg, response])
+            
+            # Calculate Cut-in chance
+            if ship_luck < 50:
+                base_value = int(15 + ship_luck + 0.75 * math.sqrt(ship_level) + modifier)
+            else:
+                base_value = int(65 + math.sqrt(ship_luck - 50) + 0.8 * math.sqrt(ship_level) + modifier)
+            cutin_chance = base_value / type_factor
+            description = "Luck: {}\nLevel: {}\n".format(ship_luck, ship_level)
+            if selections != []:
+                description += "Modifiers: {}".format(", ".join([modifiers[x-1] for x in selections]))
+            await self.bot.say(embed=tools.createEmbed(title="Cut-in Chance: {:.2%}".format(cutin_chance), description=description))
+
+        else:
+            await self.bot.say("Are you missing some parameters?")
+
 
     @commands.command(pass_context=True)
     async def oasw(self, ctx):

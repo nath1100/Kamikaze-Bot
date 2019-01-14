@@ -35,8 +35,16 @@ def check_nsfw(message):
 
 ## Type checks
 def convertsToInt(obj):
-    try:
-        int(obj)
+    if type(obj) is list:
+        for x in obj:
+            try:
+                int(x)
+            except ValueError:
+                return False
         return True
-    except ValueError:
-        return False
+    else:
+        try:
+            int(obj)
+            return True
+        except ValueError:
+            return False
