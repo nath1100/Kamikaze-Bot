@@ -324,18 +324,19 @@ class Kancolle:
                 description += "**{}.** {}\n".format(modifiers.index(x) + 1, x)
             description += "\n**0.** NONE"
             emb = tools.createEmbed(title="Select applicable modifiers:", description=description)
-            msg = await self.bot.say(embed=emb)
-            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content.replace(" ","").split(",")))
+            question = await self.bot.say(embed=emb)
+            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content.replace(" ","").split(",")) and all([0 <= int(y) <= len(modifiers) for y in x.content.replace(" ","").split(",")]))
             if response is None:
                 return
             elif response.content == "0":
                 selections = []
                 modifier = 0
+                await self.bot.delete_messages([question, response])
             elif checks.convertsToInt(response.content.replace(" ","").split(",")) and all([1 <= int(x) <= len(modifiers) for x in response.content.replace(" ","").split(",")]):
                 # parse the response and obtain total modifier value
                 selections = [int(x) for x in response.content.replace(" ","").split(",")]
                 modifier = sum([modifier_values[x] for x in selections])
-                await self.bot.delete_messages([msg, response])
+                await self.bot.delete_messages([question, response])
             
             # Calculate Cut-in chance
             if ship_luck < 50:
