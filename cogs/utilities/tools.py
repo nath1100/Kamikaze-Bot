@@ -1,4 +1,4 @@
-import discord
+import discord, os, shutil
 from discord.ext import commands
 from cogs.utilities import paths
 try:
@@ -7,6 +7,18 @@ except ImportError:
     import pickle
 
 upload_folder = paths.uploadFolder()
+
+def clearTempFolder():
+    """Delete all contents in the temp folder"""
+    folder = paths.tempFolder()
+    for f in os.listdir(folder):
+        file_path = os.path.join(folder, f)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
 
 def loadPickle(file : str):
     with open(file, 'rb') as f:

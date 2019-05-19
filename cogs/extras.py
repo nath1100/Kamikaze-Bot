@@ -44,7 +44,7 @@ class Extras:
         if ctx.invoked_subcommand is None:
             await self.bot.say("!k.help minigame for a list of minigames.")
 
-    @minigame.command(pass_context=True)
+    @minigame.command(pass_context=True, no_pm=True)
     async def kanmusu(self, ctx):
         """A game where you attempt to name as many kanmusu as you can.
         Kamikaze will show you a kanmusu, simply type their name. Try to name as many as you can!"""
@@ -74,8 +74,8 @@ class Extras:
                     answer_id = shelf[full_name]['id']
                 # create the embed
                 em = tools.createEmbed(title="Who is this?", description="Player: {}".format(player.name))
-                em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships/{}/8.webp?raw=true".format(answer_id))
-                em.set_thumbnail(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships/{}/0.webp?raw=true".format(answer_id))
+                em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(answer_id / 50) + 1, answer_id))
+                em.set_thumbnail(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(answer_id / 50) + 1, answer_id))
                 #em.set_footer(text=answer_id) # FOR DEBUGGING ID
                 question = await self.bot.say(embed=em)
                 # wait for a response from the player
