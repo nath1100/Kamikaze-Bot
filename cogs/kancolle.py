@@ -226,6 +226,7 @@ class Kancolle:
         font = ImageFont.truetype(r"C:\Windows\Fonts\Arial.ttf", 48)
         
         # Add each pull and its text to the frame
+        count = 0 # Cannot use index due to duplicates
         for pull in pulls:
             # Attempt to load image from cache
             try:
@@ -248,10 +249,10 @@ class Kancolle:
                         await self.bot.say("Could not find a CG for **{}**.".format(pull))
                         return
 
-            index = pulls.index(pull)
             # Add CG and Name text
-            frame.paste(cg, (0, index * 60))
-            draw.text((260, index * 60), pull.upper(), (200, 200, 200), font=font)
+            frame.paste(cg, (0, count * 60))
+            draw.text((260, count * 60), pull.upper(), (200, 200, 200), font=font)
+            count += 1
         
         # Save, output and delete files from tmp
         result = Path.temp_folder + "\\" + file_name
