@@ -1,16 +1,18 @@
-import discord, os, shutil
+import discord, os, shutil, aiohttp, shelve
 from discord.ext import commands
-from cogs.utilities import paths
+from io import BytesIO
+from PIL import Image
+
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 
-upload_folder = paths.uploadFolder()
+from cogs.utilities.paths import Path
 
-def clearTempFolder():
-    """Delete all contents in the temp folder"""
-    folder = paths.tempFolder()
+upload_folder = Path.upload_folder
+
+def clearFolder(folder : str):
     for f in os.listdir(folder):
         file_path = os.path.join(folder, f)
         try:
@@ -19,6 +21,14 @@ def clearTempFolder():
             elif os.path.isdir(file_path): shutil.rmtree(file_path)
         except Exception as e:
             print(e)
+
+def clearGachaCache():
+    """Delete all saved files in the gacha_cache folder"""
+    clearFolder(Path.gacha_cache)
+
+def clearTempFolder():
+    """Delete all contents in the temp folder"""
+    clearFolder(Path.temp_folder)
 
 def loadPickle(file : str):
     with open(file, 'rb') as f:

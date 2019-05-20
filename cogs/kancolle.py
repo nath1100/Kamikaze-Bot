@@ -151,7 +151,7 @@ class Kancolle:
                 title = "{}'s stats".format(firstShipFormatted)
                 description = "{} stat lookup".format(firstShipFormatted)
             em = tools.createEmbed(title=title, description=description)
-            em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(ship1['id'] / 50) + 1 ,ship1['id']))
+            em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(ship1['id'] / 50) + (0 if ship1['id'] % 50 == 0 else 1), ship1['id']))
             stats = [
                 ('fire_max', 'Firepower'),
                 ('torpedo_max', 'Torpedo'),
@@ -181,45 +181,85 @@ class Kancolle:
                 em.add_field(name=stat[1], value=statResult)
             await self.bot.say(embed=em)
 
+    @commands.command(pass_context=True)
+    async def gacha(self, ctx):
+        """Test your luck in a virtual KC gacha!"""
+        msg = await self.bot.say("Fetching gacha results...")
+        await self.bot.send_typing(ctx.message.channel)
+        file_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
+        # Load gacha statistics and calculate pull result
+        nelson_gacha = tools.loadPickle(Path.gacha_folder + "\\nelson_gacha.pickle")
+        pulls = random.choices(nelson_gacha["ship"], weights=nelson_gacha["count"], k=10)
+
+        # Setup Pillow items
+        # each icon 240 x 60, 280px given for names
+        frame_x, frame_y = 700, 600
+        frame = Image.new("RGBA", (frame_x, frame_y), (255, 0, 0, 0))
+        draw = ImageDraw.Draw(frame)
+        font = ImageFont.truetype(r"C:\Windows\Fonts\Arial.ttf", 48)
+        
+        # Add each pull and its text to the frame
+        for pull in pulls:
+            # Attempt to load image from cache
+            try:
+                cg = Image.open(Path.gacha_cache + "\\{}0.png".format(pull))
+            except FileNotFoundError:
+                # Not in cache, attempt to load from web url
+                try:
+                    with shelve.open("db\\ship_db", "r") as shelf:
+                        ship_id = shelf[pull.lower()]["id"]
+                except KeyError:
+                    await self.bot.say("Could not find **{}**. Please check your spelling.".format(pull))
+                    return
+                url = "https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(ship_id / 50) + (0 if ship_id % 50 == 0 else 1), ship_id)
+                async with aiohttp.get(url) as response:
+                    if response.status != 404:
+                        cg = Image.open(BytesIO(await response.read()))
+                        # Save CG to cache
+                        cg.save(Path.gacha_cache + "\\{}0.png".format(pull))
+                    else:
+                        await self.bot.say("Could not find a CG for **{}**.".format(pull))
+                        return
+
+            index = pulls.index(pull)
+            # Add CG and Name text
+            frame.paste(cg, (0, index * 60))
+            draw.text((260, index * 60), pull.upper(), (150, 150, 150), font=font)
+        
+        # Save, output and delete files from tmp
+        result = Path.temp_folder + "\\" + file_name
+        frame.save(result)
+        await self.bot.delete_message(msg)
+        await self.bot.upload(result)
+        tools.clearTempFolder()
+
     @commands.command(pass_context=True, hidden=True)
     async def boat(self, ctx, *, ship_name : str):
         """Display a kanmusu info card."""
+        file_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
         SPECIAL_CASES = {
-            "commandante" : "teste"
+            "commandant" : "teste",
+            "ark" : "royal",
+            "prinz" : "eugen",
+            "graf" : "zeppelin"
         }
         kanmusu = ship_name.lower()
+        await self.bot.send_typing(ctx.message.channel)
+
         try:
             with shelve.open("db\\ship_db", "r") as shelf:
                 ship_id = shelf[kanmusu]["id"]
         except KeyError:
             await self.bot.say("I couldn't find **{}**.".format(kanmusu))
             return
-        url = "https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(ship_id / 50) + 1, ship_id)
+
+        url = "https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(ship_id / 50) + (0 if ship_id % 50 == 0 else 1), ship_id)
         async with aiohttp.get(url) as response:
             if response.status != 404:
-                # Get and save images as PNG
+                # Get the shipgirl's CG
                 cg = Image.open(BytesIO(await response.read()))
-                cg.save(TEMP_FOLDER + "\\cg.png") # Save the CG as PNG in tmp folder
-                base_template = Image.open(upload_folder + "\\base_style_template.png")
-                draw = ImageDraw.Draw(base_template)
-                font = ImageFont.truetype(r"C:\Windows\Fonts\Arial.ttf", 48) # (font, font_size)
-                template_x, template_y = base_template.size
-                cg_x, cg_y = cg.size
-
-                # Draw text and paste images onto template
-                draw.text((150, 95), kanmusu.upper(), (150, 150, 150), font=font)
-                base_template.paste(cg, (template_x - cg_x, 0), cg)
-                
-                # Save result to tmp
-                result = TEMP_FOLDER + "\\result_img.png"
-                base_template.save(result)
-                
-                # Output image
-                await self.bot.upload(result)
-
-                # Clear tmp
-                tools.clearTempFolder()
             else:
+                # Couldn't find CG
                 kanmusu = ship_name.lower().split(" ")[0] # Strip any potential tags (accounts for no CG change on kai etc)
                 # SPECIAL CASE CATCH
                 if kanmusu in SPECIAL_CASES:
@@ -230,32 +270,37 @@ class Kancolle:
                 except KeyError:
                     await self.bot.say("I couldn't find **{}**.".format(kanmusu))
                     return
-                url = "https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(ship_id / 50) + 1, ship_id)
+
+                # Try to retrieve CG again
+                url = "https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(ship_id / 50) + (0 if ship_id % 50 == 0 else 1), ship_id)
                 async with aiohttp.get(url) as response:
                     if response.status == 404:
+                        # Still couldn't find CG, return.
                         return
                     else:
                         cg = Image.open(BytesIO(await response.read()))
-                        cg.save(TEMP_FOLDER + "\\cg.png") # Save the CG as PNG in tmp folder
-                        base_template = Image.open(upload_folder + "\\base_style_template.png")
-                        draw = ImageDraw.Draw(base_template)
-                        font = ImageFont.truetype(r"C:\Windows\Fonts\Arial.ttf", 48) # (font, font_size)
-                        template_x, template_y = base_template.size
-                        cg_x, cg_y = cg.size
 
-                        # Draw text and paste images onto template
-                        draw.text((150, 95), ship_name.upper(), (150, 150, 150), font=font)
-                        base_template.paste(cg, (template_x - cg_x, 0), cg)
-                        
-                        # Save result to tmp
-                        result = TEMP_FOLDER + "\\result_img.png"
-                        base_template.save(result)
-                        
-                        # Output image
-                        await self.bot.upload(result)
+            # Save CG as PNG
+            cg.save(TEMP_FOLDER + "\\cg.png") # Store in tmp folder
+            base_template = Image.open(upload_folder + "\\base_style_template.png")
+            draw = ImageDraw.Draw(base_template)
+            font = ImageFont.truetype(r"C:\Windows\Fonts\Arial.ttf", 48) # (font, font_size)
+            template_x, template_y = base_template.size
+            cg_x, cg_y = cg.size
 
-                        # Clear tmp
-                        tools.clearTempFolder()
+            # Draw text and paste images onto template
+            draw.text((150, 95), ship_name.upper(), (150, 150, 150), font=font)
+            base_template.paste(cg, (template_x - cg_x, 0), cg)
+            
+            # Save result to tmp
+            result = TEMP_FOLDER + "\\" + file_name
+            base_template.save(result)
+            
+            # Output image
+            await self.bot.upload(result)
+
+            # Clear tmp
+            tools.clearTempFolder()
 
     @commands.group(pass_context=True)
     async def lbas(self, ctx):

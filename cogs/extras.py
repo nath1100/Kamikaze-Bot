@@ -74,8 +74,8 @@ class Extras:
                     answer_id = shelf[full_name]['id']
                 # create the embed
                 em = tools.createEmbed(title="Who is this?", description="Player: {}".format(player.name))
-                em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(answer_id / 50) + 1, answer_id))
-                em.set_thumbnail(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(answer_id / 50) + 1, answer_id))
+                em.set_image(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/8.webp?raw=true".format(int(answer_id / 50) + (0 if answer_id % 50 == 0 else 1), answer_id))
+                em.set_thumbnail(url="https://github.com/Diablohu/WhoCallsTheFleet/blob/master/pics-ships-{}/{}/0.webp?raw=true".format(int(answer_id / 50) + (0 if answer_id % 50 == 0 else 1), answer_id))
                 #em.set_footer(text=answer_id) # FOR DEBUGGING ID
                 question = await self.bot.say(embed=em)
                 # wait for a response from the player

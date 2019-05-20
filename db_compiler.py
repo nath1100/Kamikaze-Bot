@@ -11,7 +11,6 @@ def loadRawData():
 
 def fixSuffix(suffix : str):
     """Enter a suffix and translate it to wikia standards"""
-    # TODO: Kou = Carrier and Kou = A conflicts with each other. Implement a way of discerning the two.
     specialCases = {
         "два": "Dva",
         "kou": "Carrier",

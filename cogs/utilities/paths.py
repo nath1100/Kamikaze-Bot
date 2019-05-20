@@ -24,3 +24,5 @@ class Path:
     world_info = r"upload_worldinfo"
     sinoalice_info = r"upload_sinoalice"
     temp_folder = r"tmp"
+    gacha_folder = r"gacha"
+    gacha_cache = r"gacha\gacha_cache"
