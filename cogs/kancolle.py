@@ -1,4 +1,4 @@
-import asyncio, aiohttp, discord, math, random, shelve
+import asyncio, aiohttp, discord, math, os, random, shelve
 from discord.ext import commands
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
@@ -184,15 +184,42 @@ class Kancolle:
     @commands.command(pass_context=True)
     async def gacha(self, ctx):
         """Test your luck in a virtual KC gacha!"""
+        await self.bot.send_typing(ctx.message.channel)
+        # BANNER SELECTION
+        # Get banners. Standard banner dimensions = 760 x 100
+        BANNER_WIDTH, BANNER_HEIGHT = 860, 100
+        banners = [x for x in os.listdir(Path.gacha_folder) if x[-4:] == ".png" or x[-4:] == ".jpg"]
+        banner_frame = Image.new("RGBA", (BANNER_WIDTH, BANNER_HEIGHT * len(banners)), (255, 0, 0, 0))
+        banner_draw = ImageDraw.Draw(banner_frame)
+        banner_font = ImageFont.truetype(r"C:\Windows\Fonts\Arial.ttf", 96)
+        # Create banner list
+        for banner in banners:
+            # Load banner image and resize if needed
+            banner_img = Image.open(Path.gacha_folder + "\\" + banner)
+            if banner_img.size != (BANNER_WIDTH, BANNER_HEIGHT):
+                banner_img.resize((BANNER_WIDTH, BANNER_HEIGHT))
+            # Draw text and image onto frame
+            index = banners.index(banner)
+            banner_draw.text((0, index * 100), str(index + 1) + ".", (200, 200, 200), font=banner_font)
+            banner_frame.paste(banner_img, (100, index * 100))
+        # Save and output banner selection
+        banner_f_name = Path.temp_folder + "\\" + "banner" + datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
+        banner_frame.save(banner_f_name)
+        await self.bot.say("Please select a banner:")
+        await self.bot.send_typing(ctx.message.channel)
+        await self.bot.upload(banner_f_name)
+        selection = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content) and int(x.content) in range(1, len(banners) + 1))
+        chosen_banner = banners[int(selection.content) - 1].split(".")[0] + ".pickle"
+
         msg = await self.bot.say("Fetching gacha results...")
         await self.bot.send_typing(ctx.message.channel)
         file_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
         # Load gacha statistics and calculate pull result
-        nelson_gacha = tools.loadPickle(Path.gacha_folder + "\\nelson_gacha.pickle")
-        pulls = random.choices(nelson_gacha["ship"], weights=nelson_gacha["count"], k=10)
+        gacha_data = tools.loadPickle(Path.gacha_folder + "\\{}".format(chosen_banner))
+        pulls = random.choices(gacha_data["ship"], weights=gacha_data["count"], k=10)
 
         # Setup Pillow items
-        # each icon 240 x 60, 280px given for names
+        # each icon 240 x 60
         frame_x, frame_y = 700, 600
         frame = Image.new("RGBA", (frame_x, frame_y), (255, 0, 0, 0))
         draw = ImageDraw.Draw(frame)
@@ -224,7 +251,7 @@ class Kancolle:
             index = pulls.index(pull)
             # Add CG and Name text
             frame.paste(cg, (0, index * 60))
-            draw.text((260, index * 60), pull.upper(), (150, 150, 150), font=font)
+            draw.text((260, index * 60), pull.upper(), (200, 200, 200), font=font)
         
         # Save, output and delete files from tmp
         result = Path.temp_folder + "\\" + file_name
