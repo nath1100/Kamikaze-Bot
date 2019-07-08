@@ -231,6 +231,16 @@ class Generic:
         await self.bot.say("Pong!")
 
     @commands.command(pass_context=True)
+    async def screenshare(self, ctx):
+        """Start screensharing on a connected voice channel."""
+        voice_channel = ctx.message.author.voice.voice_channel
+        # Check if user is in a voice channel
+        if voice_channel is None:
+            await self.bot.say("Please connect to a voice channel for screensharing.")
+        else:
+            await self.bot.say("Click the link to start screensharing:\n<https://discordapp.com/channels/{}/{}>".format(ctx.message.server.id, voice_channel.id))
+
+    @commands.command(pass_context=True)
     async def server_info(self, ctx):
         """Find out about the server and its administrators."""
         try:

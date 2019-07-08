@@ -266,10 +266,11 @@ class Kancolle:
         """Display a kanmusu info card."""
         file_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S") + ".png"
         SPECIAL_CASES = {
-            "commandant" : "teste",
-            "ark" : "royal",
-            "prinz" : "eugen",
-            "graf" : "zeppelin"
+            "commandant": "teste",
+            "ark": "royal",
+            "prinz": "eugen",
+            "graf": "zeppelin",
+            "giuseppe": "garibaldi"
         }
         kanmusu = ship_name.lower()
         await self.bot.send_typing(ctx.message.channel)
@@ -359,10 +360,15 @@ class Kancolle:
         """View overkill rates based on HP."""
         await tools.uploadImage(self.bot, ctx, filename="overkill_rates")
 
-    @commands.command(pass_context=True, aliases=["tank", "daihatsu", "tankhatsu"])
+    @commands.command(pass_context=True, aliases=["tank", "tankhatsu"])
     async def tanks(self, ctx):
         """Display who can carry what daihatsus."""
         await tools.uploadImage(self.bot, ctx, filename="daihatsu_carriers")
+
+    @commands.command(pass_context=True, aliases=["daihatsu"])
+    async def toku(self, ctx):
+        """Display Expedition bonuses from daihatsu landing crafts"""
+        await tools.uploadImage(self.bot, ctx, filename="toku")
 
     @commands.command(pass_context=True)
     async def cvci(self, ctx):
@@ -371,8 +377,13 @@ class Kancolle:
 
     @commands.command(pass_context=True)
     async def damage(self, ctx):
-        """Display the formula for basic attack power."""
+        """Display the main damage formula."""
         await tools.uploadImage(self.bot, ctx, filename="damage")
+    
+    @commands.command(pass_context=True, aliases=["basic", "attack", "attack_power", "atk_power", "damage2"])
+    async def basicatk(self, ctx):
+        """Display the basic attack power formulas."""
+        await tools.uploadImage(self.bot, ctx, filename="damage2")
 
     @commands.command(pass_context=True)
     async def defense(self, ctx):

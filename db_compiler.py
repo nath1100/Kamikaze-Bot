@@ -21,11 +21,13 @@ def fixSuffix(suffix : str):
         "Kai Ni Otsu": "kai ni B",
         "Chou": "D",
         "Choukai": "D kai",
-        "Kai Ni Chou": "kai ni D"
+        "Kai Ni Chou": "kai ni D",
+        "Kai Ni Hei": "kai ni C",
+        "Kai Ni Bo": "kai ni E"
     }
     #if any(case in suffix for case in specialCases):
     for case in specialCases:
-        if  case.lower() == suffix.lower():
+        if case.lower() == suffix.lower():
             return suffix.replace(case, specialCases[case])
     return suffix
 
@@ -45,7 +47,8 @@ def fixShipName(dictionary):
         "Октябрьская революция": "Gangut kai",
         "Верный": "Verniy",
         "伊504": "i-504",
-        "Ташкент": "Tashkent"
+        "Ташкент": "Tashkent",
+        "G.Garibaldi": "Giuseppe Garibaldi"
     }
     # this list identifies name-fixes to otherwise functioning JA_ROMAJI names
     hardCodedCases = {
