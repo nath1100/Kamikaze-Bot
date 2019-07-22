@@ -238,7 +238,7 @@ class Generic:
         if voice_channel is None:
             await self.bot.say("Please connect to a voice channel for screensharing.")
         else:
-            await self.bot.say("Click the link to start screensharing:\n<https://discordapp.com/channels/{}/{}>".format(ctx.message.server.id, voice_channel.id))
+            await self.bot.say("{0} has started a screenshare in **:loud_sound:{1}**. Connect to **:loud_sound:{1}** and then click the link to join:\n<https://discordapp.com/channels/{2}/{3}>".format(ctx.message.author.mention, voice_channel.name, ctx.message.server.id, voice_channel.id))
 
     @commands.command(pass_context=True)
     async def server_info(self, ctx):

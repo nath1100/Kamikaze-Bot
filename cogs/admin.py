@@ -125,6 +125,117 @@ class Admin:
                 # User is none, so user not found
                 await self.bot.say("Could not find a user with such an ID.")
 
+    @commands.group(pass_context=True, aliases=["roles"])
+    async def role(self, ctx):
+        """Assign (or unassign) yourself a role. Use `add` or `remove` subcommand to edit assignable roles. For Hourai only."""
+        if not checks.check_hourai(ctx.message):
+            await self.bot.say("This command can only be used in **Houraigekisen, Yoi!**")
+            return
+        if ctx.invoked_subcommand is None:
+            # Display a list of self-assignable roles.
+            try:
+                role_list = tools.loadPickle("assignable_roles.pickle")
+            except FileNotFoundError:
+                await self.bot.say("There are currently no self-assignable roles.")
+                return
+            role_list_names = [role.name for role in role_list]
+            if role_list_names != []:
+                await self.bot.say(embed=tools.createEmbed(title="Self-assignable Roles", description="\n".join(role_list_names)))
+            else:
+                await self.bot.say("There are currently no self-assignable roles.")
+
+    @role.command(pass_context=True)
+    async def enable(self, ctx, *, role : str):
+        """Allow other users to assign themselves this role."""
+        if not checks.check_admin(ctx.message):
+            await self.bot.say("You do not have permission to do that.")
+            return
+        server_roles = ctx.message.server.roles
+        # Find discord role by name or ID
+        discord_role = tools.getByIdOrName(server_roles, role)
+        if discord_role is None:
+            await self.bot.say("Could not find role **{}**. Please make sure the ID or Role name is correct.".format(role))
+            return
+        # Role found. Do not add role if Default or higher.
+        DEFAULT_ROLE = discord.utils.get(server_roles, name="Default")
+        if discord_role >= DEFAULT_ROLE:
+            await self.bot.say("**{}'s** role hierarchy order is too high to enable self-assignment.".format(discord_role.name))
+            return
+        ROLE_PICKLE = "assignable_roles.pickle"
+        try:
+            role_list = tools.loadPickle(ROLE_PICKLE)
+            if discord_role in role_list:
+                await self.bot.say("**{}** has already been set as assignable.".format(discord_role.name))
+                return
+            else:
+                role_list.append(discord_role)
+                tools.dumpPickle(role_list, ROLE_PICKLE)
+        except FileNotFoundError:
+            # Create role list pickle
+            tools.dumpPickle([discord_role], ROLE_PICKLE)
+        await self.bot.say("**{}** set as assignable.".format(discord_role.name))
+
+    @role.command(pass_context=True)
+    async def disable(self, ctx, *, role : str):
+        """Remove a role from the list of self-assignable roles."""
+        if not checks.check_admin(ctx.message):
+            await self.bot.say("You do not have permission to do that.")
+            return
+        ROLE_PICKLE = "assignable_roles.pickle"
+        try:
+            role_list = tools.loadPickle(ROLE_PICKLE)
+        except FileNotFoundError:
+            await self.bot.say("No roles have been added to the self-assignable roles list.")
+            return
+        server_roles = ctx.message.server.roles
+        # Attempt to find the role in server by ID or name
+        discord_role = tools.getByIdOrName(server_roles, role)
+        if discord_role is None:
+            await self.bot.say("Could not find role **{}**. Please make sure the ID or Role name is correct".format(role))
+            return
+        # Role found
+        if discord_role not in role_list:
+            # Role exists in server but not in assignable list.
+            await self.bot.say("**{}** has not been added to the self-assignable roles list.".format(discord_role.name))
+            return
+        # Remove the role
+        role_list.remove(discord_role)
+        tools.dumpPickle(role_list, ROLE_PICKLE)
+        await self.bot.say("**{}** has been removed from the list.".format(discord_role.name))
+
+    @role.command(pass_context=True)
+    async def add(self, ctx, *, role : str):
+        """Assign yourself a role."""
+        ROLE_PICKLE = "assignable_roles.pickle"
+        role_list = tools.loadPickle(ROLE_PICKLE)
+        discord_role = tools.getByIdOrName(role_list, role)
+        if discord_role is None:
+            await self.bot.say("**{}** was not found in the role list. Please check your spelling and use `!k.role` to view the list of self-assignable roles.")
+            return
+        else:
+            author = ctx.message.author
+            if discord_role in author.roles:
+                await self.bot.say("{} already has the role **{}**.".format(author.name, discord_role.name))
+                return
+            await self.bot.add_roles(author, discord_role)
+            await self.bot.say("Successfully gave **{}** to {}.".format(discord_role.name, author.name))
+
+    @role.command(pass_context=True)
+    async def remove(self, ctx, *, role : str):
+        """Remove a role assigned to you."""
+        ROLE_PICKLE = "assignable_roles.pickle"
+        role_list = tools.loadPickle(ROLE_PICKLE)
+        discord_role = tools.getByIdOrName(role_list, role)
+        if discord_role is None:
+            await self.bot.say("**{}** was not found in the role list. Please check your spelling and use `!k.role` to view the list of self-assignable roles.")
+            return
+        else:
+            author = ctx.message.author
+            if discord_role not in author.roles:
+                await self.bot.say("{} does not have the role **{}**.".format(author.name, discord_role.name))
+                return
+            await self.bot.remove_roles(author, discord_role)
+            await self.bot.say("Successfully removed **{}** from {}.".format(discord_role.name, author.name))
 
     @commands.command(pass_context=True, hidden=True)
     async def _serverSetup(self, ctx):

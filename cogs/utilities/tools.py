@@ -69,3 +69,12 @@ async def uploadImage(bot, ctx, filename : str):
 
 async def inputTimeout(bot, ctx, topic : str):
     await bot.send_message(ctx.message.channel, "{}, your {} has timed out".format(ctx.message.author.mention, topic))
+
+def getByIdOrName(iterable, item : str):
+    """Attempt to find item in iterable where item is either an ID or name"""
+    # Find item as name
+    hit = discord.utils.get(iterable, name=item)
+    # If none found, find item as ID
+    if hit is None:
+        hit = discord.utils.get(iterable, id=item)
+    return hit
