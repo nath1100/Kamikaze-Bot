@@ -446,6 +446,11 @@ class Kancolle:
     async def greatsuccess(self, ctx):
         """Display great success chances for expeditions."""
         await tools.uploadImage(self.bot, ctx, filename="greatsuccess")
+
+    @commands.command(pass_context=True, aliases=["antiinstallation", "anti-installation"])
+    async def installation(self, ctx):
+        """Display anti-installation modifiers for rockets, tanks, etc."""
+        await tools.uploadImage(self.bot, ctx, filename="installation")
     
     @commands.command(pass_context=True, aliases=["shuzii"])
     async def luck(self, ctx, ship_luck="", ship_level=""):

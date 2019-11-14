@@ -210,7 +210,7 @@ class Admin:
         role_list = tools.loadPickle(ROLE_PICKLE)
         discord_role = tools.getByIdOrName(role_list, role)
         if discord_role is None:
-            await self.bot.say("**{}** was not found in the role list. Please check your spelling and use `!k.role` to view the list of self-assignable roles.")
+            await self.bot.say("**{}** was not found in the role list. Please check your spelling and use `!k.role` to view the list of self-assignable roles.".format(role))
             return
         else:
             author = ctx.message.author
@@ -227,7 +227,7 @@ class Admin:
         role_list = tools.loadPickle(ROLE_PICKLE)
         discord_role = tools.getByIdOrName(role_list, role)
         if discord_role is None:
-            await self.bot.say("**{}** was not found in the role list. Please check your spelling and use `!k.role` to view the list of self-assignable roles.")
+            await self.bot.say("**{}** was not found in the role list. Please check your spelling and use `!k.role` to view the list of self-assignable roles.".format(role))
             return
         else:
             author = ctx.message.author

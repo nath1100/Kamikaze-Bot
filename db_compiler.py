@@ -48,7 +48,9 @@ def fixShipName(dictionary):
         "Верный": "Verniy",
         "伊504": "i-504",
         "Ташкент": "Tashkent",
-        "G.Garibaldi": "Giuseppe Garibaldi"
+        "G.Garibaldi": "Giuseppe Garibaldi",
+        "L.d.S.D.d. Abruzzi": "Abruzzi",
+        "Samuel B.Roberts": "Sammy"
     }
     # this list identifies name-fixes to otherwise functioning JA_ROMAJI names
     hardCodedCases = {
