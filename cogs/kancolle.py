@@ -452,6 +452,11 @@ class Kancolle:
         """Display anti-installation modifiers for rockets, tanks, etc."""
         await tools.uploadImage(self.bot, ctx, filename="installation")
     
+    @commands.command(pass_context=True, aliases=["resist"])
+    async def resistance(self, ctx):
+        """Displays the ship and fleet AA resistance values of various aircraft"""
+        await tools.uploadImage(self.bot, ctx, filename="resistance")
+
     @commands.command(pass_context=True, aliases=["shuzii"])
     async def luck(self, ctx, ship_luck="", ship_level=""):
         """Display the night cut-in formula or calculate your chance of cutting in by providing the luck value of your ship."""
