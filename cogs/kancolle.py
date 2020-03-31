@@ -467,23 +467,48 @@ class Kancolle:
             # Convert params to int
             ship_luck, ship_level = int(ship_luck), int(ship_level)
             # Create cut in type embed prompt and get type value
-            cut_ins = ["Gun Cut-in", "Mixed Gun Cut-in", "Torpedo Cut-in", "Mixed Torpedo Cut-in"]
-            type_factors = {
-                1 : 140,
-                2 : 130,
-                3 : 122,
-                4 : 115
+            cut_in_dict = [
+                "DD - Lookout, Torpedo, Radar Cut-in",
+                "DD - Gun, Torpedo, Radar Cut-in",
+                "Torpedo Cut-in",
+                "Gun Cut-in",
+                "Mixed Gun Cut-in",
+                "Mixed Torpedo Cut-in"
+            ]
+            multi_roll_cut_ins = [1, 2]
+            type_factor_dict = {
+                1: 150,
+                2: 130,
+                3: 122,
+                4: 140,
+                5: 130,
+                6: 115
             }
-            description = ""
-            for x in cut_ins:
-                description += "**{}.** {}\n".format(cut_ins.index(x) + 1, x)
-            em = tools.createEmbed(title="Select your night cut-in setup:", description=description)
+            description = "example input: `1 2 5`\n\n"
+            for x in cut_in_dict:
+                description += "**{}.** {}\n".format(cut_in_dict.index(x) + 1, x)
+            em = tools.createEmbed(title="Select your night cut-in setup(s):", description=description)
             question = await self.bot.say(embed=em)
-            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content) and int(x.content) in range(1, 5))
+            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content.split(" ")) and all([0 <= int(y) <= len(cut_in_dict) for y in x.content.split(" ")]))
             if response is None:
                 return
-            elif checks.convertsToInt(response.content) and int(response.content) in range(1, 5):
-                type_factor = type_factors[int(response.content)]
+            elif checks.convertsToInt(response.content.split(" ")) and all([1 <= int(x) <= len(cut_in_dict) for x in response.content.split(" ")]):
+                # Sanitise input
+                resp_factors = list(filter(lambda x: x != "", response.content.split(" ")))
+                # Convert to int
+                resp_factors = [int(x) for x in resp_factors]
+                resp_factors.sort() # Cut ins higher in the list (lower number) have higher trigger priority
+                # Remove redundant cut ins (only 1 type of non-DD cut in can trigger)
+                if len(resp_factors) > 1:
+                    priority_factor = 6
+                    for factor in resp_factors:
+                        if 2 < factor < priority_factor:
+                            priority_factor = factor
+                    sanitised_factors = [x for x in resp_factors if x in multi_roll_cut_ins or x == priority_factor]
+                else:
+                    sanitised_factors = resp_factors
+                            
+                type_factors = [type_factor_dict[int(x)] for x in sanitised_factors]
                 await self.bot.delete_messages([question, response])
             
             # Create modifier embed prompt and get modifier values
@@ -495,35 +520,69 @@ class Kancolle:
                 4 : 4,
                 5 : 5
             }
-            description = "example input: `1, 2, 5`\n\n"
+            description = "example input: `1 2 5`\n\n"
             for x in modifiers:
                 description += "**{}.** {}\n".format(modifiers.index(x) + 1, x)
             description += "\n**0.** NONE"
             emb = tools.createEmbed(title="Select applicable modifiers:", description=description)
             question = await self.bot.say(embed=emb)
-            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content.replace(" ","").split(",")) and all([0 <= int(y) <= len(modifiers) for y in x.content.replace(" ","").split(",")]))
+            response = await self.bot.wait_for_message(timeout=300, author=ctx.message.author, check=lambda x: checks.convertsToInt(x.content.split(" ")) and all([0 <= int(y) <= len(modifiers) for y in x.content.split(" ")]))
             if response is None:
                 return
             elif response.content == "0":
                 selections = []
                 modifier = 0
                 await self.bot.delete_messages([question, response])
-            elif checks.convertsToInt(response.content.replace(" ","").split(",")) and all([1 <= int(x) <= len(modifiers) for x in response.content.replace(" ","").split(",")]):
+            elif checks.convertsToInt(response.content.split(" ")) and all([1 <= int(x) <= len(modifiers) for x in response.content.split(" ")]):
                 # parse the response and obtain total modifier value
-                selections = [int(x) for x in response.content.replace(" ","").split(",")]
+                selections = [int(x) for x in response.content.split(" ")]
                 modifier = sum([modifier_values[x] for x in selections])
                 await self.bot.delete_messages([question, response])
             
             # Calculate Cut-in chance
+            cutin_chance = []
+            # Calculate base value
             if ship_luck < 50:
                 base_value = int(15 + ship_luck + 0.75 * math.sqrt(ship_level) + modifier)
             else:
                 base_value = int(65 + math.sqrt(ship_luck - 50) + 0.8 * math.sqrt(ship_level) + modifier)
-            cutin_chance = base_value / type_factor
-            description = "Luck: {}\nLevel: {}\n".format(ship_luck, ship_level)
-            if selections != []:
-                description += "Modifiers: {}".format(", ".join([modifiers[x-1] for x in selections]))
-            await self.bot.say(embed=tools.createEmbed(title="Cut-in Chance: {:.2%}".format(cutin_chance), description=description))
+            # Calculate chance for each cut in entered
+            for type_factor in type_factors:
+                cutin_chance.append(base_value / type_factor)
+            
+            # Display embed for when only 1 cut in is selected
+            if len(type_factors) == 1:
+                description = "Luck: {}\nLevel: {}\n".format(ship_luck, ship_level)
+                if selections != []:
+                    description += "Modifiers: {}".format(", ".join([modifiers[x-1] for x in selections]))
+                await self.bot.say(embed=tools.createEmbed(title="{} Chance: {:.2%}".format(cut_in_dict[sanitised_factors[0] - 1], cutin_chance[0]), description=description))
+            else:
+                # Display embed for multiple cut in types
+                # Calculate total cut in chance by calculating all fail chance
+                chances_to_fail = [1 - x for x in cutin_chance]
+                cumul_fail = 1
+                for chance in chances_to_fail:
+                    cumul_fail *= chance
+                total_chance = 1 - cumul_fail
+
+                # Calculate relative trigger chance of each cut in
+                relative_chances = [cutin_chance[0]]
+                for index in range(1, len(cutin_chance)): # for each cut in after the highest priority cut in:
+                    cumul_fail = 1
+                    for inner_index in range(0, index): # for each cut in before the current successful cut in
+                        # cumulatively multiply each fail
+                        cumul_fail *= chances_to_fail[inner_index]
+                    relative_chances.append(cumul_fail * cutin_chance[index])
+
+                # Create embed
+                description = "Luck: {}\nLevel: {}\n".format(ship_luck, ship_level)
+                if selections != []:
+                    description += "Modifiers: {}\n".format(", ".join([modifiers[x-1] for x in selections]))
+                description += "\nInidividual Cut-in chance:\n`Cut in: individual trigger chance (actual relative trigger chance)`"
+                em = tools.createEmbed(title="Total Cut-in Chance: {:.2%}".format(total_chance), description=description)
+                for x in range(0, len(sanitised_factors)):
+                    em.add_field(name=cut_in_dict[sanitised_factors[x] - 1], value="{:.2%}   (**{:.2%}**)".format(cutin_chance[x], relative_chances[x]), inline=False)
+                await self.bot.say(embed=em)
 
         else:
             await self.bot.say("Are you missing some parameters?")

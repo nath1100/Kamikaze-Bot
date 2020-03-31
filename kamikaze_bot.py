@@ -1,7 +1,7 @@
 import asyncio, discord, logging, os, random, time
 import aiohttp.errors as aiohttpErrors
 from discord.ext import commands
-from cogs.utilities import tools
+from cogs.utilities import tools, checks
 try:
     import cPickle as pickle
 except ImportError:
@@ -13,6 +13,7 @@ logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
+
 
 def get_key():
     creds = tools.loadPickle("crds.pickle")
@@ -78,6 +79,7 @@ async def on_command_error(error, ctx):
         error_m = await bot.send_message(ctx.message.channel, "Eeh!? Something has gone very wrong!  ∑(O_O;) \nPlease be patient until this is fixed~!")
         try:
             await bot.send_message(ctx.message.server.get_member(user_id='178112312845139969'), "{} in {}: <{}>\nError: {}".format(ctx.message.author, ctx.message.server, ctx.message.content, error))
+            raise error
         except AttributeError:
             # do not send error reports for PMs
             pass
