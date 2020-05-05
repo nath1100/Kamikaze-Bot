@@ -23,6 +23,9 @@ def check_moderator(message):
 def check_hourai(message):
     return message.server.id == "260977178131431425"
 
+def check_bts(message):
+    return message.server.id == "227326673236787200"
+
 # Channel ID checks (pass message)
 def check_soku(message):
     return message.channel.id == '271935186151669774'

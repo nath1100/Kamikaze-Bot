@@ -8,6 +8,22 @@ except ImportError:
 
 UPLOAD_FOLDER = paths.uploadFolder()
 
+def no_tea(message):
+    try:
+        name = message.author.nick.replace("🍵","").replace(" ","")
+    except AttributeError:
+        name = message.author.name.replace("🍵","").replace(" ","")
+    # return name != ""
+    return False
+
+def tea_message():
+    msg = [
+        "You got no 🍵",
+        "Please change your name to include only 🍵 (check notice channel).",
+        "To be able to send messages, your name must include 🍵. Please check the notices channel (or your mentions).",
+    ]
+    return random.choice(msg)
+
 def getCoin(message):
     try:
         if checks.check_hourai(message):
@@ -183,7 +199,7 @@ class Extras:
                     await self.bot.delete_message(ctx.message)
                 else:
                     await self.bot.say("Please upload your image along with `!k.zine`.")
-            
+
     async def on_message(self, message):
         coinEmoji = getCoin(message)
         if message.author == self.bot.user or message.author.bot:
@@ -200,6 +216,36 @@ class Extras:
                 alert = await self.bot.send_message(message.channel, "**{}** found a {}".format(message.author.name, coinEmoji))
                 await asyncio.sleep(60)
                 await self.bot.delete_message(alert)
+
+            if (checks.check_bts(message) or checks.check_hourai(message)) and no_tea(message) and message.content[:3] != "!k.":
+                await self.bot.send_message(message.channel, "{}\n{}".format(message.author.mention, tea_message()))
+                await self.bot.delete_message(message)
+
+
+    @commands.command(pass_context=True, hidden=True)
+    async def wau_tea(self, ctx):
+        if checks.check_owner(ctx.message) and (checks.check_hourai(ctx.message) or checks.check_bts(ctx.message)):
+            channels = ctx.message.server.channels
+            #await self.bot.say("{}".format(",".join([x.name for x in channels])))
+            savestate = {}
+            for channel in channels:
+                savestate[channel.id] = channel.name
+            tools.dumpPickle(savestate, "{}_savestate.pickle".format(ctx.message.server.id))
+            # BECOME TEA
+            for channel in channels:
+                await self.bot.edit_channel(channel, name="\U0001F375\U0001F375\U0001F375\U0001F375\U0001F375")
+    
+    @commands.command(pass_context=True, hidden=True)
+    async def revert_tea(self, ctx):
+        if checks.check_owner(ctx.message) and (checks.check_hourai(ctx.message) or checks.check_bts(ctx.message)):
+            savestate = tools.loadPickle("{}_savestate.pickle".format(ctx.message.server.id))
+            channels = ctx.message.server.channels
+            for channel in channels:
+                await self.bot.edit_channel(channel, name=savestate[channel.id])
+
+    @commands.command()
+    async def waut(self):
+        await self.bot.say("\U0001F375")
 
 def setup(bot):
     bot.add_cog(Extras(bot))

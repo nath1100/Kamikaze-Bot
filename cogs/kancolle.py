@@ -468,8 +468,8 @@ class Kancolle:
             ship_luck, ship_level = int(ship_luck), int(ship_level)
             # Create cut in type embed prompt and get type value
             cut_in_dict = [
-                "DD - Lookout, Torpedo, Radar Cut-in",
                 "DD - Gun, Torpedo, Radar Cut-in",
+                "DD - Lookout, Torpedo, Radar Cut-in",
                 "Torpedo Cut-in",
                 "Gun Cut-in",
                 "Mixed Gun Cut-in",
@@ -477,8 +477,8 @@ class Kancolle:
             ]
             multi_roll_cut_ins = [1, 2]
             type_factor_dict = {
-                1: 150,
-                2: 130,
+                1: 130,
+                2: 150,
                 3: 122,
                 4: 140,
                 5: 130,
